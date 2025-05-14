@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: SpringMarket
+  datasource:
+    url: jdbc:postgresql://localhost:5432/SpringMarket
+    username: admin
+    password: $2a$12$WHDRyXGTErJoxwlXnU7tquYrgnSaPoh5D.iCmqnNk17Mdsii17CZO
+  security:
+    user:
+      password: password
+      name: user
+logging:
+  level:
+    org:
+      springframework:
+        web: TRACE
+        http: TRACE
+        security: TRACE
