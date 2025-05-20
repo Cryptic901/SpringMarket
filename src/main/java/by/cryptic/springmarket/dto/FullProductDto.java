@@ -1,6 +1,5 @@
 package by.cryptic.springmarket.dto;
 
-import by.cryptic.springmarket.model.Category;
 import by.cryptic.springmarket.model.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +23,6 @@ public class FullProductDto implements Serializable {
    private Integer quantity;
    private String description;
    private String image;
-   private CategoryDTO category;
+   private ShortCategoryDTO category;
    private UUID createdBy;
 }

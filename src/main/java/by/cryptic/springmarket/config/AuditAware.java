@@ -14,10 +14,13 @@ public class AuditAware implements AuditorAware<UUID> {
     @NonNull
     public Optional<UUID> getCurrentAuditor() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
             return Optional.empty();
         }
-        AppUser user = (AppUser) auth.getPrincipal();
-        return Optional.of(user.getId());
+        Object user = auth.getPrincipal();
+        if (!(user instanceof AppUser userDetails)) {
+            return Optional.empty();
+        }
+        return Optional.of(userDetails.getId());
     }
 }

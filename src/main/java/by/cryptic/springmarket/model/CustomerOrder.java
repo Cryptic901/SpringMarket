@@ -1,10 +1,19 @@
 package by.cryptic.springmarket.model;
 
+import by.cryptic.springmarket.enums.OrderStatus;
 import by.cryptic.springmarket.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -15,40 +24,59 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "orders", schema = "public")
 public class CustomerOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false)
+    @JdbcTypeCode(SqlTypes.UUID)
     private UUID id;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    @Column(nullable = false, name = "product_id")
-    private UUID productId;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
+    @ToString.Exclude
+    private List<OrderProduct> products;
 
     @Column(nullable = false)
     private String location;
 
+    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private AppUser appUser;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false, name = "created_at")
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(insertable = false, name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @CreatedBy
     @Column(nullable = false, updatable = false, name = "created_by")
-    private String createdBy;
+    private UUID createdBy;
+
+    @LastModifiedBy
+    @Column(insertable = false, name = "updated_by")
+    private UUID updatedBy;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CustomerOrder that = (CustomerOrder) o;
-        return Objects.equals(id, that.id) &&
-                paymentMethod == that.paymentMethod &&
-                Objects.equals(productId, that.productId) &&
-                Objects.equals(location, that.location) &&
-                Objects.equals(createdBy, that.createdBy);
+        CustomerOrder order = (CustomerOrder) o;
+        return Objects.equals(id, order.id) && paymentMethod == order.paymentMethod && orderStatus == order.orderStatus && Objects.equals(products, order.products) && Objects.equals(location, order.location) && Objects.equals(appUser, order.appUser) && Objects.equals(createdAt, order.createdAt) && Objects.equals(updatedAt, order.updatedAt) && Objects.equals(createdBy, order.createdBy) && Objects.equals(updatedBy, order.updatedBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, paymentMethod, productId, location, createdBy);
+        return Objects.hash(id, paymentMethod, orderStatus, products, location, appUser, createdAt, updatedAt, createdBy, updatedBy);
     }
 }

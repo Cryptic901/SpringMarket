@@ -1,15 +1,19 @@
 package by.cryptic.springmarket.service;
 
 import by.cryptic.springmarket.dto.*;
-import by.cryptic.springmarket.mapper.CategoryMapper;
 import by.cryptic.springmarket.mapper.FullProductMapper;
 import by.cryptic.springmarket.mapper.ProductMapper;
+import by.cryptic.springmarket.mapper.ShortCategoryMapper;
 import by.cryptic.springmarket.model.Product;
 import by.cryptic.springmarket.repository.CategoryRepository;
 import by.cryptic.springmarket.repository.ProductRepository;
 import by.cryptic.springmarket.specification.ProductSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,13 +26,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = {"products"})
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final FullProductMapper fullProductMapper;
     private final CategoryRepository categoryRepository;
-    private final CategoryMapper categoryMapper;
+    private final ShortCategoryMapper shortCategoryMapper;
 
     public Page<ProductDTO> getAllProducts(String name, String createdBy, String category,
                                            BigDecimal min, BigDecimal max, Integer page,
@@ -51,14 +56,16 @@ public class ProductService {
                 .map(productMapper::toDto);
     }
 
+    @Cacheable(key = "#id")
     public FullProductDto getProductById(UUID id) {
         return fullProductMapper.toDto(productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id : %s".formatted(id))));
     }
 
     @Transactional
+    @CachePut(key = "#result.description + '-' + #result.name")
     public FullProductDto create(CreateProductDTO productDTO) {
-        CategoryDTO category = categoryMapper.toDto(categoryRepository.findById(productDTO.categoryId())
+        ShortCategoryDTO category = shortCategoryMapper.toDto(categoryRepository.findById(productDTO.categoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id : %s")));
         FullProductDto dto = FullProductDto.builder()
                 .name(productDTO.name())
@@ -72,6 +79,8 @@ public class ProductService {
         return dto;
     }
 
+    @Transactional
+    @CachePut(key = "#id")
     public FullProductDto update(UUID id, UpdateProductDTO updateProductDTO) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id : %s".formatted(id)));
@@ -80,6 +89,8 @@ public class ProductService {
 
     }
 
+    @Transactional
+    @CacheEvict(key = "#id")
     public void delete(UUID id) {
         productRepository.deleteById(id);
     }

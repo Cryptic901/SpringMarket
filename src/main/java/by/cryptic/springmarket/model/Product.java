@@ -5,8 +5,11 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,9 +19,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 @Builder
-@Table(name = "products", schema = "public", indexes = {
-        @Index(name = "idx_product_id", columnList = "id")
-})
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "products", schema = "public")
 @Entity
 public class Product {
 
@@ -52,9 +54,12 @@ public class Product {
     @Column(nullable = false, updatable = false)
     private UUID createdBy;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+    @ToString.Exclude
+    private List<OrderProduct> orderProducts = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Product product = (Product) o;
         return Objects.equals(id, product.id) &&
@@ -63,11 +68,12 @@ public class Product {
                 Objects.equals(quantity, product.quantity) &&
                 Objects.equals(description, product.description) &&
                 Objects.equals(image, product.image) &&
+                Objects.equals(category, product.category) &&
                 Objects.equals(createdBy, product.createdBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, price, quantity, description, image, createdBy);
+        return Objects.hash(id, name, price, quantity, description, image, category, createdBy);
     }
 }

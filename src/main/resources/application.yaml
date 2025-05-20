@@ -9,10 +9,17 @@ spring:
     user:
       password: password
       name: user
+    jwt:
+      secret: G7nHsKi/JvNfskJg4m4bbq2KqQOuvPWXAzTyOq7SmQA=
+      expiration: 1h
+  mail:
+    password: ywre dqkk oevd lelo
+    username: luckyartem901@gmail.com
 logging:
   level:
     org:
       springframework:
+        cache: TRACE
         web: TRACE
         http: TRACE
-        security: TRACE
+        security: trace
