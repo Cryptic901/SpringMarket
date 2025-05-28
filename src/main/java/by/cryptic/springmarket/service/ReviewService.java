@@ -37,17 +37,17 @@ public class ReviewService {
 
     public List<ReviewDTO> getAllReviews(UUID productId) {
         return reviewRepository.findAll().stream()
-                .filter(rev -> rev.getProductId().equals(productId))
+                .filter(rev -> rev.getProduct().getId().equals(productId))
                 .map(reviewMapper::toDto).toList();
     }
-    @Cacheable(key = "#id")
+    @Cacheable(key = "'review:' + #id")
     public FullReviewDTO getReviewById(UUID id) {
         return fullReviewMapper.toDto(reviewRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Review not found with id: %s".formatted(id))));
     }
 
     @Transactional
-    @CachePut(key = "#result.title + '-' + #result.description")
+    @CachePut(key = "'review:' + #result.title + '-' + #result.description")
     public FullReviewDTO createReview(CreateReviewDTO dto, AppUser appUser) {
         Product product = productRepository.findById(dto.productId())
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id: %s".formatted(dto.productId())));
@@ -63,7 +63,7 @@ public class ReviewService {
     }
 
     @Transactional
-    @CachePut(key = "#id")
+    @CachePut(key = "'review:' + #id")
     public FullReviewDTO updateReview(UUID id, UpdateReviewDTO dto, AppUser appUser) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Review not found with id: %s".formatted(id)));
@@ -74,7 +74,7 @@ public class ReviewService {
     }
 
     @Transactional
-    @CacheEvict(key = "#id")
+    @CacheEvict(key = "'review:' + #id")
     public void deleteReview(UUID id, AppUser appUser) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Review not found with id: %s".formatted(id)));

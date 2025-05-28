@@ -56,14 +56,14 @@ public class ProductService {
                 .map(productMapper::toDto);
     }
 
-    @Cacheable(key = "#id")
+    @Cacheable(key = "'product:' + #id")
     public FullProductDto getProductById(UUID id) {
         return fullProductMapper.toDto(productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id : %s".formatted(id))));
     }
 
     @Transactional
-    @CachePut(key = "#result.description + '-' + #result.name")
+    @CachePut(key = "'product:' + #result.description + '-' + #result.name")
     public FullProductDto create(CreateProductDTO productDTO) {
         ShortCategoryDTO category = shortCategoryMapper.toDto(categoryRepository.findById(productDTO.categoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id : %s")));
@@ -80,7 +80,7 @@ public class ProductService {
     }
 
     @Transactional
-    @CachePut(key = "#id")
+    @CachePut(key = "'product:' + #id")
     public FullProductDto update(UUID id, UpdateProductDTO updateProductDTO) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id : %s".formatted(id)));
@@ -90,7 +90,7 @@ public class ProductService {
     }
 
     @Transactional
-    @CacheEvict(key = "#id")
+    @CacheEvict(key = "'product:' + #id")
     public void delete(UUID id) {
         productRepository.deleteById(id);
     }

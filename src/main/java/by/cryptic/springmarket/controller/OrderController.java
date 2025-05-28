@@ -3,6 +3,7 @@ package by.cryptic.springmarket.controller;
 import by.cryptic.springmarket.dto.FullOrderDTO;
 import by.cryptic.springmarket.dto.OrderDTO;
 import by.cryptic.springmarket.dto.OrderResponse;
+import by.cryptic.springmarket.dto.ResponseOrderDTO;
 import by.cryptic.springmarket.model.AppUser;
 import by.cryptic.springmarket.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -22,19 +23,19 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderDTO>> getOrders() {
-        return ResponseEntity.ok(orderService.getAllOrders());
+    public ResponseEntity<List<ResponseOrderDTO>> getOrders(@AuthenticationPrincipal AppUser user) {
+        return ResponseEntity.ok(orderService.getAllOrders(user));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FullOrderDTO> getOrders(@PathVariable UUID id) {
-        return ResponseEntity.ok(orderService.getOrderById(id));
+    public ResponseEntity<FullOrderDTO> getOrder(@PathVariable UUID id, @AuthenticationPrincipal AppUser user) {
+        return ResponseEntity.ok(orderService.getOrderById(id, user));
     }
 
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(
             @RequestBody OrderDTO order,
-            @AuthenticationPrincipal AppUser appUser) {
+            @AuthenticationPrincipal(errorOnInvalidType = true) AppUser appUser) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.createOrder(order, appUser));
     }

@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -17,11 +17,9 @@ import java.util.UUID;
 @Builder
 public class FullOrderDTO implements Serializable {
     private PaymentMethod paymentMethod;
-    private ProductDTO product;
+    private List<ProductDTO> products;
     private String location;
     private OrderStatus status = OrderStatus.IN_STOCK;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private UUID createdBy;
     private UUID updatedBy;
 }

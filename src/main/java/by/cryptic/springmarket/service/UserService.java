@@ -28,14 +28,14 @@ public class UserService {
         return userRepository.findAll().stream().map(userMapper::toDto).toList();
     }
 
-    @Cacheable(key = "#id")
+    @Cacheable(key = "'user:' + #id")
     public UserDTO findById(UUID id) {
         return userMapper.toDto(userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: %s".formatted(id))));
     }
 
     @Transactional
-    @CachePut(key = "#id")
+    @CachePut(key = "'user:' + #id")
     public UserDTO update(UUID id, UpdateUserDTO userDTO) {
         AppUser user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id: %s".formatted(id)));
@@ -44,7 +44,7 @@ public class UserService {
     }
 
     @Transactional
-    @CacheEvict(key = "#id")
+    @CacheEvict(key = "'user:' + #id")
     public void delete(UUID id) {
         userRepository.deleteById(id);
     }

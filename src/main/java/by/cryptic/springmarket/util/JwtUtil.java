@@ -41,7 +41,7 @@ public class JwtUtil {
                 .claims(claims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
-                .expiration(Date.from(Instant.now().plusSeconds(expiration.getSeconds())))
+                .expiration(Date.from(Instant.now().plusSeconds(expiration.toSeconds())))
                 .signWith(generateKey())
                 .compact();
     }

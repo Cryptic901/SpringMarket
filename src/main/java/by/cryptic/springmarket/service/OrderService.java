@@ -1,29 +1,36 @@
 package by.cryptic.springmarket.service;
 
-import by.cryptic.springmarket.dto.FullOrderDTO;
-import by.cryptic.springmarket.dto.OrderDTO;
-import by.cryptic.springmarket.dto.OrderResponse;
+import by.cryptic.springmarket.dto.*;
 import by.cryptic.springmarket.enums.OrderStatus;
+import by.cryptic.springmarket.event.OrderEvent;
 import by.cryptic.springmarket.mapper.FullOrderMapper;
 import by.cryptic.springmarket.mapper.OrderMapper;
 import by.cryptic.springmarket.mapper.ProductMapper;
-import by.cryptic.springmarket.model.AppUser;
-import by.cryptic.springmarket.model.CustomerOrder;
-import by.cryptic.springmarket.model.Product;
+import by.cryptic.springmarket.model.*;
+import by.cryptic.springmarket.repository.AppUserRepository;
+import by.cryptic.springmarket.repository.CartProductRepository;
 import by.cryptic.springmarket.repository.CustomerOrderRepository;
 import by.cryptic.springmarket.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = {"orders"})
@@ -33,56 +40,127 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final FullOrderMapper fullOrderMapper;
     private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
     private final CustomerOrderRepository customerOrderRepository;
+    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
+    private final ProductMapper productMapper;
+    private final CartProductRepository cartProductRepository;
+    private final CartService cartService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final AppUserRepository appUserRepository;
 
-    public List<OrderDTO> getAllOrders() {
-        return orderRepository.findAll().stream().map(orderMapper::toDto).toList();
+    public List<ResponseOrderDTO> getAllOrders(AppUser user) {
+        return orderRepository.findAll().stream()
+                .filter(order -> order.getCreatedBy().equals(user.getId()))
+                .map(orderMapper::toResponseDto).toList();
     }
 
-    @Cacheable(key = "#id")
-    public FullOrderDTO getOrderById(UUID id) {
-        return fullOrderMapper.toDto(orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not fount with id : %s".formatted(id))));
+    @Cacheable(key = "'order:' + #id")
+    @Transactional(readOnly = true)
+    public FullOrderDTO getOrderById(UUID id, AppUser user) {
+        CustomerOrder customerOrder = orderRepository.findById(id)
+                .stream()
+                .filter(order -> order.getCreatedBy().equals(user.getId()))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with id : %s".formatted(id)));
+        List<ProductDTO> products = customerOrder.getProducts().stream()
+                .map(OrderProduct::getProduct).map(productMapper::toDto).toList();
+        FullOrderDTO fullOrderDTO = fullOrderMapper.toDto(customerOrder);
+        fullOrderDTO.setStatus(customerOrder.getOrderStatus());
+        fullOrderDTO.setProducts(products);
+        return fullOrderDTO;
     }
 
     @Transactional
-    @CachePut(key = "#dto.productId + '-' + #dto.location + '-' + #dto.status + '-' + #dto.paymentMethod")
+    @CachePut(key = "'order:' + #appUser.id + ':' + #dto.location + ':' + #dto.paymentMethod")
     public OrderResponse createOrder(OrderDTO dto, AppUser appUser) {
-        Product product = productRepository.findById(dto.productId())
-                .orElseThrow(() -> new EntityNotFoundException("Product not found with id : %s".formatted(dto.productId())));
-        FullOrderDTO fullOrderDTO = FullOrderDTO.builder()
-                .product(productMapper.toDto(product))
-                .location(dto.location())
+        log.info("Creating order : {}", dto);
+        AppUser user = appUserRepository.findByIdWithCart(appUser.getId());
+        List<CartProduct> productsToOrder = cartProductRepository.findAllByIdWithProducts(user.getCart().getItems()
+                .stream().map(CartProduct::getId).toList());
+        CustomerOrder order = CustomerOrder.builder()
+                .orderStatus(OrderStatus.IN_PROGRESS)
                 .paymentMethod(dto.paymentMethod())
-                .status(OrderStatus.IN_PROGRESS)
+                .location(dto.location())
+                .appUser(user)
+                .products(new ArrayList<>())
                 .build();
-        List<CustomerOrder> orders = appUser.getOrders();
-        orders.add(fullOrderMapper.toEntity(fullOrderDTO));
-        orderRepository.save(fullOrderMapper.toEntity(fullOrderDTO));
+        List<Product> productsToUpdate = new ArrayList<>();
+
+        for (CartProduct cartProduct : productsToOrder) {
+            OrderProduct orderProduct = OrderProduct.builder()
+                    .order(order)
+                    .product(cartProduct.getProduct())
+                    .quantity(cartProduct.getQuantity())
+                    .build();
+
+            order.getProducts().add(orderProduct);
+            Product productFromCart = cartProduct.getProduct();
+            productFromCart.setQuantity(productFromCart.getQuantity() - cartProduct.getQuantity());
+            productsToUpdate.add(productFromCart);
+        }
+        orderRepository.save(order);
+        productRepository.saveAll(productsToUpdate);
+        cartService.deleteAllProductsFromCart(user);
+
+        eventPublisher.publishEvent(OrderEvent.builder()
+                .orderId(order.getId())
+                .userEmail(user.getEmail())
+                .status(OrderStatus.IN_PROGRESS)
+                .paymentMethod(dto.paymentMethod())
+                .createdAt(order.getCreatedAt())
+                .build());
         return new OrderResponse(OrderStatus.IN_PROGRESS);
     }
 
-    @Transactional
-    @CachePut(key = "#id")
-    public FullOrderDTO updateOrder(UUID id, OrderDTO updateDTO, AppUser appUser) {
-        CustomerOrder order = customerOrderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id : %s".formatted(id)));
-        if (appUser.getOrders().contains(order)) {
-            orderMapper.updateEntity(order, updateDTO);
+    @Async("orderExecutor")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void sendOrder(OrderEvent event) {
+        try {
+            log.info("Sending order event : {}", event);
+            kafkaTemplate.send("order-topic", event);
+        } catch (Exception e) {
+            log.error("Failed to send notification message {}", event.getOrderId(), e);
         }
-        return fullOrderMapper.toDto(orderRepository.save(order));
     }
 
-    @Transactional
-    @CacheEvict(key = "#id")
-    public OrderResponse cancelOrder(UUID id, AppUser appUser) {
-        CustomerOrder order = customerOrderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id : %s".formatted(id)));
-        if (appUser.getOrders().contains(order)) {
-            order.setOrderStatus(OrderStatus.CANCELLED);
+        @Transactional
+        @CachePut(key = "'order:' + #id")
+        public FullOrderDTO updateOrder (UUID id, OrderDTO updateDTO, AppUser user) {
+            CustomerOrder order = customerOrderRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Order not found with id : %s".formatted(id)));
+            if (user.getOrders().contains(order) && order.getOrderStatus().equals(OrderStatus.IN_PROGRESS)) {
+                orderMapper.updateEntity(order, updateDTO);
+            } else {
+                throw new IllegalArgumentException("Order should be in progress to update");
+            }
+            eventPublisher.publishEvent(OrderEvent.builder()
+                    .orderId(order.getId())
+                    .userEmail(user.getEmail())
+                    .status(OrderStatus.IN_PROGRESS)
+                    .paymentMethod(updateDTO.paymentMethod())
+                    .createdAt(order.getCreatedAt())
+                    .build());
+            return fullOrderMapper.toDto(orderRepository.save(order));
         }
-        orderRepository.save(order);
-        return new OrderResponse(OrderStatus.CANCELLED);
+
+        @Transactional
+        @CacheEvict(key = "'order:' + #id")
+        public OrderResponse cancelOrder (UUID id, AppUser user){
+            CustomerOrder order = customerOrderRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Order not found with id : %s".formatted(id)));
+            if (user.getOrders().contains(order) && order.getOrderStatus().equals(OrderStatus.COMPLETED)) {
+                order.setOrderStatus(OrderStatus.CANCELLED);
+            } else {
+                throw new IllegalArgumentException("Order not completed");
+            }
+            orderRepository.save(order);
+            eventPublisher.publishEvent(OrderEvent.builder()
+                    .orderId(order.getId())
+                    .userEmail(user.getEmail())
+                    .status(OrderStatus.CANCELLED)
+                    .paymentMethod(order.getPaymentMethod())
+                    .createdAt(order.getCreatedAt())
+                    .build());
+            return new OrderResponse(OrderStatus.CANCELLED);
+        }
     }
-}

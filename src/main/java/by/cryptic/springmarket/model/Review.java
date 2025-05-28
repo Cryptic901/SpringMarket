@@ -31,8 +31,10 @@ public class Review {
     @JdbcTypeCode(SqlTypes.UUID)
     private UUID id;
 
-    @Column(name = "product_id", nullable = false)
-    private UUID productId;
+    @JoinColumn(name = "product_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Product product;
 
     @Column(nullable = false)
     private String title;
@@ -60,12 +62,12 @@ public class Review {
     @Column(insertable = false, name = "updated_by")
     private UUID updatedBy;
 
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Review review = (Review) o;
         return Objects.equals(id, review.id) &&
-                Objects.equals(productId, review.productId) &&
                 Objects.equals(title, review.title) &&
                 Objects.equals(rating, review.rating) &&
                 Objects.equals(description, review.description) &&
@@ -78,6 +80,6 @@ public class Review {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, productId, title, rating, description, image, createdAt, updatedAt, createdBy, updatedBy);
+        return Objects.hash(id, title, rating, description, image, createdAt, updatedAt, createdBy, updatedBy);
     }
 }

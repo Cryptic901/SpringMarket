@@ -13,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -40,9 +41,10 @@ public class CustomerOrder {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @ToString.Exclude
-    private List<OrderProduct> products;
+    @Builder.Default
+    private List<OrderProduct> products = new ArrayList<>();
 
     @Column(nullable = false)
     private String location;
@@ -72,11 +74,16 @@ public class CustomerOrder {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         CustomerOrder order = (CustomerOrder) o;
-        return Objects.equals(id, order.id) && paymentMethod == order.paymentMethod && orderStatus == order.orderStatus && Objects.equals(products, order.products) && Objects.equals(location, order.location) && Objects.equals(appUser, order.appUser) && Objects.equals(createdAt, order.createdAt) && Objects.equals(updatedAt, order.updatedAt) && Objects.equals(createdBy, order.createdBy) && Objects.equals(updatedBy, order.updatedBy);
+        return Objects.equals(id, order.id) &&
+                Objects.equals(location, order.location) &&
+                Objects.equals(createdAt, order.createdAt) &&
+                Objects.equals(updatedAt, order.updatedAt) &&
+                Objects.equals(createdBy, order.createdBy) &&
+                Objects.equals(updatedBy, order.updatedBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, paymentMethod, orderStatus, products, location, appUser, createdAt, updatedAt, createdBy, updatedBy);
+        return Objects.hash(id, location, createdAt, updatedAt, createdBy, updatedBy);
     }
 }

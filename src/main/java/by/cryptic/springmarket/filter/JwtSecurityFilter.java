@@ -2,6 +2,9 @@ package by.cryptic.springmarket.filter;
 
 import by.cryptic.springmarket.service.AppUserDetailsService;
 import by.cryptic.springmarket.util.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +28,7 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final AppUserDetailsService appUserDetailsService;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -38,22 +42,43 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        log.debug("JwtSecurityFilter | doFilterInternal | JWT token: {}", token);
-        String username = jwtUtil.extractUsername(token);
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
+            log.debug("JwtSecurityFilter | doFilterInternal | JWT token: {}", token);
+            String username = jwtUtil.extractUsername(token);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UserDetails userDetails = appUserDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = appUserDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.isTokenValid(token, userDetails)) {
+                if (jwtUtil.isTokenValid(token, userDetails)) {
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                log.debug("JwtSecurityFilter | doFilterInternal | JWT token is valid. Setting authentication for user: {}", username);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    log.debug("JwtSecurityFilter | doFilterInternal | JWT token is valid. Setting authentication for user: {}", username);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
+            filterChain.doFilter(request, response);
+
+        } catch (ExpiredJwtException e) {
+            log.warn("JwtSecurityFilter | doFilterInternal | JWT token is expired: {}", e.getMessage());
+            handleJWTException("JWT token has expired. Please log in again", response,
+                    HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("JwtSecurityFilter | doFilterInternal | JWT token is invalid: {}", e.getMessage());
+            handleJWTException("JWT token is invalid", response, HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (Exception e) {
+            log.warn("JwtSecurityFilter | doFilterInternal | Unknown error: {}", e.getMessage());
+            handleJWTException("Unknown error", response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-        filterChain.doFilter(request, response);
+
+    }
+
+    private void handleJWTException(String message, HttpServletResponse response, int status) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(objectMapper.writeValueAsString(message));
     }
 
     private String parseToken(HttpServletRequest request) {

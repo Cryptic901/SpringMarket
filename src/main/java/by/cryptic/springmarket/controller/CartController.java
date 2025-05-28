@@ -1,6 +1,7 @@
 package by.cryptic.springmarket.controller;
 
-import by.cryptic.springmarket.dto.AddCartProductDTO;
+import by.cryptic.springmarket.dto.CartProductDTO;
+import by.cryptic.springmarket.dto.CartResponseDTO;
 import by.cryptic.springmarket.model.AppUser;
 import by.cryptic.springmarket.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,32 +19,30 @@ public class CartController {
 
     private final CartService cartService;
 
-    @PostMapping
-    public ResponseEntity<Void> addItemToCart(
-            @RequestBody AddCartProductDTO addCartProductDTO,
-            @AuthenticationPrincipal AppUser user) {
-        cartService.addProductToCart(addCartProductDTO, user);
-        return ResponseEntity.ok().build();
+    @GetMapping
+    public ResponseEntity<List<CartProductDTO>> getCartProducts(@AuthenticationPrincipal AppUser user) {
+        return ResponseEntity.ok(cartService.getAllCartProducts(user));
     }
 
-    @DeleteMapping
+    @PostMapping
+    public ResponseEntity<CartResponseDTO> addItemToCart(
+            @RequestParam UUID productId,
+            @AuthenticationPrincipal AppUser user) {
+        return ResponseEntity.ok(cartService.addProductToCart(productId, user));
+    }
+
+    @DeleteMapping("/clear")
     public ResponseEntity<Void> removeAllItemsFromCart(
             @AuthenticationPrincipal AppUser user) {
         cartService.deleteAllProductsFromCart(user);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     public ResponseEntity<Void> removeItemFromCart(
-            @PathVariable UUID id,
+            @RequestParam UUID productId,
             @AuthenticationPrincipal AppUser user) {
-        cartService.deleteProductFromCart(id, user);
+        cartService.deleteProductFromCart(productId, user);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping
-    public ResponseEntity<BigDecimal> getTotalPrice(
-            @AuthenticationPrincipal AppUser user) {
-        return ResponseEntity.ok(cartService.getTotalPrice(user));
     }
 }

@@ -1,5 +1,6 @@
 package by.cryptic.springmarket.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -48,6 +49,7 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     @ToString.Exclude
+    @JsonBackReference
     private Category category;
 
     @CreatedBy
@@ -56,7 +58,13 @@ public class Product {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
     @ToString.Exclude
+    @Builder.Default
     private List<OrderProduct> orderProducts = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+    @ToString.Exclude
+    @Builder.Default
+    private List<Review> reviews = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
@@ -68,12 +76,11 @@ public class Product {
                 Objects.equals(quantity, product.quantity) &&
                 Objects.equals(description, product.description) &&
                 Objects.equals(image, product.image) &&
-                Objects.equals(category, product.category) &&
                 Objects.equals(createdBy, product.createdBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, price, quantity, description, image, category, createdBy);
+        return Objects.hash(id, name, price, quantity, description, image, createdBy);
     }
 }
