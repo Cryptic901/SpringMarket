@@ -1,10 +1,12 @@
 package by.cryptic.springmarket.mapper;
 
-import by.cryptic.springmarket.dto.OrderDTO;
-import by.cryptic.springmarket.dto.ResponseOrderDTO;
-import by.cryptic.springmarket.model.CustomerOrder;
-import by.cryptic.springmarket.model.OrderProduct;
-import by.cryptic.springmarket.model.Product;
+import by.cryptic.springmarket.dto.ShortOrderDTO;
+import by.cryptic.springmarket.event.order.OrderUpdatedEvent;
+import by.cryptic.springmarket.model.read.CustomerOrderView;
+import by.cryptic.springmarket.model.write.CustomerOrder;
+import by.cryptic.springmarket.model.write.OrderProduct;
+import by.cryptic.springmarket.model.write.Product;
+import by.cryptic.springmarket.service.query.OrderDTO;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -13,14 +15,18 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
 
-    CustomerOrder toEntity(OrderDTO orderDTO);
+    CustomerOrder toEntity(ShortOrderDTO orderDTO);
+
+    ShortOrderDTO toShortDto(CustomerOrder customerOrder);
 
     OrderDTO toDto(CustomerOrder customerOrder);
-
-    ResponseOrderDTO toResponseDto(CustomerOrder customerOrder);
+    OrderDTO toDto(CustomerOrderView customerOrderView);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntity(@MappingTarget CustomerOrder order, OrderDTO orderDTO);
+    void updateEntity(@MappingTarget CustomerOrder order, ShortOrderDTO orderDTO);
 
-    OrderProduct toDto(Product product);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateView(@MappingTarget CustomerOrderView order, OrderUpdatedEvent event);
+
+    OrderProduct toProductDto(Product product);
 }

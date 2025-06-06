@@ -1,6 +1,6 @@
 package by.cryptic.springmarket.dto;
 
-import by.cryptic.springmarket.model.Product;
+import by.cryptic.springmarket.model.write.Product;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

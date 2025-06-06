@@ -1,1 +1,2 @@
-ALTER TABLE cart_products ADD COLUMN cart_id uuid;
+ALTER TABLE cart_products
+    ADD COLUMN cart_id uuid;

@@ -1,6 +1,6 @@
 package by.cryptic.springmarket.dto;
 
-import by.cryptic.springmarket.model.CartProduct;
+import by.cryptic.springmarket.model.write.CartProduct;
 
 import java.math.BigDecimal;
 import java.util.List;

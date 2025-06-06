@@ -1,1 +1,2 @@
-ALTER TABLE products DROP COLUMN category_id;
+ALTER TABLE products
+    DROP COLUMN category_id;

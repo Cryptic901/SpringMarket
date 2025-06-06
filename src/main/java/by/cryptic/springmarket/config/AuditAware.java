@@ -1,6 +1,6 @@
 package by.cryptic.springmarket.config;
 
-import by.cryptic.springmarket.model.AppUser;
+import by.cryptic.springmarket.model.write.AppUser;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;

@@ -1,7 +1,7 @@
 package by.cryptic.springmarket.mapper;
 
 import by.cryptic.springmarket.dto.ShortCategoryDTO;
-import by.cryptic.springmarket.model.Category;
+import by.cryptic.springmarket.model.write.Category;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

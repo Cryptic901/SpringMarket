@@ -1,1 +1,2 @@
-ALTER TABLE products ADD COLUMN category_id uuid UNIQUE;
+ALTER TABLE products
+    ADD COLUMN category_id uuid UNIQUE;
