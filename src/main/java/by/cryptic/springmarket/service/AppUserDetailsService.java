@@ -1,6 +1,6 @@
 package by.cryptic.springmarket.service;
 
-import by.cryptic.springmarket.repository.AppUserRepository;
+import by.cryptic.springmarket.repository.write.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

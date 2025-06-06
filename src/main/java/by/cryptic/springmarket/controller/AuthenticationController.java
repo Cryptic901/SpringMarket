@@ -2,10 +2,12 @@ package by.cryptic.springmarket.controller;
 
 import by.cryptic.springmarket.dto.LoginResponseDTO;
 import by.cryptic.springmarket.dto.LoginUserDTO;
-import by.cryptic.springmarket.dto.RegisterUserDTO;
 import by.cryptic.springmarket.dto.VerifyUserDTO;
-import by.cryptic.springmarket.model.AppUser;
-import by.cryptic.springmarket.service.AuthenticationService;
+import by.cryptic.springmarket.service.command.UserRegisterCommand;
+import by.cryptic.springmarket.service.command.handler.user.UserRegisterCommandHandler;
+import by.cryptic.springmarket.service.command.handler.user.UserResendVerifyCommandHandler;
+import by.cryptic.springmarket.service.command.handler.user.UserVerifyCommandHandler;
+import by.cryptic.springmarket.service.query.handler.user.UserLoginQueryHandler;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -19,31 +21,35 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
 
-    private final AuthenticationService authenticationService;
+    private final UserRegisterCommandHandler userRegisterCommandHandler;
+    private final UserLoginQueryHandler userLoginQueryHandler;
+    private final UserVerifyCommandHandler userVerifyCommandHandler;
+    private final UserResendVerifyCommandHandler userResendVerifyCommandHandler;
 
     @PostMapping("/register")
-    public ResponseEntity<AppUser> registerUser(
-            @RequestBody @Valid RegisterUserDTO registerUserDTO) throws MessagingException {
-        return ResponseEntity.ok(authenticationService.registerUser(registerUserDTO));
+    public ResponseEntity<Void> registerUser(
+            @RequestBody @Valid UserRegisterCommand registerUserDTO) {
+        userRegisterCommandHandler.handle(registerUserDTO);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> loginUser(
             @RequestBody @Valid LoginUserDTO loginUserDTO) {
-        return ResponseEntity.ok(authenticationService.loginUser(loginUserDTO));
+        return ResponseEntity.ok(userLoginQueryHandler.handle(loginUserDTO));
     }
 
     @PostMapping("/verify")
     public ResponseEntity<Void> verifyUser(
             @RequestBody @Valid VerifyUserDTO verifyUserDTO) throws AuthenticationException {
-        authenticationService.verifyUser(verifyUserDTO);
+        userVerifyCommandHandler.handle(verifyUserDTO);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/resend")
     public ResponseEntity<Void> resendVerificationMail(
             @RequestParam @Email String email) throws MessagingException, AuthenticationException {
-        authenticationService.resendVerificationEmail(email);
+        userResendVerifyCommandHandler.handle(email);
         return ResponseEntity.ok().build();
     }
 }

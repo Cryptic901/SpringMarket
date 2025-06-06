@@ -1,7 +1,7 @@
 package by.cryptic.springmarket.mapper;
 
 import by.cryptic.springmarket.dto.CartDTO;
-import by.cryptic.springmarket.model.Cart;
+import by.cryptic.springmarket.model.write.Cart;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

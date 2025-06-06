@@ -1,1 +1,2 @@
-ALTER TABLE products ADD COLUMN category VARCHAR
+ALTER TABLE products
+    ADD COLUMN category VARCHAR
