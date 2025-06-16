@@ -36,9 +36,9 @@ public class OrderCommandController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/cancel/{id}")
+    @PatchMapping("/cancel")
     public ResponseEntity<Void> cancelOrder(
-            @PathVariable UUID id) {
+            @RequestParam UUID id) {
         orderCancelCommandHandler.handle(new OrderCancelCommand(id));
         return ResponseEntity.noContent().build();
     }

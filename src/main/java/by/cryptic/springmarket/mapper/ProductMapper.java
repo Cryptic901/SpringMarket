@@ -13,9 +13,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
-    Product toEntity(ProductDTO productDTO);
 
     ProductDTO toDto(Product product);
+    ProductDTO toDto(ProductView product);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(@MappingTarget Product product, ProductUpdateCommand updateProductDTO);

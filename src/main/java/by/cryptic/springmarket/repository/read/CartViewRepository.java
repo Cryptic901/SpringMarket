@@ -14,6 +14,6 @@ import java.util.UUID;
 public interface CartViewRepository extends JpaRepository<CartView, UUID> {
 
 
-    @Query("SELECT c FROM CartView c left join fetch c.products WHERE c.userId = :id")
-    Optional<Cart> findByUserIdWithItems(@Param("id") UUID id);
+    @Query("SELECT c FROM CartView c WHERE c.userId = :id")
+    Optional<CartView> findByUserId(@Param("id") UUID id);
 }

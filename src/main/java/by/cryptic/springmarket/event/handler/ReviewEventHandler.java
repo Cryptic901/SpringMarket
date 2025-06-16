@@ -1,6 +1,8 @@
 package by.cryptic.springmarket.event.handler;
 
 import by.cryptic.springmarket.event.review.ReviewEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -12,11 +14,13 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class ReviewEventHandler {
 
-    private final KafkaTemplate<String, ReviewEvent> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     @Async("orderExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleOrderEvent(ReviewEvent event) {
-        kafkaTemplate.send("review-topic", event);
+    public void handleReviewEvent(ReviewEvent event) throws JsonProcessingException {
+        String json = objectMapper.writeValueAsString(event);
+        kafkaTemplate.send("review-topic", json);
     }
 }

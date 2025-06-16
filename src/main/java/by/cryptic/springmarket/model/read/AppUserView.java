@@ -1,6 +1,9 @@
 package by.cryptic.springmarket.model.read;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
@@ -21,7 +24,7 @@ import java.util.UUID;
 public class AppUserView {
 
     @Id
-    @Column(name = "userId", nullable = false)
+    @Column(name = "userid", nullable = false)
     @JdbcTypeCode(SqlTypes.UUID)
     private UUID userId;
 
@@ -34,7 +37,9 @@ public class AppUserView {
 
     private Character gender;
 
+    @Column(name = "createdat")
     private LocalDateTime createdAt;
+
 
     @Override
     public final boolean equals(Object o) {

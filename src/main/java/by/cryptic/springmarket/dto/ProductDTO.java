@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * DTO for {@link Product}
@@ -19,5 +20,6 @@ public record ProductDTO(@NotBlank(message = "Product should have name")
                          String description,
                          @NotBlank(message = "Product should have image")
                          String image,
-                         ShortCategoryDTO category) implements Serializable {
+                         UUID categoryId,
+                         UUID createdBy) implements Serializable {
 }

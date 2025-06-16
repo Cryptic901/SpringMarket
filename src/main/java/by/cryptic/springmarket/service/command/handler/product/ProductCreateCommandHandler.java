@@ -1,6 +1,7 @@
 package by.cryptic.springmarket.service.command.handler.product;
 
 import by.cryptic.springmarket.event.product.ProductCreatedEvent;
+import by.cryptic.springmarket.mapper.CategoryMapper;
 import by.cryptic.springmarket.model.write.Category;
 import by.cryptic.springmarket.model.write.Product;
 import by.cryptic.springmarket.repository.write.CategoryRepository;
@@ -9,11 +10,13 @@ import by.cryptic.springmarket.service.command.ProductCreateCommand;
 import by.cryptic.springmarket.service.command.handler.CommandHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +26,10 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CacheManager cacheManager;
+    private final CategoryMapper categoryMapper;
 
     @Transactional
-    @CachePut(key = "'product:' + #result.description + '-' + #result.name")
     public void handle(ProductCreateCommand productDTO) {
         Category category = categoryRepository.findById(productDTO.categoryId())
                 .orElseThrow(() -> new EntityNotFoundException
@@ -46,8 +50,10 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
                 .quantity(product.getQuantity())
                 .price(product.getPrice())
                 .image(product.getImage())
-                .category(category)
+                .category(categoryMapper.toShortDto(category))
                 .createdBy(product.getCreatedBy())
                 .build());
+        Objects.requireNonNull(cacheManager.getCache("products"))
+                .put("product:" + product.getDescription() + '-' + product.getName(), product);
     }
 }

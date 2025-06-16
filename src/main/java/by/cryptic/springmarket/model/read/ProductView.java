@@ -6,9 +6,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -22,9 +24,12 @@ import java.util.UUID;
 public class ProductView {
 
     @Id
-    @Column(name = "productId", nullable = false)
+    @Column(name = "productid", nullable = false)
     @JdbcTypeCode(SqlTypes.UUID)
     private UUID productId;
+
+    @Column(name = "categoryid")
+    private UUID categoryId;
 
     private String name;
 
@@ -38,4 +43,20 @@ public class ProductView {
 
     @Column(name = "created_by")
     private UUID createdBy;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        ProductView that = (ProductView) o;
+        return getProductId() != null && Objects.equals(getProductId(), that.getProductId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

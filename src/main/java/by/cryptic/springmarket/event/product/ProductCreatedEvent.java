@@ -1,8 +1,8 @@
 package by.cryptic.springmarket.event.product;
 
+import by.cryptic.springmarket.dto.ShortCategoryDTO;
 import by.cryptic.springmarket.event.DomainEvent;
-import by.cryptic.springmarket.model.write.Category;
-import by.cryptic.springmarket.model.write.Product;
+import by.cryptic.springmarket.service.query.CategoryDTO;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -20,6 +20,6 @@ public class ProductCreatedEvent extends DomainEvent implements ProductEvent {
     private String description;
     private Integer quantity;
     private String image;
-    private Category category;
+    private ShortCategoryDTO category;
     private UUID createdBy;
 }

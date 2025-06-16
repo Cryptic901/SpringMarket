@@ -1,5 +1,6 @@
 package by.cryptic.springmarket.event.user;
 
+import by.cryptic.springmarket.enums.Role;
 import by.cryptic.springmarket.event.DomainEvent;
 import lombok.*;
 

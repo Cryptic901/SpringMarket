@@ -15,11 +15,14 @@ import java.util.UUID;
 public class OrderCanceledEvent extends DomainEvent implements OrderEvent {
 
     private UUID orderId;
-    private OrderStatus status = OrderStatus.CANCELLED;
+    private String userEmail;
+    private OrderStatus orderStatus = OrderStatus.CANCELLED;
     private LocalDateTime canceledTimestamp;
 
-    public OrderCanceledEvent(UUID id) {
+    public OrderCanceledEvent(UUID id, String userEmail) {
         this.orderId = id;
         this.canceledTimestamp = LocalDateTime.now();
+        this.orderStatus = OrderStatus.CANCELLED;
+        this.userEmail = userEmail;
     }
 }

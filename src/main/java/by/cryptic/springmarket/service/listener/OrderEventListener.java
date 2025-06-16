@@ -2,6 +2,7 @@ package by.cryptic.springmarket.service.listener;
 
 
 import by.cryptic.springmarket.enums.EventType;
+import by.cryptic.springmarket.enums.OrderStatus;
 import by.cryptic.springmarket.event.order.OrderCanceledEvent;
 import by.cryptic.springmarket.event.order.OrderCreatedEvent;
 import by.cryptic.springmarket.event.order.OrderUpdatedEvent;
@@ -33,12 +34,13 @@ public class OrderEventListener {
             case OrderCreatedEvent -> {
                 OrderCreatedEvent event = objectMapper.treeToValue(node, OrderCreatedEvent.class);
                 orderViewRepository.save(CustomerOrderView.builder()
-                        .orderStatus(event.getStatus())
+                        .orderStatus(OrderStatus.IN_PROGRESS)
                         .orderId(event.getOrderId())
                         .createdBy(event.getCreatedBy())
                         .paymentMethod(event.getPaymentMethod())
                         .location(event.getLocation())
                         .createdAt(event.getCreatedTimestamp())
+                        .price(event.getPrice())
                         .build());
             }
             case OrderUpdatedEvent -> {

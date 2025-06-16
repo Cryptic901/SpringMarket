@@ -26,20 +26,22 @@ public class UserEventListener {
 
     @KafkaListener(topics = "user-topic", groupId = "user-group")
     public void listenUsers(String rawEvent) throws JsonProcessingException {
+        log.info("Received event: {}", rawEvent);
         JsonNode node = objectMapper.readTree(rawEvent);
         String type = node.get("eventType").asText();
         log.info("Received event type {}", type);
         switch (EventType.valueOf(type)) {
             case UserCreatedEvent -> {
                 UserCreatedEvent event = objectMapper.treeToValue(node, UserCreatedEvent.class);
-                userViewRepository.save(AppUserView.builder()
+                AppUserView view = AppUserView.builder()
                         .email(event.getEmail())
                         .username(event.getUsername())
                         .createdAt(event.getTimestamp())
                         .userId(event.getUserId())
                         .gender(event.getGender())
                         .phoneNumber(event.getPhoneNumber())
-                        .build());
+                        .build();
+                userViewRepository.save(view);
             }
             case UserUpdatedEvent -> {
                 UserUpdatedEvent event = objectMapper.treeToValue(node, UserUpdatedEvent.class);

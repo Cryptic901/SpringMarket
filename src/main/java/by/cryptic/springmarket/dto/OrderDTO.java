@@ -8,18 +8,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FullOrderDTO implements Serializable {
+public class OrderDTO implements Serializable {
     private PaymentMethod paymentMethod;
-    private List<ProductDTO> products;
     private String location;
-    private OrderStatus status = OrderStatus.IN_STOCK;
+    private OrderStatus orderStatus;
+    private BigDecimal price;
     private UUID createdBy;
     private UUID updatedBy;
 }

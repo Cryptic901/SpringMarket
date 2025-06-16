@@ -39,6 +39,7 @@ public class ProductEventListener {
                         .description(event.getDescription())
                         .image(event.getImage())
                         .createdBy(event.getCreatedBy())
+                        .categoryId(event.getCategory().id())
                         .build());
             }
             case ProductUpdatedEvent -> {

@@ -6,5 +6,5 @@ public enum EventType {
     OrderCanceledEvent, OrderCreatedEvent, OrderUpdatedEvent,
     ProductCreatedEvent, ProductUpdatedEvent, ProductDeletedEvent,
     ReviewCreatedEvent, ReviewUpdatedEvent, ReviewDeletedEvent,
-    UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent,
+    UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent, UserResendVerifyMessageEvent, UserLoginedEvent
 }

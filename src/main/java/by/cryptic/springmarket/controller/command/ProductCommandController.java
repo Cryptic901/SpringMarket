@@ -29,8 +29,8 @@ public class ProductCommandController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateProduct(@PathVariable UUID id, @RequestBody ProductUpdateCommand product) {
+    @PatchMapping
+    public ResponseEntity<Void> updateProduct(@RequestBody ProductUpdateCommand product) {
         productUpdateCommandHandler.handle(product);
         return ResponseEntity.noContent().build();
     }

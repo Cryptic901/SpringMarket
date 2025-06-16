@@ -7,13 +7,13 @@ import by.cryptic.springmarket.service.command.UserUpdateCommand;
 import by.cryptic.springmarket.service.command.handler.CommandHandler;
 import by.cryptic.springmarket.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +22,9 @@ public class UserUpdateCommandHandler implements CommandHandler<UserUpdateComman
     private final UserMapper userMapper;
     private final ApplicationEventPublisher eventPublisher;
     private final AuthUtil authUtil;
+    private final CacheManager cacheManager;
 
-    @CachePut(key = "'user:' + #userUpdateCommand.username()")
-    @Async("userExecutor")
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional
     public void handle(UserUpdateCommand userUpdateCommand) {
         AppUser user = authUtil.getUserFromContext();
         userMapper.updateEntity(user, userUpdateCommand);
@@ -35,5 +34,7 @@ public class UserUpdateCommandHandler implements CommandHandler<UserUpdateComman
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .build());
+        Objects.requireNonNull(cacheManager.getCache("users"))
+                .put("user:" + userUpdateCommand.username(), user);
     }
 }

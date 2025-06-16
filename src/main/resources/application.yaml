@@ -18,7 +18,11 @@ spring:
       name: user
     jwt:
       secret: G7nHsKi/JvNfskJg4m4bbq2KqQOuvPWXAzTyOq7SmQA=
-      expiration: 1h
+#     expiration: 1h
+      expiration: 20h
+    cookie:
+      name: authToken
+      expiration: 24h
   mail:
     password: ywre dqkk oevd lelo
     username: luckyartem901@gmail.com
@@ -48,4 +52,4 @@ logging:
         cache: TRACE
         web: TRACE
         http: TRACE
-        security: trace
+        security: TRACE

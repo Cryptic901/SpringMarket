@@ -13,11 +13,13 @@ import by.cryptic.springmarket.util.AuthUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -29,9 +31,9 @@ public class OrderUpdatedCommandHandler implements CommandHandler<OrderUpdateCom
     private final OrderMapper orderMapper;
     private final ApplicationEventPublisher eventPublisher;
     private final AuthUtil authUtil;
+    private final CacheManager cacheManager;
 
     @Transactional
-    @CachePut(key = "'order:' + #command.orderId()")
     public void handle(OrderUpdateCommand command) {
         AppUser user = authUtil.getUserFromContext();
         CustomerOrder order = orderRepository.findById(command.orderId())
@@ -49,5 +51,7 @@ public class OrderUpdatedCommandHandler implements CommandHandler<OrderUpdateCom
                 .paymentMethod(command.paymentMethod())
                 .updatedTimestamp(order.getUpdatedAt())
                 .build());
+        Objects.requireNonNull(cacheManager.getCache("orders"))
+                .put("order:" + command.location() + '-' + command.paymentMethod(), order);
     }
 }

@@ -1,10 +1,20 @@
 package by.cryptic.springmarket.dto;
 
-import by.cryptic.springmarket.model.write.CartProduct;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
-public record CartDTO(UUID id, BigDecimal total, List<CartProduct> products) {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class CartDTO {
+    private UUID id;
+    private UserDTO user;
+    private BigDecimal total;
+
 }
