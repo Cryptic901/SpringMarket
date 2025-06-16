@@ -1,0 +1,1 @@
+ALTER TABLE cart_view ADD COLUMN userid uuid;

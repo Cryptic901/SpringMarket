@@ -2,6 +2,7 @@ package by.cryptic.springmarket.service.command.handler.order;
 
 import by.cryptic.springmarket.enums.OrderStatus;
 import by.cryptic.springmarket.event.order.OrderCreatedEvent;
+import by.cryptic.springmarket.mapper.OrderMapper;
 import by.cryptic.springmarket.model.write.*;
 import by.cryptic.springmarket.repository.write.CartProductRepository;
 import by.cryptic.springmarket.repository.write.CustomerOrderRepository;
@@ -12,14 +13,15 @@ import by.cryptic.springmarket.util.AuthUtil;
 import by.cryptic.springmarket.util.CartUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -32,8 +34,9 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
     private final ApplicationEventPublisher eventPublisher;
     private final AuthUtil authUtil;
     private final CartUtil cartUtil;
+    private final CacheManager cacheManager;
+    private final OrderMapper orderMapper;
 
-    @CachePut(key = "'order:' + #command.location + ':' + #command.paymentMethod")
     @Transactional
     public void handle(OrderCreateCommand command) {
         log.info("Creating order : {}", command);
@@ -45,6 +48,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
                 .location(command.location())
                 .appUser(user)
                 .products(new ArrayList<>())
+                .price(user.getCart().getTotal())
                 .build();
 
         transferCartToOrder(order, user);
@@ -57,7 +61,11 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
                 .createdBy(user.getId())
                 .location(order.getLocation())
                 .createdTimestamp(order.getCreatedAt())
+                .orderStatus(order.getOrderStatus())
+                .price(order.getPrice())
                 .build());
+        Objects.requireNonNull(cacheManager.getCache("orders"))
+                .put("order:" + command.location() + '-' + command.paymentMethod(), orderMapper.toDto(order));
     }
 
     private void transferCartToOrder(CustomerOrder order, AppUser user) {

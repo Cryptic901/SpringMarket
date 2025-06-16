@@ -29,9 +29,9 @@ public class CartEventListener {
     @KafkaListener(topics = "cart-topic", groupId = "cart-group")
     public void listenCart(String rawEvent) throws JsonProcessingException {
         JsonNode node = objectMapper.readTree(rawEvent);
-        String type = node.get("eventType").asText();
+        EventType type = EventType.valueOf(node.get("eventType").asText());
         log.info("Received event type {}", type);
-        switch (EventType.valueOf(type)) {
+        switch (type) {
             case CartAddedItemEvent -> {
                 CartAddedItemEvent event = objectMapper.treeToValue(node, CartAddedItemEvent.class);
                 CartView cartView = cartViewRepository.findById(event.getCartId())
@@ -39,6 +39,7 @@ public class CartEventListener {
                                 .total(BigDecimal.ZERO)
                                 .cartId(event.getCartId())
                                 .products(new ArrayList<>())
+                                .userId(event.getUserId())
                                 .build());
 
                 CartProductView newProduct = CartProductView.builder()
@@ -48,7 +49,8 @@ public class CartEventListener {
                         .build();
 
                 cartView.getProducts().stream()
-                        .filter(p -> p.getProductId().equals(event.getProductId()))
+                        .filter(p -> p.getProductId()
+                                .equals(event.getProductId()))
                         .findFirst()
                         .ifPresentOrElse(
                                 p -> p.setQuantity(p.getQuantity() + 1),

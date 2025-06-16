@@ -2,9 +2,11 @@ package by.cryptic.springmarket.model.write;
 
 import by.cryptic.springmarket.enums.OrderStatus;
 import by.cryptic.springmarket.enums.PaymentMethod;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -12,6 +14,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +49,7 @@ public class CustomerOrder {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @ToString.Exclude
     @Builder.Default
+    @JsonManagedReference
     private List<OrderProduct> products = new ArrayList<>();
 
     @Column(nullable = false)
@@ -55,6 +59,8 @@ public class CustomerOrder {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private AppUser appUser;
+
+    private BigDecimal price;
 
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")
@@ -73,19 +79,18 @@ public class CustomerOrder {
     private UUID updatedBy;
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        CustomerOrder order = (CustomerOrder) o;
-        return Objects.equals(id, order.id) &&
-                Objects.equals(location, order.location) &&
-                Objects.equals(createdAt, order.createdAt) &&
-                Objects.equals(updatedAt, order.updatedAt) &&
-                Objects.equals(createdBy, order.createdBy) &&
-                Objects.equals(updatedBy, order.updatedBy);
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        CustomerOrder that = (CustomerOrder) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, location, createdAt, updatedAt, createdBy, updatedBy);
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

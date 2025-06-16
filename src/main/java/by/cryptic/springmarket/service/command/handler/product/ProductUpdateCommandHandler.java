@@ -8,11 +8,13 @@ import by.cryptic.springmarket.service.command.ProductUpdateCommand;
 import by.cryptic.springmarket.service.command.handler.CommandHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -22,9 +24,9 @@ public class ProductUpdateCommandHandler implements CommandHandler<ProductUpdate
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final CacheManager cacheManager;
 
     @Transactional
-    @CachePut(key = "'product:' + #updateProductDTO.productId()")
     public void handle(ProductUpdateCommand updateProductDTO) {
         Product product = productRepository.findById(updateProductDTO.productId())
                 .orElseThrow(() -> new EntityNotFoundException
@@ -40,5 +42,7 @@ public class ProductUpdateCommandHandler implements CommandHandler<ProductUpdate
                 .price(updateProductDTO.price())
                 .category(product.getCategory())
                 .build());
+        Objects.requireNonNull(cacheManager.getCache("products"))
+                .put("product:" + product.getDescription() + '-' + product.getName(), product);
     }
 }

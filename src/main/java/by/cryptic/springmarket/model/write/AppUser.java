@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,7 +13,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.*;
 
 @Entity
@@ -55,10 +55,12 @@ public class AppUser implements UserDetails {
     private Integer verifyCode;
 
     @Column(name = "verification_expires")
-    private OffsetDateTime verificationCodeExpiresAt;
+    @JsonIgnore
+    private LocalDateTime verificationCodeExpiresAt;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
+    @JsonIgnore
     private LocalDateTime createdAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -83,28 +85,6 @@ public class AppUser implements UserDetails {
         this.role = role;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        AppUser user = (AppUser) o;
-        return Objects.equals(id, user.id) &&
-                Objects.equals(username, user.username) &&
-                Objects.equals(password, user.password) &&
-                Objects.equals(email, user.email) &&
-                Objects.equals(phoneNumber, user.phoneNumber) &&
-                Objects.equals(enabled, user.enabled) &&
-                Objects.equals(gender, user.gender) &&
-                Objects.equals(verifyCode, user.verifyCode) &&
-                Objects.equals(verificationCodeExpiresAt, user.verificationCodeExpiresAt) &&
-                Objects.equals(createdAt, user.createdAt);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username, password, email, phoneNumber, enabled,
-                gender, verifyCode, verificationCodeExpiresAt, createdAt);
     }
 
     @Override
@@ -134,5 +114,21 @@ public class AppUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        AppUser appUser = (AppUser) o;
+        return getId() != null && Objects.equals(getId(), appUser.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

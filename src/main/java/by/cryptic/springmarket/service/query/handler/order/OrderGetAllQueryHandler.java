@@ -1,6 +1,6 @@
 package by.cryptic.springmarket.service.query.handler.order;
 
-import by.cryptic.springmarket.service.query.OrderDTO;
+import by.cryptic.springmarket.dto.OrderDTO;
 import by.cryptic.springmarket.mapper.OrderMapper;
 import by.cryptic.springmarket.model.write.AppUser;
 import by.cryptic.springmarket.repository.read.OrderViewRepository;

@@ -1,6 +1,6 @@
 package by.cryptic.springmarket.controller.command;
 
-import by.cryptic.springmarket.dto.FullReviewDTO;
+import by.cryptic.springmarket.dto.ReviewDTO;
 import by.cryptic.springmarket.service.command.ReviewCreateCommand;
 import by.cryptic.springmarket.service.command.ReviewDeleteCommand;
 import by.cryptic.springmarket.service.command.ReviewUpdateCommand;
@@ -25,14 +25,14 @@ public class ReviewCommandController {
     private final ReviewDeleteCommandHandler reviewDeleteCommandHandler;
 
     @PostMapping
-    public ResponseEntity<FullReviewDTO> createReview(
+    public ResponseEntity<ReviewDTO> createReview(
             @RequestBody @Valid ReviewCreateCommand createReviewDTO) {
         reviewCreateCommandHandler.handle(createReviewDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PatchMapping
-    public ResponseEntity<FullReviewDTO> updateReview(
+    public ResponseEntity<ReviewDTO> updateReview(
             @RequestBody @Valid ReviewUpdateCommand updateReviewDTO) {
         reviewUpdateCommandHandler.handle(updateReviewDTO);
         return ResponseEntity.noContent().build();

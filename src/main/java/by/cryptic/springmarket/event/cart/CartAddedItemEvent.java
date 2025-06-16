@@ -15,5 +15,6 @@ public class CartAddedItemEvent extends DomainEvent implements CartEvent {
 
     private UUID cartId;
     private UUID productId;
+    private UUID userId;
     private BigDecimal price;
 }

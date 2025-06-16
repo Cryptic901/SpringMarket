@@ -12,7 +12,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FullReviewDTO {
+public class ReviewDTO {
     private ProductDTO product;
     private String title;
     private Double rating;

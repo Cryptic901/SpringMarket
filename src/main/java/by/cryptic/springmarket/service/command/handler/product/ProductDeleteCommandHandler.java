@@ -4,7 +4,6 @@ import by.cryptic.springmarket.event.product.ProductDeletedEvent;
 import by.cryptic.springmarket.repository.write.ProductRepository;
 import by.cryptic.springmarket.service.command.ProductDeleteCommand;
 import by.cryptic.springmarket.service.command.handler.CommandHandler;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;

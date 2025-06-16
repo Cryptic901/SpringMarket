@@ -1,6 +1,7 @@
 package by.cryptic.springmarket.event;
 
 import by.cryptic.springmarket.enums.EventType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
 import java.time.LocalDateTime;

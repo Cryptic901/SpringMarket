@@ -1,7 +1,6 @@
 package by.cryptic.springmarket.controller.query;
 
-import by.cryptic.springmarket.dto.FullOrderDTO;
-import by.cryptic.springmarket.service.query.OrderDTO;
+import by.cryptic.springmarket.dto.OrderDTO;
 import by.cryptic.springmarket.service.query.OrderGetAllQuery;
 import by.cryptic.springmarket.service.query.handler.order.OrderGetAllQueryHandler;
 import by.cryptic.springmarket.service.query.handler.order.OrderGetByIdQueryHandler;
@@ -29,7 +28,7 @@ public class OrderQueryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FullOrderDTO> getOrder(@PathVariable UUID id) {
+    public ResponseEntity<OrderDTO> getOrder(@PathVariable UUID id) {
         return ResponseEntity.ok(orderGetByIdQueryHandler.handle(id));
     }
 }

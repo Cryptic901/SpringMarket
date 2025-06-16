@@ -1,5 +1,6 @@
 package by.cryptic.springmarket.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import java.time.Duration;
 
 @Configuration
 @EnableCaching
+@RequiredArgsConstructor
 public class CacheConfig {
 
     @Bean

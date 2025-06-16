@@ -1,6 +1,6 @@
 package by.cryptic.springmarket.service.command.handler.user;
 
-import by.cryptic.springmarket.event.user.UserVerifyEvent;
+import by.cryptic.springmarket.event.user.UserResendVerifyMessageEvent;
 import by.cryptic.springmarket.model.write.AppUser;
 import by.cryptic.springmarket.repository.write.AppUserRepository;
 import by.cryptic.springmarket.service.command.handler.CommandHandler;
@@ -11,7 +11,7 @@ import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +29,9 @@ public class UserResendVerifyCommandHandler implements CommandHandler<String> {
         }
         Integer sixNumber = authUtil.generateRandomSixNumber();
         user.setVerifyCode(sixNumber);
-        user.setVerificationCodeExpiresAt(OffsetDateTime.now().plusMinutes(15));
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         userRepository.save(user);
-        eventPublisher.publishEvent(UserVerifyEvent.builder()
+        eventPublisher.publishEvent(UserResendVerifyMessageEvent.builder()
                 .verificationCode(sixNumber)
                 .userId(user.getId())
                 .email(email)

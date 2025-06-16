@@ -1,6 +1,5 @@
 package by.cryptic.springmarket.controller.query;
 
-import by.cryptic.springmarket.dto.FullProductDto;
 import by.cryptic.springmarket.dto.ProductDTO;
 import by.cryptic.springmarket.service.query.SortParamsDTO;
 import by.cryptic.springmarket.service.query.handler.product.ProductGetAllQueryHandler;
@@ -41,7 +40,7 @@ public class ProductQueryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FullProductDto> getProductById(@PathVariable UUID id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable UUID id) {
         return ResponseEntity.ok(productGetByIdQueryHandler.handle(id));
     }
 }

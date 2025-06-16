@@ -7,10 +7,13 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,10 +33,24 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
     private final AppUserDetailsService appUserDetailsService;
     private final ObjectMapper objectMapper;
 
+    @Value("${spring.security.cookie.name}")
+    private String cookieName;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        String path = request.getServletPath();
+        log.info("Path: {}", path);
+        if (path.equals("/api/v1/auth/login") ||
+                path.equals("/api/v1/auth/register") ||
+                path.equals("/api/v1/auth/verify")
+        ) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
 
         String token = parseToken(request);
 
@@ -82,12 +99,20 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
     }
 
     private String parseToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
             log.info("JwtSecurityFilter | parseToken | Bearer token found : {}", authHeader.substring(7));
 
             return authHeader.substring(7);
+        }
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookie.getName().equals(cookieName)) {
+                    log.info("JwtSecurityFilter | parseToken | Authorization cookie found : {}", cookieName);
+                    return cookie.getValue();
+                }
+            }
         }
         log.error("JwtSecurityFilter | parseToken | Bearer token not found");
         return null;

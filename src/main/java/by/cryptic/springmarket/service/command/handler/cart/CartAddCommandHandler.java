@@ -1,6 +1,8 @@
 package by.cryptic.springmarket.service.command.handler.cart;
 
 import by.cryptic.springmarket.event.cart.CartAddedItemEvent;
+import by.cryptic.springmarket.exception.NotEnoughProducts;
+import by.cryptic.springmarket.mapper.CartMapper;
 import by.cryptic.springmarket.model.write.AppUser;
 import by.cryptic.springmarket.model.write.Cart;
 import by.cryptic.springmarket.model.write.CartProduct;
@@ -36,6 +38,7 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
     private final AuthUtil authUtil;
     private final ApplicationEventPublisher eventPublisher;
     private final CacheManager cacheManager;
+    private final CartMapper cartMapper;
 
     @Transactional
     public void handle(CartAddCommand command) {
@@ -50,7 +53,9 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                     return cartRepository.save(newCart);
                 });
         log.info("Cart after mapping to entity: {}", cart);
-        List<CartProduct> products = createOrAddProduct(command, cart);
+        Product product = productRepository.findById(command.productId())
+                .orElseThrow(() -> new EntityNotFoundException("You're trying to add product that doesn't exists"));
+        List<CartProduct> products = createOrAddProduct(command, cart, product);
 
         cart.setTotal(cartUtil.getTotalPrice(products));
         cart.setUser(user);
@@ -58,13 +63,15 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
         cartRepository.save(cart);
         eventPublisher.publishEvent(CartAddedItemEvent.builder()
                 .cartId(cart.getId())
-                .productId(command.productId()));
-        Objects.requireNonNull(cacheManager.getCache("carts")).put(user.getId(), cart);
+                .productId(command.productId())
+                .price(product.getPrice())
+                .userId(user.getId())
+                .build());
+        Objects.requireNonNull(cacheManager.getCache("carts"))
+                .put("carts:" + user.getId(), cartMapper.toDto(cart));
     }
 
-    private List<CartProduct> createOrAddProduct(CartAddCommand command, Cart cart) {
-        Product product = productRepository.findById(command.productId())
-                .orElseThrow(() -> new EntityNotFoundException("You're trying to add product that doesn't exists"));
+    private List<CartProduct> createOrAddProduct(CartAddCommand command, Cart cart, Product product) {
         List<CartProduct> products = cart.getItems();
         CartProduct cartProduct = products
                 .stream()
@@ -73,6 +80,9 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                 .findFirst()
                 .orElse(null);
         if (cartProduct != null) {
+            if (cartProduct.getQuantity() >= product.getQuantity()) {
+                throw new NotEnoughProducts("You're trying to add product, that is out of stock");
+            }
             cartProduct.setQuantity(cartProduct.getQuantity() + 1);
         } else {
             products.add(CartProduct.builder()

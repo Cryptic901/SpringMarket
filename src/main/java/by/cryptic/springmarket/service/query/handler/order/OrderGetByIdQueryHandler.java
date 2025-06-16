@@ -1,6 +1,6 @@
 package by.cryptic.springmarket.service.query.handler.order;
 
-import by.cryptic.springmarket.dto.FullOrderDTO;
+import by.cryptic.springmarket.dto.OrderDTO;
 import by.cryptic.springmarket.mapper.FullOrderMapper;
 import by.cryptic.springmarket.model.read.CustomerOrderView;
 import by.cryptic.springmarket.model.write.AppUser;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = {"orders"})
-public class OrderGetByIdQueryHandler implements QueryHandler<UUID, FullOrderDTO> {
+public class OrderGetByIdQueryHandler implements QueryHandler<UUID, OrderDTO> {
 
     private final OrderViewRepository orderViewRepository;
     private final AuthUtil authUtil;
@@ -27,7 +27,7 @@ public class OrderGetByIdQueryHandler implements QueryHandler<UUID, FullOrderDTO
 
     @Cacheable(key = "'order:' + #id")
     @Transactional(readOnly = true)
-    public FullOrderDTO handle(UUID id) {
+    public OrderDTO handle(UUID id) {
         AppUser user = authUtil.getUserFromContext();
         CustomerOrderView customerOrder = orderViewRepository.findById(id)
                 .stream()

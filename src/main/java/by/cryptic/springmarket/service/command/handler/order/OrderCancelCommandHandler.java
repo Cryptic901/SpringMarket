@@ -44,6 +44,6 @@ public class OrderCancelCommandHandler implements CommandHandler<OrderCancelComm
             throw new IllegalStateException("Order not completed");
         }
         orderRepository.save(order);
-        eventPublisher.publishEvent(new OrderCanceledEvent(order.getId()));
+        eventPublisher.publishEvent(new OrderCanceledEvent(order.getId(), user.getEmail()));
     }
 }

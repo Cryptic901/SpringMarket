@@ -10,11 +10,13 @@ import by.cryptic.springmarket.service.command.handler.CommandHandler;
 import by.cryptic.springmarket.util.AuthUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +27,9 @@ public class ReviewUpdateCommandHandler implements CommandHandler<ReviewUpdateCo
     private final ReviewMapper reviewMapper;
     private final AuthUtil authUtil;
     private final ApplicationEventPublisher eventPublisher;
+    private final CacheManager cacheManager;
 
     @Transactional
-    @CachePut(key = "'review:' + #dto.reviewId()")
     public void handle(ReviewUpdateCommand dto) {
         AppUser user = authUtil.getUserFromContext();
         Review review = reviewRepository.findById(dto.reviewId())
@@ -45,5 +47,7 @@ public class ReviewUpdateCommandHandler implements CommandHandler<ReviewUpdateCo
                 .description(review.getDescription())
                 .updatedBy(review.getUpdatedBy())
                 .build());
+        Objects.requireNonNull(cacheManager.getCache("reviews"))
+                .put("review:" + dto.reviewId(), review);
     }
 }

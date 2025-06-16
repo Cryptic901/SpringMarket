@@ -13,7 +13,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface ReviewMapper {
 
-    Review toEntity(ReviewDTO reviewDTO);
 
     ReviewDTO toDto(Review review);
     ReviewDTO toDto(ReviewView review);

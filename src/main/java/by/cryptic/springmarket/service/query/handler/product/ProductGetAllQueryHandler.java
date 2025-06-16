@@ -2,7 +2,7 @@ package by.cryptic.springmarket.service.query.handler.product;
 
 import by.cryptic.springmarket.dto.ProductDTO;
 import by.cryptic.springmarket.mapper.ProductMapper;
-import by.cryptic.springmarket.model.write.Product;
+import by.cryptic.springmarket.model.read.ProductView;
 import by.cryptic.springmarket.repository.read.ProductViewRepository;
 import by.cryptic.springmarket.service.query.SortParamsDTO;
 import by.cryptic.springmarket.service.query.handler.QueryHandler;
@@ -26,7 +26,7 @@ public class ProductGetAllQueryHandler implements QueryHandler<SortParamsDTO, Pa
     private final ProductMapper productMapper;
 
     public Page<ProductDTO> handle(SortParamsDTO dto) {
-        Specification<Product> spec = Specification.where(null);
+        Specification<ProductView> spec = Specification.where(null);
         String name = dto.name();
         String createdBy = dto.createdBy();
         String category = dto.category();

@@ -4,7 +4,6 @@ import by.cryptic.springmarket.filter.JwtSecurityFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,8 +27,7 @@ public class FilterChainConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests.requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/api/v1/categories/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE,"/api/v1/users/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.PATCH,"/api/v1/users/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated())
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

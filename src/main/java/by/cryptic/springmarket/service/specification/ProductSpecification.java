@@ -1,5 +1,6 @@
 package by.cryptic.springmarket.service.specification;
 
+import by.cryptic.springmarket.model.read.ProductView;
 import by.cryptic.springmarket.model.write.Product;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -13,22 +14,22 @@ public class ProductSpecification {
     //
     //CriteriaBuilder — предоставляет методы для создания условий, таких как сравнения, логические операции и т. д.
 
-    public static Specification<Product> hasName(String name) {
+    public static Specification<ProductView> hasName(String name) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("name"), name);
     }
 
-    public static Specification<Product> hasCreatedBy(String createdBy) {
+    public static Specification<ProductView> hasCreatedBy(String createdBy) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("createdBy"), createdBy);
     }
 
-    public static Specification<Product> hasCategory(String category) {
+    public static Specification<ProductView> hasCategory(String category) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("category").get("name"), category);
     }
 
-    public static Specification<Product> hasPriceBetween(BigDecimal min, BigDecimal max) {
+    public static Specification<ProductView> hasPriceBetween(BigDecimal min, BigDecimal max) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.between(root.get("price"), min, max);
     }

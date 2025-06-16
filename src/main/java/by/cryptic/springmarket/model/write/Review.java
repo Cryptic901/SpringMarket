@@ -3,6 +3,7 @@ package by.cryptic.springmarket.model.write;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -64,22 +65,18 @@ public class Review {
 
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
         Review review = (Review) o;
-        return Objects.equals(id, review.id) &&
-                Objects.equals(title, review.title) &&
-                Objects.equals(rating, review.rating) &&
-                Objects.equals(description, review.description) &&
-                Objects.equals(image, review.image) &&
-                Objects.equals(createdAt, review.createdAt) &&
-                Objects.equals(updatedAt, review.updatedAt) &&
-                Objects.equals(createdBy, review.createdBy) &&
-                Objects.equals(updatedBy, review.updatedBy);
+        return getId() != null && Objects.equals(getId(), review.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id, title, rating, description, image, createdAt, updatedAt, createdBy, updatedBy);
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }
