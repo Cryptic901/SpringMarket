@@ -1,0 +1,17 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: AuthenticationService
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username: admin
+    password: $2a$12$WHDRyXGTErJoxwlXnU7tquYrgnSaPoh5D.iCmqnNk17Mdsii17CZO
+  security:
+    cookie:
+      name: authToken
+      expiration: 24h
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761

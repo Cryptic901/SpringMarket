@@ -1,1 +1,0 @@
-ALTER TABLE product_view ADD COLUMN categoryid uuid;

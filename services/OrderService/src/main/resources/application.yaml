@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: OrderService
+  datasource:
+    url: jdbc:postgresql://localhost:5432/order_db
+    username: admin
+    password: $2a$12$WHDRyXGTErJoxwlXnU7tquYrgnSaPoh5D.iCmqnNk17Mdsii17CZO
+server:
+  port: 8082
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761

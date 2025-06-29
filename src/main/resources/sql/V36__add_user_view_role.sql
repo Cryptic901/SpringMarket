@@ -1,1 +1,0 @@
-ALTER TABLE user_view ADD COLUMN role varchar(100);

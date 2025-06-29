@@ -1,0 +1,59 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761
+spring:
+  application:
+    name: Gateway
+  cloud:
+    discovery:
+      enabled: true
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth-routes
+              uri: lb://auth-routes
+              predicates:
+                - Path=/api/v1/auth/**
+
+            - id: product-routes
+              uri: lb://product-routes
+              predicates:
+                - Path=/api/v1/products/**
+                - Path=/api/v1/categories/**
+
+            - id: order-routes
+              uri: lb://order-routes
+              predicates:
+                - Path=/api/v1/orders/**
+
+            - id: cart-routes
+              uri: lb://cart-routes
+              predicates:
+                - Path=/api/v1/carts/**
+
+            - id: review-routes
+              uri: lb://review-routes
+              predicates:
+                - Path=/api/v1/reviews/**
+
+            - id: user-routes
+              uri: lb://user-routes
+              predicates:
+                - Path=/api/v1/users/**
+
+            - id: payment-routes
+              uri: lb://payment-routes
+              predicates:
+                - Path=/api/v1/payments/**
+
+            - id: notification-routes
+              uri: lb://notification-routes
+              predicates:
+                - Path=/api/v1/notifications/**
+
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
