@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Статус заказа</title>
+</head>
+<body>
+<div style="text-align: center; margin-top: 50px;">
+    <h1 th:switch="${orderStatus.name()}">
+        <span th:case="IN_PROGRESS">Ваш заказ <strong th:text="${orderId}"></strong> принят и вскоре будет доставлен.</span>
+        <span th:case="FAILED">Ваш заказ <strong th:text="${orderId}"></strong> отклонён.</span>
+        <span th:case="COMPLETED">Ваш заказ <strong th:text="${orderId}"></strong> доставлен. Спасибо!</span>
+        <span th:case="CANCELLED">Ваш заказ <strong th:text="${orderId}"></strong> отменён.</span>
+        <span th:case="IN_STOCK">Ваш заказ <strong th:text="${orderId}"></strong> на складе.</span>
+    </h1>
+</div>
+</body>
+</html>

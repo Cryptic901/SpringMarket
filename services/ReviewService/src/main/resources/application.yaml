@@ -1,0 +1,13 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: ReviewService
+  datasource:
+    url: jdbc:postgresql://localhost:5432/review_db
+    username: admin
+    password: $2a$12$WHDRyXGTErJoxwlXnU7tquYrgnSaPoh5D.iCmqnNk17Mdsii17CZO
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761

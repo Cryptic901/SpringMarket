@@ -1,1 +1,0 @@
-ALTER TABLE cart_view ADD COLUMN userId uuid;

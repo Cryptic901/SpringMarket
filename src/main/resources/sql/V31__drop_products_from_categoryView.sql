@@ -1,1 +1,0 @@
-ALTER TABLE category_view DROP COLUMN products;

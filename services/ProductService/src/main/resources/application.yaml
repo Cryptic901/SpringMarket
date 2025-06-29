@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: ProductService
+  datasource:
+    url: jdbc:postgresql://localhost:5432/product_db
+    username: admin
+    password: $2a$12$WHDRyXGTErJoxwlXnU7tquYrgnSaPoh5D.iCmqnNk17Mdsii17CZO
+server:
+  port: 8081
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761

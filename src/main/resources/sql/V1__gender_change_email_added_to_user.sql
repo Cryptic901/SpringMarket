@@ -1,4 +1,0 @@
-ALTER TABLE users
-    ADD COLUMN email VARCHAR;
-ALTER TABLE users
-    ALTER COLUMN gender TYPE CHAR;

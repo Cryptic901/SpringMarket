@@ -1,0 +1,1 @@
+ALTER TABLE review_schema.reviews ADD COLUMN IF NOT EXISTS user_id uuid;

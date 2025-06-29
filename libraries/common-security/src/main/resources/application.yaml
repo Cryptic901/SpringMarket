@@ -1,0 +1,6 @@
+spring:
+  security:
+    jwt:
+      secret: G7nHsKi/JvNfskJg4m4bbq2KqQOuvPWXAzTyOq7SmQA=
+      #     expiration: 1h
+      expiration: 20h
