@@ -35,9 +35,11 @@ public class CartView {
     @Column(name = "user_id")
     private UUID userId;
 
+    @Builder.Default
     private BigDecimal total = BigDecimal.ZERO;
 
     @Type(JsonBinaryType.class)
+    @Builder.Default
     private List<CartProductView> products = new ArrayList<>();
 
     @Override

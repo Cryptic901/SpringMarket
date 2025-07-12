@@ -1,6 +1,5 @@
 package by.cryptic.productservice.model.write;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -49,11 +48,8 @@ public class Product {
     @Column(nullable = false)
     private String image;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    @ToString.Exclude
-    @JsonBackReference
-    private Category category;
+    @Column(name = "category_id")
+    private UUID categoryId;
 
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")

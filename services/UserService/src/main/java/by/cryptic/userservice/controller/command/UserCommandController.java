@@ -25,7 +25,7 @@ public class UserCommandController {
             @RequestBody UserUpdateDTO userDTO,
             @RequestHeader("X-User-Id") UUID id) {
         userUpdateCommandHandler.handle(new UserUpdateCommand(id, userDTO.username(),
-                userDTO.phoneNumber(), userDTO.role()));
+                userDTO.phoneNumber()));
         return ResponseEntity.noContent().build();
     }
 

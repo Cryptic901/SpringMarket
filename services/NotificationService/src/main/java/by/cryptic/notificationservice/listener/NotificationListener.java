@@ -4,7 +4,7 @@ import by.cryptic.notificationservice.service.EmailContentBuilder;
 import by.cryptic.notificationservice.service.EmailService;
 import by.cryptic.utils.event.EventType;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
-import by.cryptic.utils.event.order.OrderCreatedEvent;
+import by.cryptic.utils.event.order.OrderSuccessEvent;
 import by.cryptic.utils.event.user.UserCreatedEvent;
 import by.cryptic.utils.event.user.UserResendVerifyMessageEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,8 +31,8 @@ public class NotificationListener {
         EventType eventType = EventType.valueOf(node.get("eventType").asText());
         switch (eventType) {
             case OrderCreatedEvent -> {
-                OrderCreatedEvent orderCreatedEvent = objectMapper.treeToValue(node,
-                        OrderCreatedEvent.class);
+                OrderSuccessEvent orderCreatedEvent = objectMapper.treeToValue(node,
+                        OrderSuccessEvent.class);
                 emailService.sendEmail(orderCreatedEvent.getUserEmail(), "SpringMarket Order",
                         emailContentBuilder.buildOrderEmailContent(orderCreatedEvent.getOrderId(),
                                 orderCreatedEvent.getOrderStatus()));

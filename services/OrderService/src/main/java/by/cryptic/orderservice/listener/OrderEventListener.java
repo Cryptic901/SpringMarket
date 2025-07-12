@@ -6,6 +6,10 @@ import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.read.CustomerOrderView;
 import by.cryptic.orderservice.repository.read.OrderViewRepository;
 import by.cryptic.utils.event.EventType;
+import by.cryptic.utils.event.order.OrderCanceledEvent;
+import by.cryptic.utils.event.order.OrderFailedEvent;
+import by.cryptic.utils.event.order.OrderSuccessEvent;
+import by.cryptic.utils.event.order.OrderUpdatedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,10 +33,21 @@ public class OrderEventListener {
         JsonNode node = objectMapper.readTree(rawEvent);
         String type = node.get("eventType").asText();
         switch (EventType.valueOf(type)) {
-            case OrderCreatedEvent -> {
-                OrderCreatedEvent event = objectMapper.treeToValue(node, OrderCreatedEvent.class);
+            case OrderSuccessEvent -> {
+                OrderSuccessEvent event = objectMapper.treeToValue(node, OrderSuccessEvent.class);
                 orderViewRepository.save(CustomerOrderView.builder()
                         .orderStatus(OrderStatus.IN_PROGRESS)
+                        .orderId(event.getOrderId())
+                        .createdBy(event.getCreatedBy())
+                        .location(event.getLocation())
+                        .createdAt(event.getCreatedTimestamp())
+                        .price(event.getPrice())
+                        .build());
+            }
+            case OrderFailedEvent -> {
+                OrderFailedEvent event = objectMapper.treeToValue(node, OrderFailedEvent.class);
+                orderViewRepository.save(CustomerOrderView.builder()
+                        .orderStatus(OrderStatus.FAILED)
                         .orderId(event.getOrderId())
                         .createdBy(event.getCreatedBy())
                         .location(event.getLocation())

@@ -11,4 +11,11 @@ import java.util.UUID;
 @Builder
 public class ProductDeletedEvent extends DomainEvent implements ProductEvent {
     private UUID productId;
+    private static final String version = "1.0";
+    @Builder.Default
+    private String source = ProductDeletedEvent.class.getName();
+
+    public ProductDeletedEvent(UUID productId) {
+        this.productId = productId;
+    }
 }

@@ -1,14 +1,11 @@
 package by.cryptic.productservice.model.write;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -32,12 +29,6 @@ public class Category {
     private String name;
 
     private String description;
-
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    @Builder.Default
-    @JsonManagedReference
-    private List<Product> products = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {

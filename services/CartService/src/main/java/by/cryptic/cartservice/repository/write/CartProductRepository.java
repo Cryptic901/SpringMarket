@@ -9,7 +9,4 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CartProductRepository extends JpaRepository<CartProduct, UUID> {
-
-    @Query("SELECT cp FROM CartProduct cp JOIN FETCH cp.product WHERE cp.id IN :ids")
-    List<CartProduct> findAllByIdWithProducts(@Param("ids") List<UUID> ids);
 }

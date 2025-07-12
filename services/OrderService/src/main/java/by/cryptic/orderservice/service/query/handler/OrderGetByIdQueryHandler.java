@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderGetByIdQueryHandler implements QueryHandler<OrderGetByIdQuery, OrderDTO> {
 
     private final OrderViewRepository orderViewRepository;
-    private final FullOrderMapper fullOrderMapper;
 
     @Cacheable(key = "'order:' + #query.orderId()")
     @Transactional(readOnly = true)
@@ -29,6 +28,6 @@ public class OrderGetByIdQueryHandler implements QueryHandler<OrderGetByIdQuery,
                 .filter(order -> order.getCreatedBy().equals(query.userId()))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Order not found with id : %s".formatted(query.orderId())));
-        return fullOrderMapper.toDto(customerOrder);
+        return FullOrderMapper.toDto(customerOrder);
     }
 }

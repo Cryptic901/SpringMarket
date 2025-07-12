@@ -50,10 +50,6 @@ public class UserRegisterCommandHandler implements CommandHandler<UserRegisterCo
 
     private void createDefaultUser(AuthUser user) {
         Random random = new Random();
-//        Cart cart = Cart.builder()
-//                .user(user)
-//                .build();
-//        user.setCart(cart);
         user.setVerifyCode(100000 + random.nextInt(900000));
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);

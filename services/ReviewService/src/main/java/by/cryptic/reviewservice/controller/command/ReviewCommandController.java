@@ -1,6 +1,6 @@
 package by.cryptic.reviewservice.controller.command;
 
-import by.cryptic.reviewservice.dto.ReviewDTO;
+import by.cryptic.utils.DTO.ReviewDTO;
 import by.cryptic.reviewservice.service.command.ReviewCreateCommand;
 import by.cryptic.reviewservice.service.command.ReviewDeleteCommand;
 import by.cryptic.reviewservice.service.command.ReviewUpdateCommand;

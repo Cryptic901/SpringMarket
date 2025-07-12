@@ -12,4 +12,11 @@ import java.util.UUID;
 @Builder
 public class CartClearedEvent extends DomainEvent implements CartEvent {
     private UUID cartId;
+    private static final String version = "1.0";
+    @Builder.Default
+    private String source = CartClearedEvent.class.getName();
+
+    public CartClearedEvent(UUID cartId) {
+        this.cartId = cartId;
+    }
 }

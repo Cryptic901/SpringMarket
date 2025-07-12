@@ -1,7 +1,7 @@
 package by.cryptic.cartservice.controller.query;
 
 import by.cryptic.cartservice.service.query.CartGetAllQuery;
-import by.cryptic.cartservice.service.query.CartProductDTO;
+import by.cryptic.utils.DTO.CartProductDTO;
 import by.cryptic.cartservice.service.query.handler.CartGetAllQueryHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

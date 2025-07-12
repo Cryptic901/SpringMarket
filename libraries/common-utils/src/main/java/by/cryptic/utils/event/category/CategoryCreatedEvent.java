@@ -1,6 +1,7 @@
 package by.cryptic.utils.event.category;
 
 import by.cryptic.utils.event.DomainEvent;
+import by.cryptic.utils.event.order.OrderUpdatedEvent;
 import lombok.*;
 
 import java.util.UUID;
@@ -14,4 +15,7 @@ public class CategoryCreatedEvent extends DomainEvent implements CategoryEvent {
     private UUID categoryId;
     private String name;
     private String description;
+    private static final String version = "1.0";
+    @Builder.Default
+    private String source = CategoryCreatedEvent.class.getName();
 }

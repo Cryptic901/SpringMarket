@@ -20,6 +20,7 @@ public class UserCreatedEvent extends DomainEvent implements UserEvent {
     private LocalDateTime createdAt;
     private Character gender;
     private Integer verificationCode;
-    private String version = "1.0";
-    private String source = this.getClass().getName();
+    private static final String version = "1.0";
+    @Builder.Default
+    private String source = UserCreatedEvent.class.getName();
 }

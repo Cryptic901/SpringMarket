@@ -54,7 +54,7 @@ public class JwtSecurityFilter implements GlobalFilter {
         if (cookies.containsKey(cookieName)) {
             HttpCookie cookie = cookies.getFirst(cookieName);
             if (cookie != null) {
-                log.info("JwtSecurityFilter | parseToken | Authorization cookie found : {}", cookieName);
+                log.info("JwtSecurityFilter | parseToken | Authorization cookie found : {}: {}", cookieName, cookie);
                 return cookie.getValue();
             }
         }
@@ -89,7 +89,8 @@ public class JwtSecurityFilter implements GlobalFilter {
                             builder.header("X-User-ID", jwtUtil.extractId(token))
                                     .header("X-User-Name", jwtUtil.extractUsername(token))
                                     .header("X-User-Email", jwtUtil.extractEmail(token))
-                                    .header("X-Role", String.valueOf(jwtUtil.extractRole(token))))
+                                    .header("X-Role", String.valueOf(jwtUtil.extractRole(token)))
+                                    .header("X-Gateway-Auth", "true"))
                     .build());
 
         } catch (ExpiredJwtException e) {

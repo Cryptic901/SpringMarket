@@ -1,14 +1,16 @@
 package by.cryptic.cartservice.service.command.handler;
 
-import by.cryptic.cartservice.util.CartUtil;
-import by.cryptic.utils.event.cart.CartAddedItemEvent;
+import by.cryptic.cartservice.client.ProductServiceClient;
 import by.cryptic.cartservice.exception.NotEnoughProducts;
 import by.cryptic.cartservice.mapper.CartMapper;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.model.write.CartProduct;
 import by.cryptic.cartservice.repository.write.CartRepository;
 import by.cryptic.cartservice.service.command.CartAddCommand;
+import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.utils.CommandHandler;
+import by.cryptic.utils.DTO.ProductDTO;
+import by.cryptic.utils.event.cart.CartAddedItemEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,11 +32,10 @@ import java.util.Objects;
 public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
 
     private final CartRepository cartRepository;
-    private final ProductRepository productRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final CacheManager cacheManager;
-    private final CartMapper cartMapper;
     private final CartUtil cartUtil;
+    private final ProductServiceClient productServiceClient;
 
     @Transactional
     public void handle(CartAddCommand command) {
@@ -48,8 +49,13 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                     return cartRepository.save(newCart);
                 });
         log.info("Cart after mapping to entity: {}", cart);
-        Product product = productRepository.findById(command.productId())
-                .orElseThrow(() -> new EntityNotFoundException("You're trying to add product that doesn't exists"));
+        ProductDTO product = productServiceClient.getProductById(command.productId()).getBody();
+
+        if (product == null) {
+            throw new EntityNotFoundException("Product with id %s not found"
+                    .formatted(command.productId()));
+        }
+
         List<CartProduct> products = createOrAddProduct(command, cart, product);
 
         cart.setTotal(cartUtil.getTotalPrice(products));
@@ -59,30 +65,30 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
         eventPublisher.publishEvent(CartAddedItemEvent.builder()
                 .cartId(cart.getId())
                 .productId(command.productId())
-                .price(product.getPrice())
+                .price(product.price())
                 .userId(command.userId())
                 .build());
         Objects.requireNonNull(cacheManager.getCache("carts"))
-                .put("carts:" + command.userId(), cartMapper.toDto(cart));
+                .put("carts:" + command.userId(), CartMapper.toDto(cart));
     }
 
-    private List<CartProduct> createOrAddProduct(CartAddCommand command, Cart cart, Product product) {
+    private List<CartProduct> createOrAddProduct(CartAddCommand command, Cart cart, ProductDTO product) {
         List<CartProduct> products = cart.getItems();
         CartProduct cartProduct = products
                 .stream()
-                .filter(cp -> cp.getProduct().getId()
+                .filter(cp -> cp.getProductId()
                         .equals(command.productId()))
                 .findFirst()
                 .orElse(null);
         if (cartProduct != null) {
-            if (cartProduct.getQuantity() >= product.getQuantity()) {
+            if (cartProduct.getQuantity() >= product.quantity()) {
                 throw new NotEnoughProducts("You're trying to add product, that is out of stock");
             }
             cartProduct.setQuantity(cartProduct.getQuantity() + 1);
         } else {
             products.add(CartProduct.builder()
-                    .pricePerUnit(product.getPrice())
-                    .product(product)
+                    .pricePerUnit(product.price())
+                    .productId(command.productId())
                     .quantity(1)
                     .cart(cart)
                     .build());
