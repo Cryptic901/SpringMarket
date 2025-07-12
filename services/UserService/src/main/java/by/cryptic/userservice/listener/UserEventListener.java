@@ -34,7 +34,6 @@ public class UserEventListener {
             case UserCreatedEvent -> {
                 UserCreatedEvent event = objectMapper.treeToValue(node, UserCreatedEvent.class);
                 AppUserView view = AppUserView.builder()
-                        .email(event.getEmail())
                         .username(event.getUsername())
                         .createdAt(event.getTimestamp())
                         .userId(event.getUserId())

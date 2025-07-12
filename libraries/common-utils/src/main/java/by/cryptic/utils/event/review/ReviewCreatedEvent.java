@@ -18,5 +18,8 @@ public class ReviewCreatedEvent extends DomainEvent implements ReviewEvent {
     private Double rating;
     private String image;
     private UUID createdBy;
+    private static final String version = "1.0";
+    @Builder.Default
+    private String source = ReviewCreatedEvent.class.getName();
 
 }

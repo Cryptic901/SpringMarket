@@ -15,7 +15,7 @@ public class UserUpdatedEvent extends DomainEvent implements UserEvent {
     private UUID userId;
     private String username;
     private String phoneNumber;
-    private String email;
-    private String version = "1.0";
-    private String source = this.getClass().getName();
+    private static final String version = "1.0";
+    @Builder.Default
+    private String source = UserUpdatedEvent.class.getName();
 }

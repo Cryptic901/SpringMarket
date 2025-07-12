@@ -3,7 +3,7 @@ package by.cryptic.cartservice.service.query.handler;
 import by.cryptic.cartservice.model.read.CartView;
 import by.cryptic.cartservice.repository.read.CartViewRepository;
 import by.cryptic.cartservice.service.query.CartGetAllQuery;
-import by.cryptic.cartservice.service.query.CartProductDTO;
+import by.cryptic.utils.DTO.CartProductDTO;
 import by.cryptic.utils.QueryHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;

@@ -5,20 +5,48 @@ import by.cryptic.userservice.model.read.AppUserView;
 import by.cryptic.userservice.model.write.AppUser;
 import by.cryptic.userservice.service.command.UserUpdateCommand;
 import by.cryptic.utils.event.user.UserUpdatedEvent;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+@Component
+public class UserMapper {
 
-    UserDTO toDto(AppUser user);
-    UserDTO toDto(AppUserView user);
+    public UserDTO toDto(AppUserView user) {
+        if (user == null) {
+            return null;
+        }
+        return UserDTO.builder()
+                .username(user.getUsername())
+                .phoneNumber(user.getPhoneNumber())
+                .build();
+    }
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntity(@MappingTarget AppUser user, UserUpdateCommand dto);
+    public void updateEntity(AppUser user, UserUpdateCommand dto) {
+        if (user == null || dto == null) return;
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateView(@MappingTarget AppUserView user, UserUpdatedEvent event);
+        if (dto.userId() != null) {
+            user.setId(dto.userId());
+        }
+        if (dto.username() != null) {
+            user.setUsername(dto.username());
+        }
+
+        if (dto.phoneNumber() != null) {
+            user.setPhoneNumber(dto.phoneNumber());
+        }
+    }
+
+    public void updateView(AppUserView user, UserUpdatedEvent event) {
+        if (user == null || event == null) return;
+
+        if (event.getUserId() != null) {
+            user.setUserId(event.getUserId());
+        }
+        if (event.getUsername() != null) {
+            user.setUsername(event.getUsername());
+        }
+
+        if (event.getPhoneNumber() != null) {
+            user.setPhoneNumber(event.getPhoneNumber());
+        }
+    }
 }

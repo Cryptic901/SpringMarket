@@ -1,6 +1,6 @@
 package by.cryptic.productservice.service.query.product.handler;
 
-import by.cryptic.productservice.dto.ProductDTO;
+import by.cryptic.utils.DTO.ProductDTO;
 import by.cryptic.productservice.mapper.ProductMapper;
 import by.cryptic.productservice.repository.read.ProductViewRepository;
 import by.cryptic.utils.QueryHandler;

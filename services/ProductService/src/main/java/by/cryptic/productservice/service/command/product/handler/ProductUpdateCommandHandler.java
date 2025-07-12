@@ -40,7 +40,7 @@ public class ProductUpdateCommandHandler implements CommandHandler<ProductUpdate
                 .description(updateProductDTO.description())
                 .quantity(updateProductDTO.quantity())
                 .price(updateProductDTO.price())
-                .category(product.getCategory())
+                .categoryId(product.getCategoryId())
                 .build());
         Objects.requireNonNull(cacheManager.getCache("products"))
                 .put("product:" + product.getDescription() + '-' + product.getName(), product);

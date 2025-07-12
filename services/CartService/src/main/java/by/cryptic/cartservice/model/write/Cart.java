@@ -32,6 +32,7 @@ public class Cart {
     @Column(name = "user_id")
     private UUID userId;
 
+    @Builder.Default
     private BigDecimal total = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)

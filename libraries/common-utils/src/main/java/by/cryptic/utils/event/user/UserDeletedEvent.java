@@ -13,8 +13,9 @@ import java.util.UUID;
 public class UserDeletedEvent extends DomainEvent implements UserEvent {
 
     private UUID userId;
-    private String version = "1.0";
-    private String source = this.getClass().getName();
+    private static final String version = "1.0";
+    @Builder.Default
+    private String source = UserDeletedEvent.class.getName();
 
     public UserDeletedEvent(UUID id) {
         this.userId = id;

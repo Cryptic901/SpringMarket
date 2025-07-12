@@ -4,7 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>by.cryptic</groupId>
+    <parent>
+        <groupId>by.cryptic</groupId>
+        <artifactId>SpringMarket</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
     <artifactId>common-exception</artifactId>
     <version>1.0-SNAPSHOT</version>
 

@@ -35,6 +35,8 @@ public class CartClearCommandHandler implements CommandHandler<CartClearCommand>
                 .orElseThrow(() -> new EntityNotFoundException("You don't have any products in your cart"));
         cartUtil.clearCart(cart);
         Objects.requireNonNull(cacheManager.getCache("carts")).evict(command.userId());
-        eventPublisher.publishEvent(new CartClearedEvent(cart.getId()));
+        eventPublisher.publishEvent(CartClearedEvent.builder()
+                .cartId(cart.getId())
+                .build());
     }
 }

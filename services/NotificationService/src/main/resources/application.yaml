@@ -4,3 +4,33 @@ spring:
   mail:
     password: ywre dqkk oevd lelo
     username: luckyartem901@gmail.com
+  kafka:
+    bootstrap-servers: localhost:29094,localhost:39094,localhost:49094
+    consumer:
+      auto-offset-reset: earliest
+      group-id: order-consumer-group
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.trusted.packages: by.cryptic.springmarket.*
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      missing-topics-fatal: false
+logging:
+  level:
+    org:
+      springframework:
+        cache: TRACE
+        web: TRACE
+        http: TRACE
+        security: TRACE
+server:
+  port: 8089
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

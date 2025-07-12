@@ -5,6 +5,7 @@ import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
 import by.cryptic.orderservice.service.command.OrderCancelCommand;
 import by.cryptic.utils.CommandHandler;
+import by.cryptic.utils.event.order.OrderCanceledEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

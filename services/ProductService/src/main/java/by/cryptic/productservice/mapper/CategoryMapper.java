@@ -1,28 +1,39 @@
 package by.cryptic.productservice.mapper;
 
 import by.cryptic.productservice.dto.CategoryDTO;
-import by.cryptic.productservice.dto.ShortCategoryDTO;
 import by.cryptic.utils.event.category.CategoryUpdatedEvent;
 import by.cryptic.productservice.model.read.CategoryView;
 import by.cryptic.productservice.model.write.Category;
 import by.cryptic.productservice.service.command.category.CategoryUpdateCommand;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface CategoryMapper {
+@Component
+public class CategoryMapper {
 
-    CategoryDTO toDto(CategoryView categoryView);
+   public CategoryDTO toDto(CategoryView categoryView) {
+       if (categoryView == null) {
+           return null;
+       }
+       return new CategoryDTO(categoryView.getName(), categoryView.getDescription());
+   }
 
-    CategoryDTO toDto(Category category);
+    public void updateEntity(Category category, CategoryUpdateCommand categoryDTO) {
+        if (category == null || categoryDTO == null) return;
 
-    ShortCategoryDTO toShortDto(Category category);
+        if (categoryDTO.name() != null) {
+            category.setName(categoryDTO.name());
+        }
+        if (categoryDTO.description() != null) {
+            category.setDescription(categoryDTO.description());
+        }
+    }
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntity(@MappingTarget Category category, CategoryUpdateCommand categoryDTO);
-
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateView(@MappingTarget CategoryView categoryView, CategoryUpdatedEvent event);
+   public void updateView(CategoryView categoryView, CategoryUpdatedEvent event) {
+       if (event.getName() != null) {
+           categoryView.setName(event.getName());
+       }
+       if (event.getDescription() != null) {
+           categoryView.setDescription(event.getDescription());
+       }
+   }
 }

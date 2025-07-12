@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public record ReviewQuery(String title, Double rating,
                           String description, String image,
-                          UUID creator, LocalDateTime createdAt) {
+                          UUID createdBy, LocalDateTime createdAt) {
 }

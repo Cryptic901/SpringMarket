@@ -32,7 +32,8 @@ public class OrderProduct {
     @JsonBackReference
     private CustomerOrder order;
 
-    private UUID product_id;
+    @Column(name = "product_id")
+    private UUID productId;
 
     private Integer quantity;
 

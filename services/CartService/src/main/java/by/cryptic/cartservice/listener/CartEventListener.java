@@ -1,12 +1,12 @@
 package by.cryptic.cartservice.listener;
 
-import by.cryptic.utils.event.cart.CartAddedItemEvent;
-import by.cryptic.utils.event.cart.CartClearedEvent;
-import by.cryptic.utils.event.cart.CartDeletedProductEvent;
 import by.cryptic.cartservice.model.read.CartProductView;
 import by.cryptic.cartservice.model.read.CartView;
 import by.cryptic.cartservice.repository.read.CartViewRepository;
 import by.cryptic.utils.event.EventType;
+import by.cryptic.utils.event.cart.CartAddedItemEvent;
+import by.cryptic.utils.event.cart.CartClearedEvent;
+import by.cryptic.utils.event.cart.CartDeletedProductEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +26,7 @@ public class CartEventListener {
     private final ObjectMapper objectMapper;
     private final CartViewRepository cartViewRepository;
 
-    @KafkaListener(topics = "cart-topic", groupId = "cart-group")
+    @KafkaListener(topics = {"cart-topic"}, groupId = "cart-group")
     public void listenCart(String rawEvent) throws JsonProcessingException {
         JsonNode node = objectMapper.readTree(rawEvent);
         EventType type = EventType.valueOf(node.get("eventType").asText());

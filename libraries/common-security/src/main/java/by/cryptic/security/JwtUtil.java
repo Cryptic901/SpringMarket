@@ -91,7 +91,7 @@ public class JwtUtil {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-            return claims.getExpiration().before(new Date());
+            return !claims.getExpiration().before(new Date());
         } catch (IllegalArgumentException | JwtException e) {
             return false;
         }

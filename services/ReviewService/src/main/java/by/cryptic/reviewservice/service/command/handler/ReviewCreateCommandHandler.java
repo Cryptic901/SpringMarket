@@ -30,7 +30,6 @@ public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCo
                 .image(dto.image())
                 .productId(dto.productId())
                 .build();
-//        user.getReviews().add(review);
         eventPublisher.publishEvent(ReviewCreatedEvent.builder()
                 .reviewId(review.getId())
                 .productId(dto.productId())

@@ -1,6 +1,6 @@
 package by.cryptic.productservice.controller.query;
 
-import by.cryptic.productservice.dto.ProductDTO;
+import by.cryptic.utils.DTO.ProductDTO;
 import by.cryptic.productservice.service.query.product.SortParamsQuery;
 import by.cryptic.productservice.service.query.product.handler.ProductGetAllQueryHandler;
 import by.cryptic.productservice.service.query.product.handler.ProductGetByIdQueryHandler;

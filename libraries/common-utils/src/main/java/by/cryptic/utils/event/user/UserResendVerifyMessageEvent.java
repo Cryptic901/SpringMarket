@@ -14,4 +14,7 @@ public class UserResendVerifyMessageEvent extends DomainEvent implements UserEve
     private UUID userId;
     private String email;
     private Integer verificationCode;
+    private static final String version = "1.0";
+    @Builder.Default
+    private String source = UserResendVerifyMessageEvent.class.getName();
 }

@@ -1,6 +1,6 @@
 package by.cryptic.reviewservice.service.query.handler;
 
-import by.cryptic.reviewservice.dto.ReviewDTO;
+import by.cryptic.utils.DTO.ReviewDTO;
 import by.cryptic.reviewservice.mapper.FullReviewMapper;
 import by.cryptic.reviewservice.repository.read.ReviewViewRepository;
 import by.cryptic.utils.QueryHandler;
