@@ -20,8 +20,7 @@ public class ProductMapper {
                 product.getQuantity(),
                 product.getDescription(),
                 product.getImage(),
-                product.getCategoryId(),
-                product.getCreatedBy());
+                product.getCategoryId());
     }
 
     public void updateEntity(Product product, ProductUpdateCommand updateProductDTO) {

@@ -1,0 +1,71 @@
+server:
+  port: 8080
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9000/realms/springmarket
+        registration:
+          keycloak:
+            client-id: api-gateway
+            client-secret: 3tiZ4GvMjbb3REW9GztnECedCdyMO0MB
+            scope:
+              - openid
+              - email
+              - profile
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:9000/login/oauth2/code/keycloak
+  cloud:
+    discovery:
+      enabled: true
+    gateway:
+      routes:
+        - id: product-routes
+          uri: lb://ProductService
+          predicates:
+            - Path=/api/v1/products/**
+            - Path=/api/v1/categories/**
+
+        - id: order-routes
+          uri: lb://OrderService
+          predicates:
+            - Path=/api/v1/orders/**
+
+        - id: cart-routes
+          uri: lb://CartService
+          predicates:
+            - Path=/api/v1/carts/**
+
+        - id: review-routes
+          uri: lb://ReviewService
+          predicates:
+            - Path=/api/v1/reviews/**
+
+        - id: user-routes
+          uri: lb://UserService
+          predicates:
+            - Path=/api/v1/users/**
+
+        - id: payment-routes
+          uri: lb://PaymentService
+          predicates:
+            - Path=/api/v1/payments/**
+
+        - id: notification-routes
+          uri: lb://NotificationService
+          predicates:
+            - Path=/api/v1/notifications/**
+
+        - id: analytic-routes
+          uri: lb://AnalyticService
+          predicates:
+            - Path=/api/v1/admin/**
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      default-filters:
+        - TokenRelay

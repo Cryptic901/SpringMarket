@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -18,7 +17,6 @@ import java.util.UUID;
 public class PaymentCreatedEvent extends DomainEvent implements PaymentEvent {
     private UUID paymentId;
     private PaymentMethod paymentMethod;
-    private LocalDateTime timestamp;
     private BigDecimal price;
     private UUID orderId;
     private UUID userId;

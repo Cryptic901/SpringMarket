@@ -1,5 +1,5 @@
 networks:
-  kafka-net:
+  spring-market:
     driver: bridge
 
 services:
@@ -13,11 +13,12 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     ports:
       - "19093:9093"
     networks:
-      - kafka-net
+      - spring-market
+    restart: on-failure:3
     healthcheck:
       test: ["CMD", "bash", "-c", "nc -z localhost:9093"]
       interval: 10s
@@ -34,11 +35,12 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     ports:
       - "29093:9093"
     networks:
-      - kafka-net
+      - spring-market
+    restart: on-failure:3
     healthcheck:
       test: ["CMD", "bash", "-c", "nc -z localhost:9093"]
       interval: 10s
@@ -55,11 +57,12 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     ports:
       - "39093:9093"
     networks:
-      - kafka-net
+      - spring-market
+    restart: on-failure:3
     healthcheck:
       test: ["CMD", "bash", "-c", "nc -z localhost:9093"]
       interval: 10s
@@ -85,22 +88,22 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:9094
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:29092,PLAINTEXT_HOST://localhost:29094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://localhost:29094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     networks:
-      - kafka-net
+      - spring-market
+    restart: on-failure:3
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      test: [ "CMD", "bash", "-c", "nc -z localhost:9092" ]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 40s
 
   broker-2:
     image: apache/kafka:latest
@@ -113,7 +116,7 @@ services:
       controller-3:
         condition: service_healthy
       broker-1:
-        condition: service_healthy
+        condition: service_started
     ports:
       - "39092:9092"
       - "39094:9094"
@@ -123,23 +126,22 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:9094
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-2:39092,PLAINTEXT_HOST://localhost:39094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://localhost:39094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     networks:
-      - kafka-net
+      - spring-market
+    restart: on-failure:3
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      test: ["CMD", "bash", "-c", "nc -z localhost:9092"]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 40s
-
 
   broker-3:
     image: apache/kafka:latest
@@ -152,9 +154,9 @@ services:
       controller-3:
         condition: service_healthy
       broker-1:
-        condition: service_healthy
+        condition: service_started
       broker-2:
-        condition: service_healthy
+        condition: service_started
     ports:
       - "49092:9092"
       - "49094:9094"
@@ -164,22 +166,22 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:9094
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-3:49092,PLAINTEXT_HOST://localhost:49094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://localhost:49094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     networks:
-      - kafka-net
+      - spring-market
+    restart: on-failure:3
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      test: ["CMD", "bash", "-c", "nc -z localhost:9092"]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 40s
 
   redis:
     image: redis:8.2-m01
@@ -191,14 +193,251 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    volumes:
+      - redis_data:/data
+    networks:
+      - spring-market
+
+  keycloak-db:
+    image: postgres:latest
+    container_name: keycloak-db
+    ports:
+      - "5400:5432"
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - spring-market
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d keycloak" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   keycloak:
-    image: keycloak/keycloak
+    image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HOSTNAME: localhost
-    ports:
-      - "8080:8080"
     command: start-dev
+    environment:
+      KC_HOSTNAME: localhost
+      KC_PROXY: edge
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HEALTH_ENABLED: true
+      KC_HTTP_ENABLED: true
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+    ports:
+      - "9000:8080"
+    volumes:
+      - ./providers:/opt/keycloak/providers
+    restart: always
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    networks:
+      - spring-market
+
+volumes:
+  keycloak_data:
+    driver: local
+  redis_data:
+
+#TODO dockerfiles
+#  gateway:
+#    container_name: gateway
+#    image: springmarket-gateway
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - spring-market
+#
+#  analyticservice:
+#    container_name: analyticservice
+#    image: springmarket-analytic-service
+#    ports:
+#      - "8085:8085"
+#    networks:
+#      - spring-market
+#    depends_on:
+#      - redis
+#
+#  cartservice:
+#    container_name: cartservice
+#    image: springmarket-cart-service
+#    ports:
+#      - "8084:8084"
+#    networks:
+#      - spring-market
+#    depends_on:
+#      - cart-db
+#
+#  cart-db:
+#    container_name: cart-db
+#    image: postgres
+#    environment:
+#      POSTGRES_DB: cart_db
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_URL: jdbc:postgresql://localhost:5432/cart_db
+#    ports:
+#      - "5434:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - spring-market
+#
+#  eureka:
+#    container_name: eureka
+#    image: springmarket-eureka-service
+#    ports:
+#      - "8761:8761"
+#    networks:
+#      - spring-market
+#
+#  notificationservice:
+#    container_name: notificationservice
+#    image: springmarket-notification-service
+#    ports:
+#      - "8089:8089"
+#    networks:
+#      - spring-market
+#
+#  orderservice:
+#    container_name: orderservice
+#    image: springmarket-order-service
+#    ports:
+#      - "8082:8082"
+#    networks:
+#      - spring-market
+#    depends_on:
+#      - order-db
+#
+#  order-db:
+#    container_name: order-db
+#    image: postgres
+#    environment:
+#      POSTGRES_DB: order-db
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_URL: jdbc:postgresql://localhost:5432/order_db
+#    ports:
+#      - "5435:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - spring-market
+#
+#  paymentservice:
+#    container_name: paymentservice
+#    image: springmarket-payment-service
+#    ports:
+#      - "8088:8088"
+#    networks:
+#      - spring-market
+#    depends_on:
+#      - order-db
+#
+#  payment-db:
+#    container_name: payment_db
+#    image: postgres
+#    environment:
+#      POSTGRES_DB: payment_db
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_URL: jdbc:postgresql://localhost:5432/payment_db
+#    ports:
+#      - "5436:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - spring-market
+#
+#  productservice:
+#    container_name: productservice
+#    image: springmarket-product-service
+#    ports:
+#      - "8081:8081"
+#    networks:
+#      - spring-market
+#    depends_on:
+#      - product-db
+#
+#  product-db:
+#    container_name: product_db
+#    image: postgres
+#    environment:
+#      POSTGRES_DB: product_db
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_URL: jdbc:postgresql://localhost:5432/product_db
+#    ports:
+#      - "5437:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - spring-market
+#
+#  reviewservice:
+#    container_name: reviewservice
+#    image: springmarket-review-service
+#    ports:
+#      - "8083:8083"
+#    networks:
+#      - spring-market
+#    depends_on:
+#      - review-db
+#
+#  review-db:
+#    container_name: review_db
+#    image: postgres
+#    environment:
+#      POSTGRES_DB: review_db
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_URL: jdbc:postgresql://localhost:5432/review_db
+#    ports:
+#      - "5438:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - spring-market
+#
+#  sagaservice:
+#    container_name: sagaservice
+#    image: springmarket-saga-service
+#    ports:
+#      - "8090:8090"
+#    networks:
+#      - spring-market
+#
+#  userservice:
+#    container_name: userservice
+#    image: springmarket-user-service
+#    ports:
+#      - "8086:8086"
+#    networks:
+#      - spring-market
+#    depends_on:
+#      - user-db
+#
+#  user-db:
+#    container_name: user_db
+#    image: postgres
+#    environment:
+#      POSTGRES_DB: user_db
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_URL: jdbc:postgresql://localhost:5432/user_db
+#    ports:
+#      - "5439:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - spring-market
+

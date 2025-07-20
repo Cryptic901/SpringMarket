@@ -29,10 +29,8 @@ public class AppUserView {
 
     private String username;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number")
     private String phoneNumber;
-
-    private Character gender;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -43,12 +41,11 @@ public class AppUserView {
         AppUserView that = (AppUserView) o;
         return Objects.equals(userId, that.userId) &&
                 Objects.equals(username, that.username) &&
-                Objects.equals(phoneNumber, that.phoneNumber) &&
-                Objects.equals(gender, that.gender);
+                Objects.equals(phoneNumber, that.phoneNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, phoneNumber, gender);
+        return Objects.hash(userId, username, phoneNumber);
     }
 }

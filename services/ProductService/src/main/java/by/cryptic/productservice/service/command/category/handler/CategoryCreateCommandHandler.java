@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CategoryCreateCommandHandler implements CommandHandler<CategoryCreateCommand> {
 
-
     private final CategoryRepository categoryRepository;
     private final ApplicationEventPublisher eventPublisher;
 

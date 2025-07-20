@@ -2,9 +2,12 @@ package by.cryptic.paymentservice.controller.write;
 
 import by.cryptic.paymentservice.service.command.PaymentCreateCommand;
 import by.cryptic.paymentservice.service.command.handler.PaymentCreateCommandHandler;
+import by.cryptic.security.JwtUtil;
 import by.cryptic.utils.DTO.PaymentDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -19,13 +22,12 @@ public class PaymentCommandController {
 
     @PostMapping
     public ResponseEntity<Void> createPayment(@RequestBody PaymentDTO dto,
-                                              @RequestHeader("X-User-Id") UUID userId,
-                                              @RequestHeader("X-User-Email") String email) {
+                                              @AuthenticationPrincipal Jwt jwt) {
         paymentCreateCommandHandler.handle(new PaymentCreateCommand(
                 dto.paymentMethod(),
-                userId,
+                JwtUtil.extractUserId(jwt),
                 dto.orderId(),
-                email,
+                JwtUtil.extractEmail(jwt),
                 dto.price(),
                 LocalDateTime.now()
         ));

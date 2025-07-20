@@ -6,13 +6,12 @@ import by.cryptic.productservice.model.write.Product;
 import by.cryptic.productservice.repository.read.ProductViewRepository;
 import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.utils.DTO.OrderedProductDTO;
-import by.cryptic.utils.event.EventType;
-import by.cryptic.utils.event.order.OrderSuccessEvent;
+import by.cryptic.utils.event.DomainEvent;
+import by.cryptic.utils.event.order.OrderCreatedEvent;
 import by.cryptic.utils.event.product.ProductCreatedEvent;
 import by.cryptic.utils.event.product.ProductDeletedEvent;
 import by.cryptic.utils.event.product.ProductUpdatedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,37 +35,31 @@ public class ProductEventListener {
 
     @KafkaListener(topics = {"product-topic", "order-topic"}, groupId = "product-group")
     public void listenProducts(String rawEvent) throws JsonProcessingException {
-        JsonNode node = objectMapper.readTree(rawEvent);
-        String type = node.get("eventType").asText();
-        switch (EventType.valueOf(type)) {
-            case ProductCreatedEvent -> {
-                ProductCreatedEvent event = objectMapper.treeToValue(node, ProductCreatedEvent.class);
-                productViewRepository.save(ProductView.builder()
-                        .productId(event.getProductId())
-                        .name(event.getName())
-                        .price(event.getPrice())
-                        .quantity(event.getQuantity())
-                        .description(event.getDescription())
-                        .image(event.getImage())
-                        .createdBy(event.getCreatedBy())
-                        .categoryId(event.getCategoryId())
-                        .build());
-            }
-            case ProductUpdatedEvent -> {
-                ProductUpdatedEvent event = objectMapper.treeToValue(node, ProductUpdatedEvent.class);
-                productViewRepository.findById(event.getProductId()).ifPresent(productView -> {
-                    productMapper.updateView(productView, event);
-                    productViewRepository.save(productView);
-                });
-            }
-            case ProductDeletedEvent -> {
-                ProductDeletedEvent event = objectMapper.treeToValue(node, ProductDeletedEvent.class);
-                productViewRepository.findById(event.getProductId()).ifPresent(_ ->
-                        productViewRepository.deleteById(event.getProductId()));
-            }
-            case OrderCreatedEvent -> {
-                OrderSuccessEvent event = objectMapper.treeToValue(node, OrderSuccessEvent.class);
-                List<OrderedProductDTO> orderedProductDTOS = event.getListOfProducts();
+        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
+        switch (event) {
+            case ProductCreatedEvent productCreatedEvent -> productViewRepository.save(ProductView.builder()
+                    .productId(productCreatedEvent.getProductId())
+                    .name(productCreatedEvent.getName())
+                    .price(productCreatedEvent.getPrice())
+                    .quantity(productCreatedEvent.getQuantity())
+                    .description(productCreatedEvent.getDescription())
+                    .image(productCreatedEvent.getImage())
+                    .createdBy(productCreatedEvent.getCreatedBy())
+                    .categoryId(productCreatedEvent.getCategoryId())
+                    .build());
+
+            case ProductUpdatedEvent productUpdatedEvent ->
+                    productViewRepository.findById(productUpdatedEvent.getProductId()).ifPresent(productView -> {
+                        productMapper.updateView(productView, productUpdatedEvent);
+                        productViewRepository.save(productView);
+                    });
+
+            case ProductDeletedEvent productDeletedEvent ->
+                    productViewRepository.findById(productDeletedEvent.getProductId()).ifPresent(_ ->
+                            productViewRepository.deleteById(productDeletedEvent.getProductId()));
+
+            case OrderCreatedEvent orderCreatedEvent -> {
+                List<OrderedProductDTO> orderedProductDTOS = orderCreatedEvent.getListOfProducts();
 
                 Map<UUID, OrderedProductDTO> orderedMap = orderedProductDTOS.stream()
                         .collect(Collectors.toMap(OrderedProductDTO::productId, dto -> dto));
@@ -78,7 +71,7 @@ public class ProductEventListener {
                     productMapper.updateEntity(product, dto);
                 }
             }
-            default -> throw new IllegalStateException("Unexpected event type: " + type);
+            default -> throw new IllegalStateException("Unexpected event type: " + event);
         }
     }
 }

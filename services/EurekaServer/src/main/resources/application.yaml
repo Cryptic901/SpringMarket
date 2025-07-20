@@ -1,19 +1,7 @@
-server:
-  port: 8761
 spring:
   application:
     name: EurekaServer
-
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-
-logging:
-  level:
-    org:
-      springframework:
-        cache: TRACE
-        web: TRACE
-        http: TRACE
-        security: TRACE
+  cloud:
+    config:
+      uri: http://localhost:8888
+      profile: default

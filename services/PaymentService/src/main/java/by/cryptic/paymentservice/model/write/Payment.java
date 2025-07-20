@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
@@ -37,7 +39,8 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false, updatable = false)
+    @CreatedBy
     private UUID userId;
 
     @Column(name = "order_id")
@@ -45,5 +48,7 @@ public class Payment {
 
     private BigDecimal price;
 
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
 }

@@ -6,7 +6,6 @@ import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +20,6 @@ public class OrderSuccessEvent extends DomainEvent implements OrderEvent {
     private BigDecimal price;
     @Builder.Default
     private OrderStatus orderStatus = OrderStatus.IN_PROGRESS;
-    private LocalDateTime createdTimestamp;
     private List<OrderedProductDTO> listOfProducts;
     private String location;
     private UUID createdBy;

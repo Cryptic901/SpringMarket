@@ -44,7 +44,6 @@ public class OrderUpdatedCommandHandler implements CommandHandler<OrderUpdateCom
                 .orderId(order.getId())
                 .userEmail(command.email())
                 .status(OrderStatus.IN_PROGRESS)
-                .updatedTimestamp(order.getUpdatedAt())
                 .build());
         Objects.requireNonNull(cacheManager.getCache("orders"))
                 .put("order:" + command.location() + '-' + command.userId(), order);

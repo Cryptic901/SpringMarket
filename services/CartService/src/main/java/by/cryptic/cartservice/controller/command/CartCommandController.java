@@ -6,9 +6,12 @@ import by.cryptic.cartservice.service.command.CartDeleteProductCommand;
 import by.cryptic.cartservice.service.command.handler.CartAddCommandHandler;
 import by.cryptic.cartservice.service.command.handler.CartClearCommandHandler;
 import by.cryptic.cartservice.service.command.handler.CartDeleteProductCommandHandler;
+import by.cryptic.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -24,25 +27,22 @@ public class CartCommandController {
 
     @PostMapping
     public ResponseEntity<Void> addItemToCart(
-            @RequestParam UUID productId,
-            @RequestHeader("X-User-Id") UUID userId) {
-        cartAddCommandHandler.handle(new CartAddCommand(productId, userId));
+            @RequestParam UUID productId, @AuthenticationPrincipal Jwt jwt) {
+        cartAddCommandHandler.handle(new CartAddCommand(productId, JwtUtil.extractUserId(jwt)));
         return ResponseEntity.status(HttpStatusCode.valueOf(201)).build();
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<Void> removeAllItemsFromCart(
-            @RequestHeader("X-User-Id") UUID userId
-    ) {
-        cartClearCommandHandler.handle(new CartClearCommand(userId));
+    public ResponseEntity<Void> removeAllItemsFromCart(@AuthenticationPrincipal Jwt jwt) {
+        cartClearCommandHandler.handle(new CartClearCommand(JwtUtil.extractUserId(jwt)));
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> removeItemFromCart(
-            @RequestParam UUID productId,
-            @RequestHeader("X-User-Id") UUID userId) {
-        cartDeleteProductCommandHandler.handle(new CartDeleteProductCommand(productId, userId));
+            @RequestParam UUID productId, @AuthenticationPrincipal Jwt jwt) {
+        cartDeleteProductCommandHandler.handle(new CartDeleteProductCommand(productId,
+                JwtUtil.extractUserId(jwt)));
         return ResponseEntity.noContent().build();
     }
 }

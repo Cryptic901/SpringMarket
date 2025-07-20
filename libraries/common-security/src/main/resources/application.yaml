@@ -1,6 +1,6 @@
 spring:
   security:
-    jwt:
-      secret: G7nHsKi/JvNfskJg4m4bbq2KqQOuvPWXAzTyOq7SmQA=
-      #     expiration: 1h
-      expiration: 20h
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000/realms/springmarket

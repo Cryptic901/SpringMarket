@@ -16,6 +16,5 @@ public record ProductDTO(@NotBlank(message = "Product should have name")
                          String description,
                          @NotBlank(message = "Product should have image")
                          String image,
-                         UUID categoryId,
-                         UUID createdBy) implements Serializable {
+                         UUID categoryId) implements Serializable {
 }

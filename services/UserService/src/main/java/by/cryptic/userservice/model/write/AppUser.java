@@ -1,6 +1,5 @@
 package by.cryptic.userservice.model.write;
 
-import by.cryptic.utils.DTO.ReviewDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,8 +9,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -34,12 +31,8 @@ public class AppUser {
     @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number")
     private String phoneNumber;
-
-    private Boolean enabled = false;
-
-    private Character gender;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

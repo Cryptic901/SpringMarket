@@ -14,5 +14,6 @@ public record ReviewCreateCommand(@NotBlank(message = "Title should not be null"
                                   @NotBlank(message = "Image should not be null")
                                   String image,
                                   @NotNull(message = "Product id should not be null")
-                                  UUID productId) {
+                                  UUID productId,
+                                  UUID userId) {
 }

@@ -17,7 +17,6 @@ import java.util.UUID;
 @Builder
 public class PaymentCanceledEvent extends DomainEvent implements PaymentEvent {
     private UUID paymentId;
-    private LocalDateTime timestamp;
     private UUID orderId;
     private UUID userId;
     private PaymentStatus paymentStatus;

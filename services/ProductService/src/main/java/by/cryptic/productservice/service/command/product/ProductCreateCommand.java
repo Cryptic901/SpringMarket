@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public record ProductCreateCommand(@NotBlank(message = "Product should have name")
                                    String name,
+                                   UUID createdBy,
                                    @NotNull(message = "Product should have price")
                                    BigDecimal price,
                                    @NotNull(message = "Product should have quantity")

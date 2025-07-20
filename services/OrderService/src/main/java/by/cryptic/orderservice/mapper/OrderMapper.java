@@ -48,9 +48,6 @@ public class OrderMapper {
         if (event.getStatus() != null) {
             view.setOrderStatus(event.getStatus());
         }
-        if (event.getUpdatedTimestamp() != null) {
-            view.setUpdatedAt(event.getUpdatedTimestamp());
-        }
 
         if (event.getOrderId() != null) {
             view.setOrderId(event.getOrderId());

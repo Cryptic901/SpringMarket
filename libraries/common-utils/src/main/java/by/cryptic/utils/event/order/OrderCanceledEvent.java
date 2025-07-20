@@ -18,14 +18,12 @@ public class OrderCanceledEvent extends DomainEvent implements OrderEvent {
     private String userEmail;
     @Builder.Default
     private OrderStatus orderStatus = OrderStatus.CANCELLED;
-    private LocalDateTime canceledTimestamp;
     private static final String version = "1.0";
     @Builder.Default
     private String source = OrderCanceledEvent.class.getName();
 
     public OrderCanceledEvent(UUID id, String userEmail) {
         this.orderId = id;
-        this.canceledTimestamp = LocalDateTime.now();
         this.orderStatus = OrderStatus.CANCELLED;
         this.userEmail = userEmail;
     }
