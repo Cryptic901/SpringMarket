@@ -1,5 +1,8 @@
 package by.cryptic.reviewservice.controller.command;
 
+import by.cryptic.reviewservice.dto.ReviewCreateDTO;
+import by.cryptic.reviewservice.dto.ReviewUpdateDTO;
+import by.cryptic.security.JwtUtil;
 import by.cryptic.utils.DTO.ReviewDTO;
 import by.cryptic.reviewservice.service.command.ReviewCreateCommand;
 import by.cryptic.reviewservice.service.command.ReviewDeleteCommand;
@@ -11,6 +14,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
@@ -27,29 +32,36 @@ public class ReviewCommandController {
 
     @PostMapping
     public ResponseEntity<ReviewDTO> createReview(
-            @RequestBody @Valid ReviewCreateCommand createReviewDTO) {
-        reviewCreateCommandHandler.handle(createReviewDTO);
+            @RequestBody @Valid ReviewCreateDTO createReviewDTO, @AuthenticationPrincipal Jwt jwt) {
+        reviewCreateCommandHandler.handle(new ReviewCreateCommand(
+                createReviewDTO.title(),
+                createReviewDTO.description(),
+                createReviewDTO.rating(),
+                createReviewDTO.image(),
+                createReviewDTO.productId(),
+                JwtUtil.extractUserId(jwt)
+        ));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PatchMapping
     public ResponseEntity<ReviewDTO> updateReview(
-            @RequestBody @Valid ReviewUpdateCommand updateReviewDTO,
-            @RequestHeader("X-User-ID") UUID userId) throws AccessDeniedException {
+            @RequestBody @Valid ReviewUpdateDTO updateReviewDTO,
+            @AuthenticationPrincipal Jwt jwt) throws AccessDeniedException {
         reviewUpdateCommandHandler.handle(new ReviewUpdateCommand(
                 updateReviewDTO.reviewId(),
                 updateReviewDTO.title(),
                 updateReviewDTO.rating(),
                 updateReviewDTO.description(),
                 updateReviewDTO.image(),
-                userId
+                JwtUtil.extractUserId(jwt)
         ));
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReview(@PathVariable UUID id, @RequestHeader("X-User-ID") UUID userId) {
-        reviewDeleteCommandHandler.handle(new ReviewDeleteCommand(id, userId));
+    public ResponseEntity<Void> deleteReview(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+        reviewDeleteCommandHandler.handle(new ReviewDeleteCommand(id, JwtUtil.extractUserId(jwt)));
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,17 +1,16 @@
 package by.cryptic.orderservice.listener;
 
 
-import by.cryptic.utils.OrderStatus;
 import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.read.CustomerOrderView;
 import by.cryptic.orderservice.repository.read.OrderViewRepository;
-import by.cryptic.utils.event.EventType;
+import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
 import by.cryptic.utils.event.order.OrderFailedEvent;
 import by.cryptic.utils.event.order.OrderSuccessEvent;
 import by.cryptic.utils.event.order.OrderUpdatedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,44 +29,35 @@ public class OrderEventListener {
 
     @KafkaListener(topics = "order-topic", groupId = "order-group")
     public void listenOrders(String rawEvent) throws JsonProcessingException {
-        JsonNode node = objectMapper.readTree(rawEvent);
-        String type = node.get("eventType").asText();
-        switch (EventType.valueOf(type)) {
-            case OrderSuccessEvent -> {
-                OrderSuccessEvent event = objectMapper.treeToValue(node, OrderSuccessEvent.class);
-                orderViewRepository.save(CustomerOrderView.builder()
-                        .orderStatus(OrderStatus.IN_PROGRESS)
-                        .orderId(event.getOrderId())
-                        .createdBy(event.getCreatedBy())
-                        .location(event.getLocation())
-                        .createdAt(event.getCreatedTimestamp())
-                        .price(event.getPrice())
-                        .build());
-            }
-            case OrderFailedEvent -> {
-                OrderFailedEvent event = objectMapper.treeToValue(node, OrderFailedEvent.class);
-                orderViewRepository.save(CustomerOrderView.builder()
-                        .orderStatus(OrderStatus.FAILED)
-                        .orderId(event.getOrderId())
-                        .createdBy(event.getCreatedBy())
-                        .location(event.getLocation())
-                        .createdAt(event.getCreatedTimestamp())
-                        .price(event.getPrice())
-                        .build());
-            }
-            case OrderUpdatedEvent -> {
-                OrderUpdatedEvent event = objectMapper.treeToValue(node, OrderUpdatedEvent.class);
-                orderViewRepository.findById(event.getOrderId()).ifPresent(orderView -> {
-                    orderMapper.updateView(orderView, event);
-                    orderViewRepository.save(orderView);
-                });
-            }
-            case OrderCanceledEvent -> {
-                OrderCanceledEvent event = objectMapper.treeToValue(node, OrderCanceledEvent.class);
-                orderViewRepository.findById(event.getOrderId()).ifPresent(_ ->
-                        orderViewRepository.deleteById(event.getOrderId()));
-            }
-            default -> throw new IllegalStateException("Unexpected event type: " + type);
+        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
+        switch (event) {
+            case OrderSuccessEvent orderSuccessEvent -> orderViewRepository.save(CustomerOrderView.builder()
+                    .orderStatus(OrderStatus.IN_PROGRESS)
+                    .orderId(orderSuccessEvent.getOrderId())
+                    .createdBy(orderSuccessEvent.getCreatedBy())
+                    .location(orderSuccessEvent.getLocation())
+                    .price(orderSuccessEvent.getPrice())
+                    .build());
+
+            case OrderFailedEvent orderFailedEvent -> orderViewRepository.save(CustomerOrderView.builder()
+                    .orderStatus(OrderStatus.FAILED)
+                    .orderId(orderFailedEvent.getOrderId())
+                    .createdBy(orderFailedEvent.getCreatedBy())
+                    .location(orderFailedEvent.getLocation())
+                    .price(orderFailedEvent.getPrice())
+                    .build());
+
+            case OrderUpdatedEvent orderUpdatedEvent ->
+                    orderViewRepository.findById(orderUpdatedEvent.getOrderId()).ifPresent(orderView -> {
+                        orderMapper.updateView(orderView, orderUpdatedEvent);
+                        orderViewRepository.save(orderView);
+                    });
+
+            case OrderCanceledEvent orderCanceledEvent ->
+                    orderViewRepository.findById(orderCanceledEvent.getOrderId()).ifPresent(_ ->
+                            orderViewRepository.deleteById(orderCanceledEvent.getOrderId()));
+
+            default -> throw new IllegalStateException("Unexpected event type: " + event);
         }
     }
 }

@@ -1,5 +1,6 @@
 package by.cryptic.productservice.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,8 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class CacheConfig {
 
+    private final ObjectMapper objectMapper;
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory();
@@ -33,7 +36,7 @@ public class CacheConfig {
                         .serializeKeysWith(RedisSerializationContext
                                 .SerializationPair.fromSerializer(new StringRedisSerializer()))
                         .serializeValuesWith(RedisSerializationContext
-                                .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
+                                .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper))))
                 .build();
     }
 }

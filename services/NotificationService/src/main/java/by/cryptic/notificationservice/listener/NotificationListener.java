@@ -2,13 +2,10 @@ package by.cryptic.notificationservice.listener;
 
 import by.cryptic.notificationservice.service.EmailContentBuilder;
 import by.cryptic.notificationservice.service.EmailService;
-import by.cryptic.utils.event.EventType;
+import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
-import by.cryptic.utils.event.order.OrderSuccessEvent;
-import by.cryptic.utils.event.user.UserCreatedEvent;
-import by.cryptic.utils.event.user.UserResendVerifyMessageEvent;
+import by.cryptic.utils.event.order.OrderCreatedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -27,41 +24,35 @@ public class NotificationListener {
 
     @KafkaListener(topics = "order-topic", groupId = "notification-group")
     public void sendOrderStatus(String orderEvent) throws JsonProcessingException, MessagingException {
-        JsonNode node = objectMapper.readTree(orderEvent);
-        EventType eventType = EventType.valueOf(node.get("eventType").asText());
-        switch (eventType) {
-            case OrderCreatedEvent -> {
-                OrderSuccessEvent orderCreatedEvent = objectMapper.treeToValue(node,
-                        OrderSuccessEvent.class);
-                emailService.sendEmail(orderCreatedEvent.getUserEmail(), "SpringMarket Order",
-                        emailContentBuilder.buildOrderEmailContent(orderCreatedEvent.getOrderId(),
-                                orderCreatedEvent.getOrderStatus()));
-            }
-            case OrderCanceledEvent -> {
-                OrderCanceledEvent orderCanceledEvent = objectMapper.treeToValue(node,
-                        OrderCanceledEvent.class);
-                emailService.sendEmail(orderCanceledEvent.getUserEmail(), "SpringMarket Order",
-                        emailContentBuilder.buildOrderEmailContent(orderCanceledEvent.getOrderId(),
-                                orderCanceledEvent.getOrderStatus()));
-            }
+        DomainEvent event = objectMapper.readValue(orderEvent, DomainEvent.class);
+        switch (event) {
+            case OrderCreatedEvent orderCreatedEvent -> emailService.sendEmail(orderCreatedEvent.getUserEmail(), "SpringMarket Order",
+                    emailContentBuilder.buildOrderEmailContent(orderCreatedEvent.getOrderId(),
+                            orderCreatedEvent.getOrderStatus()));
+
+            case OrderCanceledEvent orderCanceledEvent -> emailService.sendEmail(orderCanceledEvent.getUserEmail(), "SpringMarket Order",
+                    emailContentBuilder.buildOrderEmailContent(orderCanceledEvent.getOrderId(),
+                            orderCanceledEvent.getOrderStatus()));
+
+            default -> throw new IllegalStateException("Unexpected event type: " + event);
         }
     }
 
-    @KafkaListener(topics = "user-topic", groupId = "notification-group")
-    public void sendVerificationEmail(String userEvent) throws MessagingException, JsonProcessingException {
-        JsonNode node = objectMapper.readTree(userEvent);
-        EventType eventType = EventType.valueOf(node.get("eventType").asText());
-        switch (eventType) {
-            case UserCreatedEvent -> {
-                UserCreatedEvent event = objectMapper.treeToValue(node, UserCreatedEvent.class);
-                emailService.sendEmail(event.getEmail(), "SpringMarket verification",
-                        emailContentBuilder.buildVerificationEmailContent(event.getVerificationCode()));
-            }
-            case UserResendVerifyMessageEvent -> {
-                UserResendVerifyMessageEvent event = objectMapper.treeToValue(node, UserResendVerifyMessageEvent.class);
-                emailService.sendEmail(event.getEmail(), "SpringMarket verification",
-                        emailContentBuilder.buildVerificationEmailContent(event.getVerificationCode()));
-            }
-        }
-    }
+//    @KafkaListener(topics = "user-topic", groupId = "notification-group")
+//    public void sendVerificationEmail(String userEvent) throws MessagingException, JsonProcessingException {
+//        JsonNode node = objectMapper.readTree(userEvent);
+//        EventType eventType = EventType.valueOf(node.get("eventType").asText());
+//        switch (eventType) {
+//            case UserCreatedEvent -> {
+//                UserCreatedEvent event = objectMapper.treeToValue(node, UserCreatedEvent.class);
+//                emailService.sendEmail(event.getEmail(), "SpringMarket verification",
+//                        emailContentBuilder.buildVerificationEmailContent(event.getVerificationCode()));
+//            }
+//            case UserResendVerifyMessageEvent -> {
+//                UserResendVerifyMessageEvent event = objectMapper.treeToValue(node, UserResendVerifyMessageEvent.class);
+//                emailService.sendEmail(event.getEmail(), "SpringMarket verification",
+//                        emailContentBuilder.buildVerificationEmailContent(event.getVerificationCode()));
+//            }
+//        }
+//    }
 }

@@ -19,7 +19,6 @@ public class PaymentSuccessEvent extends DomainEvent implements PaymentEvent {
 
     private UUID paymentId;
     private PaymentMethod paymentMethod;
-    private LocalDateTime timestamp;
     private BigDecimal price;
     private UUID orderId;
     private UUID userId;

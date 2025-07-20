@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/categories/")
+@RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
 public class CategoryQueryController {
 
@@ -23,12 +23,12 @@ public class CategoryQueryController {
     private final CategoryGetByIdQueryHandler categoryGetByIdQueryHandler;
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> getAllReviews() {
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         return ResponseEntity.ok(categoryGetAllQueryHandler.handle(new CategoryGetAllQuery()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDTO> getReviewById(@PathVariable UUID id) {
+    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable UUID id) {
         return ResponseEntity.ok(categoryGetByIdQueryHandler.handle(id));
     }
 }

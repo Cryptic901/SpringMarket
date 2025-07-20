@@ -1,0 +1,18 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000/realms/springmarket
+logging:
+  level:
+    org:
+      springframework:
+        cache: TRACE
+        web: TRACE
+        http: TRACE
+        security: TRACE

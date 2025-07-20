@@ -22,7 +22,8 @@ public class CartGetAllQueryHandler implements QueryHandler<CartGetAllQuery, Lis
     @Transactional(readOnly = true)
     public List<CartProductDTO> handle(CartGetAllQuery cartGetAllQuery) {
         CartView cartView = cartViewRepository.findByUserId(cartGetAllQuery.userId())
-                .orElseThrow(() -> new RuntimeException("Invalid user"));
+                .orElseThrow(() -> new RuntimeException("User with id %s not found"
+                        .formatted(cartGetAllQuery.userId())));
         return cartView.getProducts().stream().map(pr ->
                         new CartProductDTO(pr.getProductId(), pr.getQuantity(), pr.getPrice()))
                 .toList();

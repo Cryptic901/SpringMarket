@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>by.cryptic</groupId>
 		<artifactId>SpringMarket</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>ReviewService</artifactId>
@@ -28,6 +28,14 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>by.cryptic</groupId>
+			<artifactId>common-exception</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -61,6 +69,10 @@
 		<dependency>
 			<groupId>by.cryptic</groupId>
 			<artifactId>common-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>by.cryptic</groupId>
+			<artifactId>common-security</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

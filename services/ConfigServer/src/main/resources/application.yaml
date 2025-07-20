@@ -1,0 +1,17 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: ConfigServer
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Cryptic901/SpringMarket
+          clone-on-start: true
+          search-paths: config/{application}
+          default-label: master
+  security:
+    user:
+      name: config
+      password: config

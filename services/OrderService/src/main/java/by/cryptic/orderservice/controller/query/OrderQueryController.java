@@ -5,8 +5,11 @@ import by.cryptic.orderservice.service.query.OrderGetAllQuery;
 import by.cryptic.orderservice.service.query.OrderGetByIdQuery;
 import by.cryptic.orderservice.service.query.handler.OrderGetAllQueryHandler;
 import by.cryptic.orderservice.service.query.handler.OrderGetByIdQueryHandler;
+import by.cryptic.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,14 +24,14 @@ public class OrderQueryController {
     private final OrderGetByIdQueryHandler orderGetByIdQueryHandler;
 
     @GetMapping
-    public ResponseEntity<List<OrderDTO>> getOrders(@RequestHeader("X-User-Id") UUID id) {
-        return ResponseEntity.ok(orderGetAllQueryHandler.handle(new OrderGetAllQuery(id)));
+    public ResponseEntity<List<OrderDTO>> getOrders(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(orderGetAllQueryHandler
+                .handle(new OrderGetAllQuery(JwtUtil.extractUserId(jwt))));
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderDTO> getOrder(@PathVariable UUID orderId,
-                                             @RequestHeader("X-User-Id") UUID userId) {
+    public ResponseEntity<OrderDTO> getOrder(@PathVariable UUID orderId, @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(orderGetByIdQueryHandler.handle
-                (new OrderGetByIdQuery(orderId, userId)));
+                (new OrderGetByIdQuery(orderId, JwtUtil.extractUserId(jwt))));
     }
 }

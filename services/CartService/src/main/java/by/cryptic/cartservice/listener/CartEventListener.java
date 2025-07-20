@@ -2,13 +2,15 @@ package by.cryptic.cartservice.listener;
 
 import by.cryptic.cartservice.model.read.CartProductView;
 import by.cryptic.cartservice.model.read.CartView;
+import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.repository.read.CartViewRepository;
-import by.cryptic.utils.event.EventType;
+import by.cryptic.cartservice.repository.write.CartRepository;
+import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.cart.CartAddedItemEvent;
 import by.cryptic.utils.event.cart.CartClearedEvent;
 import by.cryptic.utils.event.cart.CartDeletedProductEvent;
+import by.cryptic.utils.event.user.UserCreatedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,55 +27,52 @@ import java.util.ArrayList;
 public class CartEventListener {
     private final ObjectMapper objectMapper;
     private final CartViewRepository cartViewRepository;
+    private final CartRepository cartRepository;
 
-    @KafkaListener(topics = {"cart-topic"}, groupId = "cart-group")
+    @KafkaListener(topics = {"cart-topic", "user-topic"}, groupId = "cart-group")
     public void listenCart(String rawEvent) throws JsonProcessingException {
-        JsonNode node = objectMapper.readTree(rawEvent);
-        EventType type = EventType.valueOf(node.get("eventType").asText());
-        log.info("Received event type {}", type);
-        switch (type) {
-            case CartAddedItemEvent -> {
-                CartAddedItemEvent event = objectMapper.treeToValue(node, CartAddedItemEvent.class);
-                CartView cartView = cartViewRepository.findById(event.getCartId())
+        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
+        log.info("Received event type {}", event.getEventType());
+        switch (event) {
+            case CartAddedItemEvent cartAddedItemEvent -> {
+                CartView cartView = cartViewRepository.findById(cartAddedItemEvent.getCartId())
                         .orElse(CartView.builder()
                                 .total(BigDecimal.ZERO)
-                                .cartId(event.getCartId())
+                                .cartId(cartAddedItemEvent.getCartId())
                                 .products(new ArrayList<>())
-                                .userId(event.getUserId())
+                                .userId(cartAddedItemEvent.getUserId())
                                 .build());
 
                 CartProductView newProduct = CartProductView.builder()
-                        .productId(event.getProductId())
-                        .price(event.getPrice())
+                        .productId(cartAddedItemEvent.getProductId())
+                        .price(cartAddedItemEvent.getPrice())
                         .quantity(1)
                         .build();
 
                 cartView.getProducts().stream()
                         .filter(p -> p.getProductId()
-                                .equals(event.getProductId()))
+                                .equals(cartAddedItemEvent.getProductId()))
                         .findFirst()
                         .ifPresentOrElse(
                                 p -> p.setQuantity(p.getQuantity() + 1),
                                 () -> cartView.getProducts().add(newProduct));
-                cartView.setTotal(cartView.getTotal().add(event.getPrice()));
+                cartView.setTotal(cartView.getTotal().add(cartAddedItemEvent.getPrice()));
                 cartViewRepository.save(cartView);
             }
-            case CartClearedEvent -> {
-                CartClearedEvent event = objectMapper.treeToValue(node, CartClearedEvent.class);
-                CartView cart = cartViewRepository.findById(event.getCartId())
+            case CartClearedEvent cartClearedEvent -> {
+                CartView cart = cartViewRepository.findById(cartClearedEvent.getCartId())
                         .orElseThrow(() -> new EntityNotFoundException
-                                ("Cart not found with id %s".formatted(event.getCartId())));
+                                ("Cart not found with id %s".formatted(cartClearedEvent.getCartId())));
                 cart.getProducts().clear();
                 cart.setTotal(BigDecimal.ZERO);
                 cartViewRepository.save(cart);
             }
-            case CartDeletedProductEvent -> {
-                CartDeletedProductEvent event = objectMapper.treeToValue(node, CartDeletedProductEvent.class);
-                CartView cartView = cartViewRepository.findById(event.getCartId())
+            case CartDeletedProductEvent cartDeletedProductEvent -> {
+                CartView cartView = cartViewRepository.findById(cartDeletedProductEvent.getCartId())
                         .orElseThrow(() -> new EntityNotFoundException
-                                ("Cart not found with id %s".formatted(event.getCartId())));
+                                ("Cart not found with id %s".formatted(cartDeletedProductEvent.getCartId())));
                 cartView.getProducts().stream()
-                        .filter(p -> p.getProductId().equals(event.getProductId()))
+                        .filter(p -> p.getProductId().equals(cartDeletedProductEvent.getProductId()))
                         .findFirst()
                         .ifPresent(product -> {
                             int quantity = product.getQuantity() - 1;
@@ -85,7 +84,18 @@ public class CartEventListener {
                             cartViewRepository.save(cartView);
                         });
             }
-            default -> throw new IllegalStateException("Unexpected event type: " + type);
+            case UserCreatedEvent userCreatedEvent -> {
+                Cart cart = Cart.builder()
+                        .userId(userCreatedEvent.getUserId())
+                        .build();
+                cartRepository.save(cart);
+                CartView cartView = CartView.builder()
+                        .cartId(cart.getId())
+                        .userId(userCreatedEvent.getUserId())
+                        .build();
+                cartViewRepository.save(cartView);
+            }
+            default -> throw new IllegalStateException("Unexpected event type: " + event);
         }
     }
 }

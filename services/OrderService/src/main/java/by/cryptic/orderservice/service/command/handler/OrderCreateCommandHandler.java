@@ -14,7 +14,7 @@ import by.cryptic.orderservice.service.command.OrderCreateCommand;
 import by.cryptic.utils.CommandHandler;
 import by.cryptic.utils.event.order.OrderFailedEvent;
 import by.cryptic.utils.event.order.OrderSuccessEvent;
-import exceptions.EmptyCartException;
+import by.cryptic.exceptions.EmptyCartException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -92,10 +92,8 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
                     .orderId(order.getId())
                     .userEmail(command.userEmail())
                     .listOfProducts(productsToUpdate)
-                    .createdTimestamp(order.getCreatedAt())
                     .createdBy(command.userId())
                     .location(order.getLocation())
-                    .createdTimestamp(order.getCreatedAt())
                     .orderStatus(order.getOrderStatus())
                     .price(order.getPrice())
                     .build());
@@ -105,10 +103,8 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
                     .orderId(order.getId())
                     .userEmail(command.userEmail())
                     .listOfProducts(productsToUpdate)
-                    .createdTimestamp(order.getCreatedAt())
                     .createdBy(command.userId())
                     .location(order.getLocation())
-                    .createdTimestamp(order.getCreatedAt())
                     .orderStatus(order.getOrderStatus())
                     .price(order.getPrice())
                     .build());
