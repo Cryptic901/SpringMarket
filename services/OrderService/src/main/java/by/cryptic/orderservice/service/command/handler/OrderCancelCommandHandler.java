@@ -6,6 +6,8 @@ import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
 import by.cryptic.orderservice.service.command.OrderCancelCommand;
 import by.cryptic.utils.CommandHandler;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ public class OrderCancelCommandHandler implements CommandHandler<OrderCancelComm
 
     @Transactional
     @CacheEvict(key = "'order:' + #command.orderId()")
+    @Retry(name = "orderRetry", fallbackMethod = "orderCancelFallback")
+    @Bulkhead(name = "orderBulkhead", fallbackMethod = "orderCancelFallback")
     public void handle(OrderCancelCommand command) {
         log.info("Handling order cancel command {}", command);
         CustomerOrder order = customerOrderRepository.findById(command.orderId())
@@ -44,4 +48,10 @@ public class OrderCancelCommandHandler implements CommandHandler<OrderCancelComm
         orderRepository.save(order);
         eventPublisher.publishEvent(new OrderCanceledEvent(order.getId(), command.email()));
     }
+
+    public void orderCancelFallback(OrderCancelCommand orderCancelCommand, Throwable t) {
+        log.error("Failed to cancel {}, {}", orderCancelCommand.orderId(), t);
+        throw new RuntimeException(t.getMessage());
+    }
+
 }

@@ -8,6 +8,88 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9000/realms/springmarket
+
+resilience4j:
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - java.sql.SQLException
+          - java.net.ConnectException
+          - jakarta.ws.rs.ProcessingException
+          - org.springframework.web.client.HttpClientErrorException
+          - org.springframework.dao.TransientDataAccessResourceException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+          - java.lang.IllegalStateException
+          - java.lang.NullPointerException
+          - org.springframework.dao.DataIntegrityViolationException
+          - jakarta.persistence.EntityNotFoundException
+          - java.lang.RuntimeException
+    instances:
+      paymentRetry:
+        baseConfig: default
+      productRetry:
+        baseConfig: default
+      reviewRetry:
+        baseConfig: default
+      orderRetry:
+        baseConfig: default
+      cartRetry:
+        baseConfig: default
+
+  circuitbreaker:
+    configs:
+      default:
+        minimum-number-of-calls: 10
+        wait-duration-in-open-state: 10s
+        ignore-exceptions:
+          - by.cryptic.exceptions.EmptyCartException
+          - jakarta.persistence.EntityNotFoundException
+          - java.lang.IllegalStateException
+    instances:
+      orderCircuitBreaker:
+        baseConfig: default
+      cartCircuitBreaker:
+        baseConfig: default
+
+  bulkhead:
+    configs:
+      default:
+        max-concurrent-calls: 5
+        max-wait-duration: 100ms
+    instances:
+      paymentBulkhead:
+        baseConfig: default
+      productBulkhead:
+        baseConfig: default
+      reviewBulkhead:
+        baseConfig: default
+      orderBulkhead:
+        baseConfig: default
+      cartBulkhead:
+        baseConfig: default
+
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
 logging:
   level:
     org:
@@ -16,14 +98,6 @@ logging:
         web: TRACE
         http: TRACE
         security: TRACE
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: health,info,metrics,env
-    endpoint:
-      health:
-        show-details: always
-    info:
-      env:
-        enabled: true
+    root: info
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"

@@ -243,6 +243,15 @@ services:
     networks:
       - spring-market
 
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    restart: always
+    networks:
+      - spring-market
+
 volumes:
   keycloak_data:
     driver: local

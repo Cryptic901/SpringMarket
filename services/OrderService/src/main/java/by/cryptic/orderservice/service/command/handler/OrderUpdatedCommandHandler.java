@@ -1,13 +1,15 @@
 package by.cryptic.orderservice.service.command.handler;
 
 import by.cryptic.orderservice.dto.ShortOrderDTO;
-import by.cryptic.utils.OrderStatus;
 import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
 import by.cryptic.orderservice.service.command.OrderUpdateCommand;
 import by.cryptic.utils.CommandHandler;
+import by.cryptic.utils.OrderStatus;
 import by.cryptic.utils.event.order.OrderUpdatedEvent;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,8 @@ public class OrderUpdatedCommandHandler implements CommandHandler<OrderUpdateCom
     private final CacheManager cacheManager;
 
     @Transactional
+    @Retry(name = "orderRetry", fallbackMethod = "orderUpdatedFallback")
+    @Bulkhead(name = "orderBulkhead", fallbackMethod = "orderUpdatedFallback")
     public void handle(OrderUpdateCommand command) {
         CustomerOrder order = orderRepository.findById(command.orderId())
                 .orElseThrow(() -> new EntityNotFoundException
@@ -47,5 +51,10 @@ public class OrderUpdatedCommandHandler implements CommandHandler<OrderUpdateCom
                 .build());
         Objects.requireNonNull(cacheManager.getCache("orders"))
                 .put("order:" + command.location() + '-' + command.userId(), order);
+    }
+
+    public void orderUpdatedFallback(OrderUpdateCommand orderUpdateCommand, Throwable t) {
+        log.error("Failed to cancel {}, {}", orderUpdateCommand.orderId(), t);
+        throw new RuntimeException(t.getMessage());
     }
 }

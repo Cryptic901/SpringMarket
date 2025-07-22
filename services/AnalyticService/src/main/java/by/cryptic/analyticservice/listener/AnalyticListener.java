@@ -4,7 +4,6 @@ import by.cryptic.analyticservice.state.AnalyticsStateService;
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.order.OrderCreatedEvent;
 import by.cryptic.utils.event.user.UserLoginedEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,12 +56,11 @@ public class AnalyticListener implements SmartLifecycle {
     }
 
     @KafkaListener(topics = {"user-topic", "order-topic"}, groupId = "analytics-group")
-    public void listenUserRegister(String rawEvent) throws JsonProcessingException {
-        log.info("Received user created event and trying to increase the value: {}", rawEvent);
-        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
+    public void listenUserRegister(DomainEvent event) {
+        log.info("Received user created event and trying to increase the value: {}", event);
         switch (event) {
             case UserLoginedEvent _ -> activeUsers.incrementAndGet();
-            case OrderCreatedEvent orderCreatedEvent-> {
+            case OrderCreatedEvent orderCreatedEvent -> {
                 BigDecimal totalAmount = orderCreatedEvent.getPrice();
                 todayRevenue.updateAndGet(current -> (current.add(totalAmount)));
                 todayOrders.incrementAndGet();

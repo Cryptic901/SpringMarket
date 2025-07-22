@@ -7,6 +7,8 @@ import by.cryptic.utils.CommandHandler;
 import by.cryptic.utils.PaymentStatus;
 import by.cryptic.utils.event.payment.PaymentFailedEvent;
 import by.cryptic.utils.event.payment.PaymentSuccessEvent;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
@@ -25,6 +27,8 @@ public class PaymentCreateCommandHandler implements CommandHandler<PaymentCreate
     private final PaymentRepository paymentRepository;
 
     @Override
+    @Retry(name = "paymentRetry", fallbackMethod = "paymentFallback")
+    @Bulkhead(name = "paymentBulkhead", fallbackMethod = "paymentFallback")
     public void handle(PaymentCreateCommand command) {
 
         Payment payment = Payment.builder()
@@ -34,30 +38,31 @@ public class PaymentCreateCommandHandler implements CommandHandler<PaymentCreate
                 .orderId(command.orderId())
                 .userId(command.userId())
                 .build();
-        try {
-            Payment savedPayment = paymentRepository.save(payment);
-            PaymentSuccessEvent successEvent = PaymentSuccessEvent.builder()
-                    .paymentId(savedPayment.getId())
-                    .paymentMethod(savedPayment.getPaymentMethod())
-                    .price(savedPayment.getPrice())
-                    .orderId(savedPayment.getOrderId())
-                    .userId(savedPayment.getUserId())
-                    .paymentStatus(PaymentStatus.SUCCESS)
-                    .build();
-            applicationEventPublisher.publishEvent(successEvent);
-        } catch (Exception e) {
-            log.error("Failed to create payment {}", e.getMessage());
-            PaymentFailedEvent failedEvent = PaymentFailedEvent.builder()
-                    .paymentId(null)
-                    .paymentMethod(command.paymentMethod())
-                    .price(command.price())
-                    .orderId(command.orderId())
-                    .userId(command.userId())
-                    .email(command.email())
-                    .paymentStatus(PaymentStatus.FAILED)
-                    .build();
-            applicationEventPublisher.publishEvent(failedEvent);
-        }
+        Payment savedPayment = paymentRepository.save(payment);
+
+        PaymentSuccessEvent successEvent = PaymentSuccessEvent.builder()
+                .paymentId(savedPayment.getId())
+                .paymentMethod(savedPayment.getPaymentMethod())
+                .price(savedPayment.getPrice())
+                .orderId(savedPayment.getOrderId())
+                .userId(savedPayment.getUserId())
+                .paymentStatus(PaymentStatus.SUCCESS)
+                .build();
+         applicationEventPublisher.publishEvent(successEvent);
+    }
+
+    public void paymentFallback(PaymentCreateCommand command, Throwable t) {
+        log.error("Failed to create payment {}", t.getMessage());
+        PaymentFailedEvent failedEvent = PaymentFailedEvent.builder()
+                .paymentId(null)
+                .paymentMethod(command.paymentMethod())
+                .price(command.price())
+                .orderId(command.orderId())
+                .userId(command.userId())
+                .email(command.email())
+                .paymentStatus(PaymentStatus.FAILED)
+                .build();
+        applicationEventPublisher.publishEvent(failedEvent);
     }
 }
 

@@ -1,5 +1,6 @@
 package by.cryptic.productservice.config.kafka;
 
+import by.cryptic.utils.event.DomainEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +19,9 @@ import org.springframework.util.backoff.FixedBackOff;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
-            ConsumerFactory<String, String> consumerFactory, DeadLetterPublishingRecoverer deadLetterPublishingRecoverer) {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, DomainEvent> kafkaListenerContainerFactory(
+            ConsumerFactory<String, DomainEvent> consumerFactory, DeadLetterPublishingRecoverer deadLetterPublishingRecoverer) {
+        ConcurrentKafkaListenerContainerFactory<String, DomainEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConcurrency(3);
         factory.setConsumerFactory(consumerFactory);
@@ -37,7 +38,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer
-            (KafkaTemplate<String, String> kafkaTemplate) {
+            (KafkaTemplate<String, DomainEvent> kafkaTemplate) {
         return new DeadLetterPublishingRecoverer(kafkaTemplate,
                 (record, _) -> {
                     String topicName = record.topic();

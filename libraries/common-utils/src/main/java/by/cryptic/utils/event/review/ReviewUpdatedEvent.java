@@ -2,6 +2,7 @@ package by.cryptic.utils.event.review;
 
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.user.UserUpdatedEvent;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 
 import java.util.UUID;

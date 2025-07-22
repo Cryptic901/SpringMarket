@@ -4,7 +4,10 @@ import by.cryptic.utils.event.review.ReviewCreatedEvent;
 import by.cryptic.reviewservice.model.write.Review;
 import by.cryptic.reviewservice.service.command.ReviewCreateCommand;
 import by.cryptic.utils.CommandHandler;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,6 +18,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @CacheConfig(cacheNames = {"reviews"})
 public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCommand> {
 
@@ -22,6 +26,8 @@ public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCo
     private final CacheManager cacheManager;
 
     @Transactional
+    @Retry(name = "reviewRetry", fallbackMethod = "reviewCreateFallback")
+    @Bulkhead(name = "reviewBulkhead", fallbackMethod = "reviewCreateFallback")
     public void handle(ReviewCreateCommand dto) {
         Review review = Review.builder()
                 .title(dto.title())
@@ -41,5 +47,10 @@ public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCo
                 .build());
         Objects.requireNonNull(cacheManager.getCache("reviews"))
                 .put("review:" + dto.title() + '-' + dto.description(), review);
+    }
+
+    public void reviewCreateFallback(ReviewCreateCommand reviewCreateCommand, Throwable t) {
+        log.error("Failed to create {}, {}", reviewCreateCommand.title(), t);
+        throw new RuntimeException(t.getMessage());
     }
 }

@@ -5,8 +5,6 @@ import by.cryptic.notificationservice.service.EmailService;
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
 import by.cryptic.utils.event.order.OrderCreatedEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,39 +18,21 @@ public class NotificationListener {
 
     private final EmailService emailService;
     private final EmailContentBuilder emailContentBuilder;
-    private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "order-topic", groupId = "notification-group")
-    public void sendOrderStatus(String orderEvent) throws JsonProcessingException, MessagingException {
-        DomainEvent event = objectMapper.readValue(orderEvent, DomainEvent.class);
+    public void sendOrderStatus(DomainEvent event) throws MessagingException {
         switch (event) {
-            case OrderCreatedEvent orderCreatedEvent -> emailService.sendEmail(orderCreatedEvent.getUserEmail(), "SpringMarket Order",
-                    emailContentBuilder.buildOrderEmailContent(orderCreatedEvent.getOrderId(),
-                            orderCreatedEvent.getOrderStatus()));
+            case OrderCreatedEvent orderCreatedEvent ->
+                    emailService.sendEmail(orderCreatedEvent.getUserEmail(), "SpringMarket Order",
+                            emailContentBuilder.buildOrderEmailContent(orderCreatedEvent.getOrderId(),
+                                    orderCreatedEvent.getOrderStatus()));
 
-            case OrderCanceledEvent orderCanceledEvent -> emailService.sendEmail(orderCanceledEvent.getUserEmail(), "SpringMarket Order",
-                    emailContentBuilder.buildOrderEmailContent(orderCanceledEvent.getOrderId(),
-                            orderCanceledEvent.getOrderStatus()));
+            case OrderCanceledEvent orderCanceledEvent ->
+                    emailService.sendEmail(orderCanceledEvent.getUserEmail(), "SpringMarket Order",
+                            emailContentBuilder.buildOrderEmailContent(orderCanceledEvent.getOrderId(),
+                                    orderCanceledEvent.getOrderStatus()));
 
             default -> throw new IllegalStateException("Unexpected event type: " + event);
         }
     }
-
-//    @KafkaListener(topics = "user-topic", groupId = "notification-group")
-//    public void sendVerificationEmail(String userEvent) throws MessagingException, JsonProcessingException {
-//        JsonNode node = objectMapper.readTree(userEvent);
-//        EventType eventType = EventType.valueOf(node.get("eventType").asText());
-//        switch (eventType) {
-//            case UserCreatedEvent -> {
-//                UserCreatedEvent event = objectMapper.treeToValue(node, UserCreatedEvent.class);
-//                emailService.sendEmail(event.getEmail(), "SpringMarket verification",
-//                        emailContentBuilder.buildVerificationEmailContent(event.getVerificationCode()));
-//            }
-//            case UserResendVerifyMessageEvent -> {
-//                UserResendVerifyMessageEvent event = objectMapper.treeToValue(node, UserResendVerifyMessageEvent.class);
-//                emailService.sendEmail(event.getEmail(), "SpringMarket verification",
-//                        emailContentBuilder.buildVerificationEmailContent(event.getVerificationCode()));
-//            }
-//        }
-//    }
 }

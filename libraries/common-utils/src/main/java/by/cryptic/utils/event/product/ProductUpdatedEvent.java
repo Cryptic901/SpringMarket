@@ -2,6 +2,7 @@ package by.cryptic.utils.event.product;
 
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.user.UserUpdatedEvent;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 
 import java.math.BigDecimal;

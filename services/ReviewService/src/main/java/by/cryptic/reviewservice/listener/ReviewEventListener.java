@@ -7,8 +7,6 @@ import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.review.ReviewCreatedEvent;
 import by.cryptic.utils.event.review.ReviewDeletedEvent;
 import by.cryptic.utils.event.review.ReviewUpdatedEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -18,13 +16,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class ReviewEventListener {
-    private final ObjectMapper objectMapper;
     private final ReviewViewRepository reviewViewRepository;
     private final ReviewMapper reviewMapper;
 
     @KafkaListener(topics = "review-topic", groupId = "review-group")
-    public void listenReviews(String rawEvent) throws JsonProcessingException {
-        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
+    public void listenReviews(DomainEvent event) {
         switch (event) {
             case ReviewCreatedEvent reviewCreatedEvent -> reviewViewRepository.save(ReviewView.builder()
                     .createdBy(reviewCreatedEvent.getCreatedBy())
