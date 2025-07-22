@@ -11,8 +11,6 @@ import by.cryptic.utils.event.order.OrderCreatedEvent;
 import by.cryptic.utils.event.product.ProductCreatedEvent;
 import by.cryptic.utils.event.product.ProductDeletedEvent;
 import by.cryptic.utils.event.product.ProductUpdatedEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -28,14 +26,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProductEventListener {
 
-    private final ObjectMapper objectMapper;
     private final ProductViewRepository productViewRepository;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
     @KafkaListener(topics = {"product-topic", "order-topic"}, groupId = "product-group")
-    public void listenProducts(String rawEvent) throws JsonProcessingException {
-        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
+    public void listenProducts(DomainEvent event) {
+        log.debug("Receive product event {}", event);
         switch (event) {
             case ProductCreatedEvent productCreatedEvent -> productViewRepository.save(ProductView.builder()
                     .productId(productCreatedEvent.getProductId())
@@ -75,4 +72,3 @@ public class ProductEventListener {
         }
     }
 }
-

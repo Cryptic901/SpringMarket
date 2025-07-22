@@ -1,8 +1,6 @@
 package by.cryptic.paymentservice.eventhandler;
 
-import by.cryptic.utils.event.payment.PaymentEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import by.cryptic.utils.event.DomainEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -14,13 +12,11 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class PaymentEventHandler {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @Async("paymentExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleOrderEvent(PaymentEvent event) throws JsonProcessingException {
-        String json = objectMapper.writeValueAsString(event);
-        kafkaTemplate.send("payment-topic", json);
+    public void handleOrderEvent(DomainEvent event) {
+        kafkaTemplate.send("payment-topic", event);
     }
 }

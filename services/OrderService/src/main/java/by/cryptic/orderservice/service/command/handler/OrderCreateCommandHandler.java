@@ -15,6 +15,7 @@ import by.cryptic.utils.CommandHandler;
 import by.cryptic.utils.event.order.OrderFailedEvent;
 import by.cryptic.utils.event.order.OrderSuccessEvent;
 import by.cryptic.exceptions.EmptyCartException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
     private final ProductServiceClient productServiceClient;
 
     @Transactional
+    @CircuitBreaker(name = "orderCircuitBreaker", fallbackMethod = "orderCreateFallback")
     public void handle(OrderCreateCommand command) {
         log.info("Creating order : {}", command);
 
@@ -111,5 +113,10 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
         }
         Objects.requireNonNull(cacheManager.getCache("orders"))
                 .put("order:" + command.location() + '-', orderMapper.toDto(order));
+    }
+
+    public void orderCreateFallback(OrderCreateCommand orderCreateCommand, Throwable t) {
+        log.error("Failed to create {}, {}", orderCreateCommand.location(), t);
+        throw new RuntimeException(t.getMessage());
     }
 }

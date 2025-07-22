@@ -5,7 +5,10 @@ import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.productservice.service.command.product.ProductCreateCommand;
 import by.cryptic.utils.CommandHandler;
 import by.cryptic.utils.event.product.ProductCreatedEvent;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.context.ApplicationEventPublisher;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = {"products"})
@@ -24,6 +28,8 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
     private final CacheManager cacheManager;
 
     @Transactional
+    @Retry(name = "productRetry", fallbackMethod = "productCreateFallback")
+    @Bulkhead(name = "productBulkhead", fallbackMethod = "productCreateFallback")
     public void handle(ProductCreateCommand productDTO) {
         Product product = Product.builder()
                 .name(productDTO.name())
@@ -34,6 +40,7 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
                 .categoryId(productDTO.categoryId())
                 .build();
         productRepository.save(product);
+
         eventPublisher.publishEvent(ProductCreatedEvent.builder()
                 .productId(product.getId())
                 .name(product.getName())
@@ -46,5 +53,10 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
                 .build());
         Objects.requireNonNull(cacheManager.getCache("products"))
                 .put("product:" + product.getDescription() + '-' + product.getName(), product);
+    }
+
+    public void productCreateFallback(ProductCreateCommand productCreateCommand, Throwable t) {
+        log.error("Failed to create {}, {}", productCreateCommand.name(), t);
+        throw new RuntimeException(t.getMessage());
     }
 }

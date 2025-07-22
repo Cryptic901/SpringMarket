@@ -1,5 +1,6 @@
 package by.cryptic.productservice.eventhandler;
 
+import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.category.CategoryEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,12 +13,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CategoryEventHandler {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @EventListener
-    public void handleCategoryEvent(CategoryEvent event) throws JsonProcessingException {
-        String json = objectMapper.writeValueAsString(event);
-        kafkaTemplate.send("category-topic", json);
+    public void handleCategoryEvent(DomainEvent event) {
+        kafkaTemplate.send("category-topic", event);
     }
 }

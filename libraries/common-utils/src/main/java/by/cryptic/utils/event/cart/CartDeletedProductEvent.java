@@ -2,6 +2,7 @@ package by.cryptic.utils.event.cart;
 
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.order.OrderUpdatedEvent;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 
 import java.util.UUID;

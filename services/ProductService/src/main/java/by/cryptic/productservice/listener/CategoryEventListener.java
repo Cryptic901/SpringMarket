@@ -7,8 +7,6 @@ import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.category.CategoryCreatedEvent;
 import by.cryptic.utils.event.category.CategoryDeletedEvent;
 import by.cryptic.utils.event.category.CategoryUpdatedEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,14 +17,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CategoryEventListener {
 
-    private final ObjectMapper objectMapper;
     private final CategoryViewRepository categoryViewRepository;
     private final CategoryMapper categoryMapper;
 
     @KafkaListener(topics = "category-topic", groupId = "category-group")
-    public void listenCategory(String rawEvent) throws JsonProcessingException {
-        log.info("Received event type {}", rawEvent);
-        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
+    public void listenCategory(DomainEvent event) {
+        log.info("Received event type {}", event);
         switch (event) {
             case CategoryCreatedEvent categoryCreatedEvent -> categoryViewRepository.save(CategoryView.builder()
                     .name(categoryCreatedEvent.getName())

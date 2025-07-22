@@ -10,8 +10,6 @@ import by.cryptic.utils.event.order.OrderCanceledEvent;
 import by.cryptic.utils.event.order.OrderFailedEvent;
 import by.cryptic.utils.event.order.OrderSuccessEvent;
 import by.cryptic.utils.event.order.OrderUpdatedEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -24,12 +22,10 @@ import org.springframework.stereotype.Service;
 public class OrderEventListener {
 
     private final OrderViewRepository orderViewRepository;
-    private final ObjectMapper objectMapper;
     private final OrderMapper orderMapper;
 
     @KafkaListener(topics = "order-topic", groupId = "order-group")
-    public void listenOrders(String rawEvent) throws JsonProcessingException {
-        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
+    public void listenOrders(DomainEvent event) {
         switch (event) {
             case OrderSuccessEvent orderSuccessEvent -> orderViewRepository.save(CustomerOrderView.builder()
                     .orderStatus(OrderStatus.IN_PROGRESS)

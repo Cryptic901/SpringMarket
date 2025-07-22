@@ -11,8 +11,7 @@ public enum EventType {
 
     ReviewCreatedEvent, ReviewUpdatedEvent, ReviewDeletedEvent,
 
-    UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent,
-    UserResendVerifyMessageEvent, UserLoginedEvent,
+    UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent, UserLoginedEvent,
 
-    PaymentSuccessEvent, PaymentFailedEvent,
+    PaymentSuccessEvent, PaymentFailedEvent, PaymentCreatedEvent, PaymentCanceledEvent
 }

@@ -58,12 +58,14 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
         UUID userId = UUID.fromString(event.getUserId());
         return switch (event.getType()) {
             case REGISTER -> {
-                   UserCreatedEvent userCreatedEvent = UserCreatedEvent.builder()
-                            .userId(userId)
-                            .email(details.get("email"))
-                            .username(details.get("username"))
-                            .build();
-                    log.info("UserCreatedEvent from keycloak event {}", objectMapper.writeValueAsString(userCreatedEvent));
+                UserCreatedEvent userCreatedEvent = UserCreatedEvent.builder()
+                        .userId(userId)
+                        .email(details.get("email"))
+                        .username(details.get("username"))
+                        .firstName(details.get("first_name"))
+                        .lastName(details.get("last_name"))
+                        .build();
+                log.info("UserCreatedEvent from keycloak event {}", objectMapper.writeValueAsString(userCreatedEvent));
                 yield userCreatedEvent;
             }
             case UPDATE_PROFILE -> {
@@ -71,6 +73,8 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
                         .userId(userId)
                         .username(details.get("username"))
                         .phoneNumber(details.get("phoneNumber"))
+                        .firstName(details.get("updated_first_name"))
+                        .lastName(details.get("updated_last_name"))
                         .build();
                 log.info("UserUpdatedEvent from keycloak event {}", objectMapper.writeValueAsString(userUpdatedEvent));
                 yield userUpdatedEvent;
@@ -114,7 +118,7 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(AdminEvent adminEvent, boolean b) {
-        log.info("Admin event has receiver {}", adminEvent.getOperationType());
+
     }
 
     @Override

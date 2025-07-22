@@ -6,6 +6,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -31,5 +32,9 @@ public class JwtUtil {
             }
         }
         return null;
+    }
+
+    public static boolean hasRole(Role role, Jwt jwt) {
+        return Objects.equals(extractRole(jwt), role);
     }
 }

@@ -9,7 +9,6 @@ import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.user.UserCreatedEvent;
 import by.cryptic.utils.event.user.UserDeletedEvent;
 import by.cryptic.utils.event.user.UserUpdatedEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,43 +19,53 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserEventListener {
 
-    private final UserViewRepository userViewRepository;
     private final AppUserRepository appUserRepository;
-    private final ObjectMapper objectMapper;
+    private final UserViewRepository viewRepository;
     private final UserMapper userMapper;
 
     @KafkaListener(topics = "user-topic", groupId = "user-group")
-    public void listenUserEvents(String rawEvent) {
-        try {
-            log.info("Received event: {}", rawEvent);
-            DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
-            switch (event) {
-                case UserCreatedEvent createdEvent -> {
-                    AppUserView view = AppUserView.builder()
-                            .username(createdEvent.getUsername())
-                            .createdAt(createdEvent.getTimestamp())
-                            .userId(createdEvent.getUserId())
-                            .build();
-                    userViewRepository.save(view);
-                    AppUser user = AppUser.builder()
-                            .username(createdEvent.getUsername())
-                            .createdAt(createdEvent.getTimestamp())
-                            .build();
-                    appUserRepository.save(user);
-                }
-                case UserUpdatedEvent userUpdatedEvent ->
-                        userViewRepository.findById(userUpdatedEvent.getUserId()).ifPresent(userView -> {
-                            userMapper.updateView(userView, userUpdatedEvent);
-                            userViewRepository.save(userView);
-                        });
-                case UserDeletedEvent userDeletedEvent ->
-                        userViewRepository.findById(userDeletedEvent.getUserId()).ifPresent(_ -> userViewRepository.deleteById(userDeletedEvent.getUserId()));
-                default -> throw new IllegalStateException("Unexpected event type: " + event.getEventType());
+    public void listenUserEvents(DomainEvent event) {
+        log.debug("Received event: {}", event);
+        switch (event) {
+            case UserCreatedEvent createdEvent -> {
+                appUserRepository.save(AppUser.builder()
+                        .id(createdEvent.getUserId())
+                        .username(createdEvent.getUsername())
+                        .createdAt(createdEvent.getTimestamp())
+                        .firstName(createdEvent.getFirstName())
+                        .lastName(createdEvent.getLastName())
+                        .build());
+                viewRepository.save(AppUserView.builder()
+                        .userId(createdEvent.getUserId())
+                        .username(createdEvent.getUsername())
+                        .createdAt(createdEvent.getTimestamp())
+                        .firstName(createdEvent.getFirstName())
+                        .lastName(createdEvent.getLastName())
+                        .build());
             }
-        } catch (
-                Exception e) {
-            log.error("Failed to process event {}, {}", rawEvent, e);
-            throw new RuntimeException("Catched exception: ", e);
+
+            case UserUpdatedEvent userUpdatedEvent -> {
+                appUserRepository.findById(userUpdatedEvent.getUserId()).ifPresent(appUser -> {
+                    userMapper.updateEntity(appUser, userUpdatedEvent);
+                    appUserRepository.save(appUser);
+                });
+                viewRepository.findById(userUpdatedEvent.getUserId()).ifPresent(view -> {
+                    userMapper.updateView(view, userUpdatedEvent);
+                    viewRepository.save(view);
+                });
+            }
+
+            case UserDeletedEvent userDeletedEvent -> {
+                appUserRepository.findById(userDeletedEvent.getUserId())
+                        .ifPresent(_ -> appUserRepository.deleteById(
+                                userDeletedEvent.getUserId()));
+
+                viewRepository.findById(userDeletedEvent.getUserId())
+                        .ifPresent(_ -> viewRepository.deleteById(
+                                userDeletedEvent.getUserId()));
+            }
+
+            default -> log.warn("Unexpected event type {} ", event);
         }
     }
 }

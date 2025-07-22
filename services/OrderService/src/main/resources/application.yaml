@@ -4,6 +4,11 @@ spring:
   cloud:
     config:
       uri: http://localhost:8888
-      profile: default
+      profile: dev
+      username: config
+      password: config
+  config:
+    import: "configserver:"
+
 
 

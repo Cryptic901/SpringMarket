@@ -1,12 +1,14 @@
 package by.cryptic.cartservice.service.command.handler;
 
-import by.cryptic.cartservice.util.CartUtil;
-import by.cryptic.utils.event.cart.CartDeletedProductEvent;
 import by.cryptic.cartservice.model.write.CartProduct;
 import by.cryptic.cartservice.repository.write.CartProductRepository;
 import by.cryptic.cartservice.repository.write.CartRepository;
 import by.cryptic.cartservice.service.command.CartDeleteProductCommand;
+import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.utils.CommandHandler;
+import by.cryptic.utils.event.cart.CartDeletedProductEvent;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,8 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
     private final CartUtil cartUtil;
 
     @Transactional
+    @Retry(name = "cartRetry", fallbackMethod = "cartDeleteProductFallback")
+    @Bulkhead(name = "cartBulkhead", fallbackMethod = "cartDeleteProductFallback")
     public void handle(CartDeleteProductCommand command) {
         List<CartProduct> cart = cartRepository.findByUserIdWithItems(command.userId())
                 .orElseThrow(() -> new EntityNotFoundException("You don't have any products in your cart"))
@@ -51,7 +55,12 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
             }
         }
         cartUtil.getTotalPrice(cart);
-        Objects.requireNonNull(cacheManager.getCache("carts")).evict(command.userId());
         eventPublisher.publishEvent(new CartDeletedProductEvent(cart.getFirst().getCart().getId(), command.productId()));
+        Objects.requireNonNull(cacheManager.getCache("carts")).evict(command.userId());
+    }
+
+    public void cartDeleteProductFallback(CartDeleteProductCommand cartDeleteProductCommand, Throwable t) {
+        log.error("Failed to delete from cart {}, {}", cartDeleteProductCommand.productId(), t);
+        throw new RuntimeException(t.getMessage());
     }
 }

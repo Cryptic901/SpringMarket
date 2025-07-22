@@ -10,8 +10,6 @@ import by.cryptic.utils.event.cart.CartAddedItemEvent;
 import by.cryptic.utils.event.cart.CartClearedEvent;
 import by.cryptic.utils.event.cart.CartDeletedProductEvent;
 import by.cryptic.utils.event.user.UserCreatedEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +23,11 @@ import java.util.ArrayList;
 @Service
 @Slf4j
 public class CartEventListener {
-    private final ObjectMapper objectMapper;
     private final CartViewRepository cartViewRepository;
     private final CartRepository cartRepository;
 
     @KafkaListener(topics = {"cart-topic", "user-topic"}, groupId = "cart-group")
-    public void listenCart(String rawEvent) throws JsonProcessingException {
-        DomainEvent event = objectMapper.readValue(rawEvent, DomainEvent.class);
-        log.info("Received event type {}", event.getEventType());
+    public void listenCart(DomainEvent event) {
         switch (event) {
             case CartAddedItemEvent cartAddedItemEvent -> {
                 CartView cartView = cartViewRepository.findById(cartAddedItemEvent.getCartId())
@@ -99,4 +94,3 @@ public class CartEventListener {
         }
     }
 }
-

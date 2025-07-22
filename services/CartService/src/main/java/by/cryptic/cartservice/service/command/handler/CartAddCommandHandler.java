@@ -11,6 +11,7 @@ import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.utils.CommandHandler;
 import by.cryptic.utils.DTO.ProductDTO;
 import by.cryptic.utils.event.cart.CartAddedItemEvent;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
     private final ProductServiceClient productServiceClient;
 
     @Transactional
+    @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartAddFallback")
     public void handle(CartAddCommand command) {
         Cart cart = cartRepository.findByUserIdWithItems(command.userId())
                 .orElseGet(() -> {
@@ -94,5 +96,10 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                     .build());
         }
         return products;
+    }
+
+    public void cartAddFallback(CartAddCommand cartAddCommand, Throwable t) {
+        log.error("Failed to add {}, {}", cartAddCommand.productId(), t);
+        throw new RuntimeException(t.getMessage());
     }
 }

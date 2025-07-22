@@ -3,7 +3,6 @@ package by.cryptic.userservice.mapper;
 import by.cryptic.userservice.dto.UserDTO;
 import by.cryptic.userservice.model.read.AppUserView;
 import by.cryptic.userservice.model.write.AppUser;
-import by.cryptic.userservice.service.command.UserUpdateCommand;
 import by.cryptic.utils.event.user.UserUpdatedEvent;
 import org.springframework.stereotype.Component;
 
@@ -20,18 +19,26 @@ public class UserMapper {
                 .build();
     }
 
-    public void updateEntity(AppUser user, UserUpdateCommand dto) {
+    public void updateEntity(AppUser user, UserUpdatedEvent dto) {
         if (user == null || dto == null) return;
 
-        if (dto.userId() != null) {
-            user.setId(dto.userId());
-        }
-        if (dto.username() != null) {
-            user.setUsername(dto.username());
+        if (dto.getUserId() != null) {
+            user.setId(dto.getUserId());
         }
 
-        if (dto.phoneNumber() != null) {
-            user.setPhoneNumber(dto.phoneNumber());
+        if (dto.getPhoneNumber() != null) {
+            user.setPhoneNumber(dto.getPhoneNumber());
+        }
+
+        if (dto.getLastName() != null) {
+            user.setLastName(dto.getLastName());
+        }
+        if (dto.getUsername() != null) {
+            user.setUsername(dto.getUsername());
+        }
+
+        if (dto.getFirstName() != null) {
+            user.setFirstName(dto.getFirstName());
         }
     }
 
@@ -47,6 +54,14 @@ public class UserMapper {
 
         if (event.getPhoneNumber() != null) {
             user.setPhoneNumber(event.getPhoneNumber());
+        }
+
+        if (event.getFirstName() != null) {
+            user.setFirstName(event.getFirstName());
+        }
+
+        if (event.getLastName() != null) {
+            user.setLastName(event.getLastName());
         }
     }
 }

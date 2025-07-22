@@ -1,5 +1,6 @@
 package by.cryptic.userservice.service.query.handler;
 
+import by.cryptic.security.JwtUtil;
 import by.cryptic.userservice.dto.UserDTO;
 import by.cryptic.userservice.mapper.UserMapper;
 import by.cryptic.userservice.repository.read.UserViewRepository;

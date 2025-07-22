@@ -1,8 +1,6 @@
 package by.cryptic.orderservice.eventhandler;
 
-import by.cryptic.utils.event.order.OrderEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import by.cryptic.utils.event.DomainEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -14,13 +12,11 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class OrderEventHandler {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @Async("orderExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleOrderEvent(OrderEvent event) throws JsonProcessingException {
-        String json = objectMapper.writeValueAsString(event);
-        kafkaTemplate.send("order-topic", json);
+    public void handleOrderEvent(DomainEvent event) {
+        kafkaTemplate.send("order-topic", event);
     }
 }

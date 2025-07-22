@@ -4,6 +4,7 @@ import by.cryptic.utils.PaymentMethod;
 import by.cryptic.utils.PaymentStatus;
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
