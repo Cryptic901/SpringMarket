@@ -1,0 +1,1 @@
+DROP schema review_view_schema CASCADE;

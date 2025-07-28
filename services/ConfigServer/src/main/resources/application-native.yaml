@@ -1,0 +1,28 @@
+server:
+  port: 8888
+eureka:
+  instance:
+    hostname: config-server
+    prefer-ip-address: false
+spring:
+  application:
+    name: ConfigServer
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: file:///home/cryptic/IdeaProjects/SpringMarket/config/
+  security:
+    user:
+      name: config
+      password: config
+management:
+  tracing:
+    enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always

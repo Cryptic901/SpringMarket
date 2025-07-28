@@ -40,7 +40,7 @@ public class ReviewEventListener {
                     });
 
             case ReviewDeletedEvent reviewDeletedEvent ->
-                    reviewViewRepository.findById(reviewDeletedEvent.getReviewId()).ifPresent(_ ->
+                    reviewViewRepository.findById(reviewDeletedEvent.getReviewId()).ifPresent(reviewView ->
                             reviewViewRepository.deleteById(reviewDeletedEvent.getReviewId()));
 
             default -> throw new IllegalStateException("Unexpected event type: " + event);

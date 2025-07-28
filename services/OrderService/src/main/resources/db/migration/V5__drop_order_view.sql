@@ -1,0 +1,1 @@
+DROP schema order_view_schema CASCADE;

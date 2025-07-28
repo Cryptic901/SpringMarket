@@ -15,11 +15,11 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>EurekaServer</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0-SNAPSHOT</version>
 	<name>EurekaServer</name>
 	<description>EurekaServer</description>
 	<properties>
-		<java.version>23</java.version>
+		<java.version>21</java.version>
 	</properties>
 	<dependencies>
 		<dependency>

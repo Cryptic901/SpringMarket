@@ -4,19 +4,47 @@ import by.cryptic.reviewservice.model.read.ReviewView;
 import by.cryptic.reviewservice.model.write.Review;
 import by.cryptic.reviewservice.service.command.ReviewUpdateCommand;
 import by.cryptic.reviewservice.service.query.ReviewQuery;
+import by.cryptic.utils.DTO.ReviewDTO;
 import by.cryptic.utils.event.review.ReviewUpdatedEvent;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ReviewMapper {
 
-    public ReviewQuery toQuery(ReviewView review) {
+    public ReviewDTO toDto(Review review) {
         if (review == null) {
             return null;
         }
-        return new ReviewQuery(review.getTitle(), review.getRating(),
-                review.getDescription(), review.getImage(),
-                review.getCreatedBy(), review.getCreatedAt());
+        return ReviewDTO.builder()
+                .createdAt(review.getCreatedAt())
+                .productId(review.getProductId())
+                .createdBy(review.getCreatedBy())
+                .image(review.getImage())
+                .description(review.getDescription())
+                .rating(review.getRating())
+                .title(review.getTitle())
+                .updatedAt(review.getUpdatedAt())
+                .updatedBy(review.getUpdatedBy())
+                .build();
+
+    }
+
+    public ReviewDTO toDto(ReviewView reviewView) {
+        if (reviewView == null) {
+            return null;
+        }
+        return ReviewDTO.builder()
+                .createdAt(reviewView.getCreatedAt())
+                .productId(reviewView.getProductId())
+                .createdBy(reviewView.getCreatedBy())
+                .image(reviewView.getImage())
+                .description(reviewView.getDescription())
+                .rating(reviewView.getRating())
+                .title(reviewView.getTitle())
+                .updatedAt(reviewView.getUpdatedAt())
+                .updatedBy(reviewView.getUpdatedBy())
+                .build();
+
     }
 
     public void updateEntity(Review review, ReviewUpdateCommand updateDTO) {
