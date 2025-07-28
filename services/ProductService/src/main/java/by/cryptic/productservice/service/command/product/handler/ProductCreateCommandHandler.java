@@ -52,7 +52,7 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
                 .createdBy(product.getCreatedBy())
                 .build());
         Objects.requireNonNull(cacheManager.getCache("products"))
-                .put("product:" + product.getDescription() + '-' + product.getName(), product);
+                .put("product:" + product.getId(), product);
     }
 
     public void productCreateFallback(ProductCreateCommand productCreateCommand, Throwable t) {

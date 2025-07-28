@@ -1,5 +1,6 @@
 package by.cryptic.cartservice.service.command.handler;
 
+import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.model.write.CartProduct;
 import by.cryptic.cartservice.repository.write.CartProductRepository;
 import by.cryptic.cartservice.repository.write.CartRepository;
@@ -38,10 +39,10 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
     @Retry(name = "cartRetry", fallbackMethod = "cartDeleteProductFallback")
     @Bulkhead(name = "cartBulkhead", fallbackMethod = "cartDeleteProductFallback")
     public void handle(CartDeleteProductCommand command) {
-        List<CartProduct> cart = cartRepository.findByUserIdWithItems(command.userId())
+        List<CartProduct> cartProducts = cartRepository.findByUserIdWithItems(command.userId())
                 .orElseThrow(() -> new EntityNotFoundException("You don't have any products in your cart"))
                 .getItems();
-        Iterator<CartProduct> iterator = cart.iterator();
+        Iterator<CartProduct> iterator = cartProducts.iterator();
         while (iterator.hasNext()) {
             CartProduct cartProduct = iterator.next();
             if (cartProduct.getProductId().equals(command.productId())) {
@@ -54,8 +55,9 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
                 }
             }
         }
-        cartUtil.getTotalPrice(cart);
-        eventPublisher.publishEvent(new CartDeletedProductEvent(cart.getFirst().getCart().getId(), command.productId()));
+        Cart cart = cartProducts.getFirst().getCart();
+        cart.setTotal(cartUtil.getTotalPrice(cartProducts));
+        eventPublisher.publishEvent(new CartDeletedProductEvent(cart.getId(), command.productId()));
         Objects.requireNonNull(cacheManager.getCache("carts")).evict(command.userId());
     }
 

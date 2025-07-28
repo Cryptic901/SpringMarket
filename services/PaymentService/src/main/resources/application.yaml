@@ -3,12 +3,11 @@ spring:
     name: PaymentService
   cloud:
     config:
-      uri: http://localhost:8888
       profile: dev
       username: config
       password: config
   config:
-    import: "configserver:"
+    import: "optional:configserver:http://config-server:8888"
 
 
 

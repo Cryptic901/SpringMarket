@@ -53,7 +53,13 @@ public class CustomerOrder {
     @Column(name = "user_id")
     private UUID userId;
 
+    @Column(name = "user_email")
+    private String userEmail;
+
     private BigDecimal price;
+
+    @Column(name = "payment_id")
+    private UUID paymentId;
 
     @CreatedDate
     @Column(nullable = false, updatable = false, name = "created_at")

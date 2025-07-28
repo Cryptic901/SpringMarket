@@ -1,13 +1,10 @@
 package by.cryptic.productservice.model.read;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.type.SqlTypes;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -19,13 +16,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 @Builder
-@Table(name = "product_view", schema = "product_view_schema")
-@Entity
+@Document(collection = "product_view")
 public class ProductView {
 
-    @Id
-    @Column(name = "product_id", nullable = false)
-    @JdbcTypeCode(SqlTypes.UUID)
+    @MongoId
     private UUID productId;
 
     @Column(name = "category_id")
@@ -44,19 +38,16 @@ public class ProductView {
     @Column(name = "created_by")
     private UUID createdBy;
 
+
     @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
         ProductView that = (ProductView) o;
-        return getProductId() != null && Objects.equals(getProductId(), that.getProductId());
+        return Objects.equals(productId, that.productId) && Objects.equals(categoryId, that.categoryId) && Objects.equals(name, that.name) && Objects.equals(price, that.price) && Objects.equals(quantity, that.quantity) && Objects.equals(description, that.description) && Objects.equals(image, that.image) && Objects.equals(createdBy, that.createdBy);
     }
 
     @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    public int hashCode() {
+        return Objects.hash(productId, categoryId, name, price, quantity, description, image, createdBy);
     }
 }

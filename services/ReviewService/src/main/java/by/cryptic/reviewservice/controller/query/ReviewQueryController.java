@@ -23,7 +23,7 @@ public class ReviewQueryController {
     private final ReviewGetByIdQueryHandler reviewGetByIdQueryHandler;
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<List<ReviewQuery>> getAllReviews(@PathVariable UUID id) {
+    public ResponseEntity<List<ReviewDTO>> getAllReviews(@PathVariable UUID id) {
         return ResponseEntity.ok(reviewGetAllQueryHandler.handle(id));
     }
 

@@ -1,5 +1,7 @@
 package by.cryptic.reviewservice.service.command.handler;
 
+import by.cryptic.reviewservice.mapper.ReviewMapper;
+import by.cryptic.reviewservice.repository.write.ReviewRepository;
 import by.cryptic.utils.event.review.ReviewCreatedEvent;
 import by.cryptic.reviewservice.model.write.Review;
 import by.cryptic.reviewservice.service.command.ReviewCreateCommand;
@@ -24,6 +26,8 @@ public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCo
 
     private final ApplicationEventPublisher eventPublisher;
     private final CacheManager cacheManager;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
 
     @Transactional
     @Retry(name = "reviewRetry", fallbackMethod = "reviewCreateFallback")
@@ -37,6 +41,7 @@ public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCo
                 .productId(dto.productId())
                 .userId(dto.userId())
                 .build();
+        reviewRepository.save(review);
         eventPublisher.publishEvent(ReviewCreatedEvent.builder()
                 .reviewId(review.getId())
                 .productId(dto.productId())
@@ -46,7 +51,7 @@ public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCo
                 .image(review.getImage())
                 .build());
         Objects.requireNonNull(cacheManager.getCache("reviews"))
-                .put("review:" + dto.title() + '-' + dto.description(), review);
+                .put("review:" + review.getId(), reviewMapper.toDto(review));
     }
 
     public void reviewCreateFallback(ReviewCreateCommand reviewCreateCommand, Throwable t) {

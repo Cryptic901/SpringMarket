@@ -57,11 +57,11 @@ public class UserEventListener {
 
             case UserDeletedEvent userDeletedEvent -> {
                 appUserRepository.findById(userDeletedEvent.getUserId())
-                        .ifPresent(_ -> appUserRepository.deleteById(
+                        .ifPresent(appUser -> appUserRepository.deleteById(
                                 userDeletedEvent.getUserId()));
 
                 viewRepository.findById(userDeletedEvent.getUserId())
-                        .ifPresent(_ -> viewRepository.deleteById(
+                        .ifPresent(userView -> viewRepository.deleteById(
                                 userDeletedEvent.getUserId()));
             }
 

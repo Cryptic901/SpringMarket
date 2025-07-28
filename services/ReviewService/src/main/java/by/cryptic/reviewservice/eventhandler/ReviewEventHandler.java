@@ -14,7 +14,7 @@ public class ReviewEventHandler {
 
     private final KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
-    @Async("orderExecutor")
+    @Async("reviewExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleReviewEvent(DomainEvent event) {
         kafkaTemplate.send("review-topic", event);

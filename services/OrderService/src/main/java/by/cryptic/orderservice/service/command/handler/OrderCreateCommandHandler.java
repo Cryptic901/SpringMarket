@@ -1,20 +1,20 @@
 package by.cryptic.orderservice.service.command.handler;
 
+import by.cryptic.exceptions.EmptyCartException;
 import by.cryptic.orderservice.client.CartServiceClient;
 import by.cryptic.orderservice.client.ProductServiceClient;
-import by.cryptic.utils.DTO.OrderedProductDTO;
-import by.cryptic.utils.DTO.CartProductDTO;
-import by.cryptic.utils.DTO.ProductDTO;
-import by.cryptic.utils.OrderStatus;
 import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.model.write.OrderProduct;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
 import by.cryptic.orderservice.service.command.OrderCreateCommand;
 import by.cryptic.utils.CommandHandler;
+import by.cryptic.utils.DTO.CartProductDTO;
+import by.cryptic.utils.DTO.OrderedProductDTO;
+import by.cryptic.utils.DTO.ProductDTO;
+import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.event.order.OrderCreatedEvent;
 import by.cryptic.utils.event.order.OrderFailedEvent;
-import by.cryptic.utils.event.order.OrderSuccessEvent;
-import by.cryptic.exceptions.EmptyCartException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -48,14 +48,15 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
         log.info("Creating order : {}", command);
 
         CustomerOrder order = CustomerOrder.builder()
-                .orderStatus(OrderStatus.IN_PROGRESS)
+                .orderStatus(OrderStatus.PENDING)
                 .location(command.location())
                 .userId(command.userId())
                 .products(new ArrayList<>())
+                .price(BigDecimal.ZERO)
                 .build();
         List<OrderedProductDTO> productsToUpdate = new ArrayList<>();
         try {
-            List<CartProductDTO> productsToOrder = cartServiceClient.getCartProducts(command.userId()).getBody();
+            List<CartProductDTO> productsToOrder = cartServiceClient.getCartProducts().getBody();
 
             if (productsToOrder == null) {
                 throw new EmptyCartException("Your cart is empty");
@@ -90,7 +91,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
             orderRepository.save(order);
             cartServiceClient.removeAllItemsFromCart(command.userId());
 
-            eventPublisher.publishEvent(OrderSuccessEvent.builder()
+            eventPublisher.publishEvent(OrderCreatedEvent.builder()
                     .orderId(order.getId())
                     .userEmail(command.userEmail())
                     .listOfProducts(productsToUpdate)
