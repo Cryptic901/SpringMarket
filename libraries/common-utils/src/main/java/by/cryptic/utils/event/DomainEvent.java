@@ -17,10 +17,7 @@ import by.cryptic.utils.event.product.ProductUpdatedEvent;
 import by.cryptic.utils.event.review.ReviewCreatedEvent;
 import by.cryptic.utils.event.review.ReviewDeletedEvent;
 import by.cryptic.utils.event.review.ReviewUpdatedEvent;
-import by.cryptic.utils.event.user.UserCreatedEvent;
-import by.cryptic.utils.event.user.UserDeletedEvent;
-import by.cryptic.utils.event.user.UserLoginedEvent;
-import by.cryptic.utils.event.user.UserUpdatedEvent;
+import by.cryptic.utils.event.user.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
@@ -37,6 +34,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = UserCreatedEvent.class, name = "UserCreatedEvent"),
         @JsonSubTypes.Type(value = UserDeletedEvent.class, name = "UserDeletedEvent"),
         @JsonSubTypes.Type(value = UserLoginedEvent.class, name = "UserLoginedEvent"),
+        @JsonSubTypes.Type(value = UserLogoutEvent.class, name = "UserLogoutEvent"),
         @JsonSubTypes.Type(value = UserUpdatedEvent.class, name = "UserUpdatedEvent"),
 
         @JsonSubTypes.Type(value = ReviewCreatedEvent.class, name = "ReviewCreatedEvent"),

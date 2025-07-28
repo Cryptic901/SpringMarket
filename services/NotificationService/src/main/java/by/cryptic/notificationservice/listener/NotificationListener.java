@@ -5,6 +5,7 @@ import by.cryptic.notificationservice.service.EmailService;
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
 import by.cryptic.utils.event.order.OrderCreatedEvent;
+import by.cryptic.utils.event.order.OrderSuccessEvent;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +23,10 @@ public class NotificationListener {
     @KafkaListener(topics = "order-topic", groupId = "notification-group")
     public void sendOrderStatus(DomainEvent event) throws MessagingException {
         switch (event) {
-            case OrderCreatedEvent orderCreatedEvent ->
-                    emailService.sendEmail(orderCreatedEvent.getUserEmail(), "SpringMarket Order",
-                            emailContentBuilder.buildOrderEmailContent(orderCreatedEvent.getOrderId(),
-                                    orderCreatedEvent.getOrderStatus()));
+            case OrderSuccessEvent orderSuccessEvent ->
+                    emailService.sendEmail(orderSuccessEvent.getUserEmail(), "SpringMarket Order",
+                            emailContentBuilder.buildOrderEmailContent(orderSuccessEvent.getOrderId(),
+                                    orderSuccessEvent.getOrderStatus()));
 
             case OrderCanceledEvent orderCanceledEvent ->
                     emailService.sendEmail(orderCanceledEvent.getUserEmail(), "SpringMarket Order",

@@ -1,13 +1,10 @@
 spring:
   application:
     name: NotificationService
-  config:
-    import: "configserver:"
   cloud:
     config:
-      uri: http://localhost:8888
       profile: dev
       username: config
       password: config
-server:
-  port: 8089
+  config:
+    import: "optional:configserver:http://config-server:8888"

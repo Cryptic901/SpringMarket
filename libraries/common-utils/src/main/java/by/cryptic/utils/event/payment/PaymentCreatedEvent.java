@@ -19,6 +19,7 @@ public class PaymentCreatedEvent extends DomainEvent implements PaymentEvent {
     private UUID paymentId;
     private PaymentMethod paymentMethod;
     private BigDecimal price;
+    private String userEmail;
     private UUID orderId;
     private UUID userId;
     private PaymentStatus paymentStatus;

@@ -23,6 +23,6 @@ public class OrderGetAllQueryHandler implements QueryHandler<OrderGetAllQuery, L
     public List<OrderDTO> handle(OrderGetAllQuery orderGetAllQuery) {
         return orderViewRepository.findAll().stream()
                 .filter(order -> order.getCreatedBy().equals(orderGetAllQuery.id()))
-                .map(orderMapper::toDto).toList();
+                .map(orderMapper::viewToDto).toList();
     }
 }

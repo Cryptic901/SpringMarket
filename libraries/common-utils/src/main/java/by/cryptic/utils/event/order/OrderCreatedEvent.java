@@ -20,7 +20,7 @@ public class OrderCreatedEvent extends DomainEvent implements OrderEvent {
     private String userEmail;
     private BigDecimal price;
     @Builder.Default
-    private OrderStatus orderStatus = OrderStatus.IN_PROGRESS;
+    private OrderStatus orderStatus = OrderStatus.PENDING;
     private List<OrderedProductDTO> listOfProducts;
     private String location;
     private UUID createdBy;

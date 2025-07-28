@@ -1,66 +1,58 @@
 package by.cryptic.orderservice.model.read;
 
 import by.cryptic.utils.OrderStatus;
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.type.SqlTypes;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "order_view", schema = "order_view_schema")
+@Document(collection = "order_view")
 public class CustomerOrderView {
 
-    @Id
-    @Column(name = "order_id", nullable = false)
-    @JdbcTypeCode(SqlTypes.UUID)
+    @MongoId
     private UUID orderId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "order_status")
     private OrderStatus orderStatus;
 
-    @Column(nullable = false)
+    private UUID paymentId;
+
     private String location;
 
     private BigDecimal price;
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "created_by")
     private UUID createdBy;
 
-    @Column(name = "updated_by")
     private UUID updatedBy;
 
     @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
         CustomerOrderView that = (CustomerOrderView) o;
-        return getOrderId() != null && Objects.equals(getOrderId(), that.getOrderId());
+        return Objects.equals(orderId, that.orderId) &&
+                orderStatus == that.orderStatus &&
+                Objects.equals(paymentId, that.paymentId) &&
+                Objects.equals(location, that.location) &&
+                Objects.equals(price, that.price) &&
+                Objects.equals(createdBy, that.createdBy) &&
+                Objects.equals(updatedBy, that.updatedBy);
     }
 
     @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    public int hashCode() {
+        return Objects.hash(orderId, orderStatus, paymentId, location, price, createdBy, updatedBy);
     }
 }

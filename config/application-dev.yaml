@@ -1,14 +1,13 @@
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
 spring:
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9000/realms/springmarket
-
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI:http://localhost:9000/realms/springmarket}
 resilience4j:
   retry:
     configs:
@@ -29,8 +28,6 @@ resilience4j:
           - jakarta.persistence.EntityNotFoundException
           - java.lang.RuntimeException
     instances:
-      paymentRetry:
-        baseConfig: default
       productRetry:
         baseConfig: default
       reviewRetry:
@@ -61,8 +58,6 @@ resilience4j:
         max-concurrent-calls: 5
         max-wait-duration: 100ms
     instances:
-      paymentBulkhead:
-        baseConfig: default
       productBulkhead:
         baseConfig: default
       reviewBulkhead:
@@ -76,7 +71,7 @@ resilience4j:
 management:
   zipkin:
     tracing:
-      endpoint: http://localhost:9411/api/v2/spans
+      endpoint: http://zipkin:9411/api/v2/spans
   tracing:
     sampling:
       probability: 1.0
@@ -94,10 +89,13 @@ logging:
   level:
     org:
       springframework:
-        cache: TRACE
-        web: TRACE
-        http: TRACE
-        security: TRACE
+        cache: DEBUG
+        web: DEBUG
+        http: DEBUG
+        security: DEBUG
+        kafka: DEBUG
+      apache:
+        kafka: DEBUG
     root: info
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"

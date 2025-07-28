@@ -1,0 +1,46 @@
+server:
+  port: 8088
+eureka:
+  instance:
+    hostname: payment-service
+    prefer-ip-address: false
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/payment_db
+    username: payment_service
+    password: payment_pass
+  data:
+    mongodb:
+      uri: mongodb://mongo-db:27017/paymentDB
+  flyway:
+    schemas: payment_schema
+    default-schema: payment_schema
+  kafka:
+    bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
+    consumer:
+      auto-offset-reset: earliest
+      group-id: payment-consumer-group
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.trusted.packages: by.cryptic.*
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.value.default.type: by.cryptic.utils.event.DomainEvent
+        spring.json.use.type.headers: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      missing-topics-fatal: false
+    topics:
+      name: payment-topic
+      partitions: 3
+      replicas: 3
+      minInsyncReplicas: 1
+      dlq:
+        name: payment-topic.DLQ
+        partitions: 3
+        replicas: 3
+        minInsyncReplicas: 1
+

@@ -5,6 +5,7 @@ import by.cryptic.cartservice.model.read.CartView;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.repository.read.CartViewRepository;
 import by.cryptic.cartservice.repository.write.CartRepository;
+import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.cart.CartAddedItemEvent;
 import by.cryptic.utils.event.cart.CartClearedEvent;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 public class CartEventListener {
     private final CartViewRepository cartViewRepository;
     private final CartRepository cartRepository;
+    private final CartUtil cartUtil;
 
     @KafkaListener(topics = {"cart-topic", "user-topic"}, groupId = "cart-group")
     public void listenCart(DomainEvent event) {
@@ -51,7 +53,7 @@ public class CartEventListener {
                         .ifPresentOrElse(
                                 p -> p.setQuantity(p.getQuantity() + 1),
                                 () -> cartView.getProducts().add(newProduct));
-                cartView.setTotal(cartView.getTotal().add(cartAddedItemEvent.getPrice()));
+                cartView.setTotal(cartUtil.getTotalViewPrice(cartView.getProducts()));
                 cartViewRepository.save(cartView);
             }
             case CartClearedEvent cartClearedEvent -> {
@@ -76,6 +78,7 @@ public class CartEventListener {
                             } else {
                                 cartView.getProducts().remove(product);
                             }
+                            cartView.setTotal(cartUtil.getTotalViewPrice(cartView.getProducts()));
                             cartViewRepository.save(cartView);
                         });
             }

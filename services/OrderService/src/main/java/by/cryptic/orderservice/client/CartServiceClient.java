@@ -17,5 +17,5 @@ public interface CartServiceClient {
     ResponseEntity<Void> removeAllItemsFromCart(UUID userId);
 
     @GetMapping
-    ResponseEntity<List<CartProductDTO>> getCartProducts(UUID userId);
+    ResponseEntity<List<CartProductDTO>> getCartProducts();
 }

@@ -1,22 +1,21 @@
 package by.cryptic.orderservice.config;
 
 import feign.RequestInterceptor;
-import org.springframework.context.annotation.Bean;
+import feign.RequestTemplate;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @Configuration
-public class FeignClientConfig {
+public class FeignClientConfig implements RequestInterceptor {
 
-    @Bean
-    public RequestInterceptor authRequestInterceptor() {
-        return requestTemplate -> {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if(auth != null && auth.getCredentials() != null) {
-                String token = auth.getCredentials().toString();
-                requestTemplate.header("Authorization", "Bearer " + token);
-            }
-        };
+    @Override
+    public void apply(RequestTemplate requestTemplate) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth instanceof JwtAuthenticationToken token) {
+            String jwt = token.getToken().getTokenValue();
+            requestTemplate.header("Authorization", "Bearer " + jwt);
+        }
     }
 }

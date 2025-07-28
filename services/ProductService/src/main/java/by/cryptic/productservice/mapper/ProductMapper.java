@@ -23,6 +23,34 @@ public class ProductMapper {
                 product.getCategoryId());
     }
 
+    public ProductDTO toDto(Product product) {
+        if (product == null) {
+            return null;
+        }
+        return new ProductDTO(product.getName(),
+                product.getPrice(),
+                product.getQuantity(),
+                product.getDescription(),
+                product.getImage(),
+                product.getCategoryId());
+    }
+
+    public ProductView toView(Product product) {
+        if (product == null) {
+            return null;
+        }
+        return ProductView.builder()
+                .productId(product.getId())
+                .categoryId(product.getCategoryId())
+                .createdBy(product.getCreatedBy())
+                .description(product.getDescription())
+                .image(product.getImage())
+                .name(product.getName())
+                .quantity(product.getQuantity())
+                .price(product.getPrice())
+                .build();
+    }
+
     public void updateEntity(Product product, ProductUpdateCommand updateProductDTO) {
         if (product == null || updateProductDTO == null) return;
 

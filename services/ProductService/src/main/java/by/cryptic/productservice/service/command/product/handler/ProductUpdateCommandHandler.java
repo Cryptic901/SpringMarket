@@ -49,7 +49,7 @@ public class ProductUpdateCommandHandler implements CommandHandler<ProductUpdate
                 .categoryId(product.getCategoryId())
                 .build());
         Objects.requireNonNull(cacheManager.getCache("products"))
-                .put("product:" + product.getDescription() + '-' + product.getName(), product);
+                .put("product:" + product.getId(), product);
     }
 
     public void productUpdateFallback(ProductUpdateCommand productUpdateCommand, Throwable t) {

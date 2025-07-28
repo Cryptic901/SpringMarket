@@ -1,1 +1,0 @@
-ALTER TABLE product_view_schema.product_view ADD COLUMN category_id uuid not null references product_view_schema.category_view(category_id);

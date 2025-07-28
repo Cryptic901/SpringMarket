@@ -1,5 +1,6 @@
 package by.cryptic.cartservice.util;
 
+import by.cryptic.cartservice.model.read.CartProductView;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.model.write.CartProduct;
 import by.cryptic.cartservice.repository.write.CartRepository;
@@ -23,6 +24,15 @@ public class CartUtil {
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (CartProduct cartProduct : cart) {
             totalPrice = totalPrice.add(cartProduct.getPricePerUnit()
+                    .multiply(BigDecimal.valueOf(cartProduct.getQuantity())));
+        }
+        return totalPrice;
+    }
+
+    public BigDecimal getTotalViewPrice(List<CartProductView> cart) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for (CartProductView cartProduct : cart) {
+            totalPrice = totalPrice.add(cartProduct.getPrice()
                     .multiply(BigDecimal.valueOf(cartProduct.getQuantity())));
         }
         return totalPrice;

@@ -1,10 +1,7 @@
 package by.cryptic.keycloak.kafka;
 
 import by.cryptic.utils.event.DomainEvent;
-import by.cryptic.utils.event.user.UserCreatedEvent;
-import by.cryptic.utils.event.user.UserDeletedEvent;
-import by.cryptic.utils.event.user.UserLoginedEvent;
-import by.cryptic.utils.event.user.UserUpdatedEvent;
+import by.cryptic.utils.event.user.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +89,13 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
                         .build();
                 log.info("UserLoginedEvent from keycloak event {}", objectMapper.writeValueAsString(userLoginedEvent));
                 yield userLoginedEvent;
+            }
+            case LOGOUT -> {
+                UserLogoutEvent userLogoutEvent = UserLogoutEvent.builder()
+                        .userId(userId)
+                        .build();
+                log.info("UserLogoutEvent from keycloak event {}", objectMapper.writeValueAsString(userLogoutEvent));
+                yield userLogoutEvent;
             }
             case LOGIN_ERROR -> {
                 log.error("Login unsuccessful");
