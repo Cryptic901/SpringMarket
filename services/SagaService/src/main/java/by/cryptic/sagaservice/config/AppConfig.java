@@ -1,4 +1,4 @@
-package by.cryptic.sagaservice.config.kafka;
+package by.cryptic.sagaservice.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

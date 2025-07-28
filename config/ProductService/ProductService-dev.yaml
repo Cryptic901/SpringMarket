@@ -1,8 +1,12 @@
 server:
   port: 8081
+eureka:
+  instance:
+    hostname: product-service
+    prefer-ip-address: false
 spring:
   kafka:
-    bootstrap-servers: localhost:29094,localhost:39094,localhost:49094
+    bootstrap-servers: broker-1:29094,broker-2:39094,broker-3:49094
     consumer:
       auto-offset-reset: earliest
       group-id: order-consumer-group
@@ -23,9 +27,12 @@ spring:
       topic:
         attempts: 5
   datasource:
-    url: jdbc:postgresql://localhost:5432/product_db
-    username: admin
-    password: $2a$12$WHDRyXGTErJoxwlXnU7tquYrgnSaPoh5D.iCmqnNk17Mdsii17CZO
+    url: jdbc:postgresql://postgres:5432/product_db
+    username: product_service
+    password: product_pass
+  data:
+    mongodb:
+      uri: mongodb://mongo-db:27017/productDB
   jpa:
     properties:
       hibernate:

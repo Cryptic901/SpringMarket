@@ -1,16 +1,20 @@
 server:
   port: 8080
+eureka:
+  instance:
+    hostname: gateway
+    prefer-ip-address: false
 spring:
   security:
     oauth2:
       client:
         provider:
           keycloak:
-            issuer-uri: http://localhost:9000/realms/springmarket
+            issuer-uri: http://keycloak:8080/realms/springmarket
         registration:
           keycloak:
             client-id: api-gateway
-            client-secret: 3tiZ4GvMjbb3REW9GztnECedCdyMO0MB
+            client-secret: lpMMdbu3DHQa7QDUQhScsp3rh2uDL9y6
             scope:
               - openid
               - email

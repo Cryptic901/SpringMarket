@@ -2,9 +2,9 @@ package by.cryptic.sagaservice.service;
 
 import by.cryptic.utils.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
+import by.cryptic.utils.event.order.FinalizeOrderEvent;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
 import by.cryptic.utils.event.order.OrderCreatedEvent;
-import by.cryptic.utils.event.order.OrderSuccessEvent;
 import by.cryptic.utils.event.payment.PaymentCreatedEvent;
 import by.cryptic.utils.event.payment.PaymentFailedEvent;
 import by.cryptic.utils.event.payment.PaymentSuccessEvent;
@@ -13,6 +13,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class SagaService {
@@ -20,32 +22,30 @@ public class SagaService {
     private final KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @KafkaListener(topics = {"order-topic", "payment-topic"})
-    public void onOrderEvent(DomainEvent event) {
+    public void sagaListener(DomainEvent event) {
         switch (event) {
-            case OrderSuccessEvent orderSuccessEvent -> kafkaTemplate.send("order-topic",
-                    OrderCreatedEvent.builder()
-                            .orderId(orderSuccessEvent.getOrderId())
-                            .price(orderSuccessEvent.getPrice())
-                            .orderStatus(orderSuccessEvent.getOrderStatus())
-                            .createdBy(orderSuccessEvent.getCreatedBy())
-                            .listOfProducts(orderSuccessEvent.getListOfProducts())
+            case OrderCreatedEvent orderCreatedEvent -> kafkaTemplate.send("saga-topic",
+                    PaymentCreatedEvent.builder()
+                            .paymentId(UUID.randomUUID())
+                            .userEmail(orderCreatedEvent.getUserEmail())
+                            .orderId(orderCreatedEvent.getOrderId())
+                            .price(orderCreatedEvent.getPrice())
+                            .userId(orderCreatedEvent.getCreatedBy())
                             .build());
 
             case PaymentSuccessEvent paymentSuccessEvent ->
-                    kafkaTemplate.send("payment-topic", PaymentCreatedEvent.builder()
-                            .paymentId(paymentSuccessEvent.getPaymentId())
-                            .userId(paymentSuccessEvent.getUserId())
-                            .paymentMethod(paymentSuccessEvent.getPaymentMethod())
-                            .price(paymentSuccessEvent.getPrice())
+                    kafkaTemplate.send("saga-topic", FinalizeOrderEvent.builder()
                             .orderId(paymentSuccessEvent.getOrderId())
-                            .paymentStatus(paymentSuccessEvent.getPaymentStatus())
+                            .paymentId(paymentSuccessEvent.getPaymentId())
                             .build());
 
-            case PaymentFailedEvent paymentFailedEvent -> kafkaTemplate.send("order-topic", OrderCanceledEvent.builder()
-                    .orderId(paymentFailedEvent.getOrderId())
-                    .orderStatus(OrderStatus.CANCELLED)
-                    .userEmail(paymentFailedEvent.getEmail())
-                    .build());
+
+            case PaymentFailedEvent paymentFailedEvent -> kafkaTemplate.send("saga-topic",
+                    OrderCanceledEvent.builder()
+                            .orderId(paymentFailedEvent.getOrderId())
+                            .orderStatus(OrderStatus.CANCELLED)
+                            .userEmail(paymentFailedEvent.getEmail())
+                            .build());
 
             default -> throw new IllegalStateException("Unexpected event: " + event);
         }

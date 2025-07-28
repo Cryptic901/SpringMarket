@@ -1,0 +1,1 @@
+ALTER TABLE order_schema.orders add column user_email varchar(255);

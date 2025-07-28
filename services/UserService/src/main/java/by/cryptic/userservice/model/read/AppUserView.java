@@ -1,44 +1,34 @@
 package by.cryptic.userservice.model.read;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
+
 @Getter
 @Setter
 @ToString
 @Builder
-@Table(name = "user_view", schema = "user_view_schema")
+@Document(collection = "user_view")
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppUserView {
 
-    @Id
-    @Column(name = "user_id", nullable = false)
-    @JdbcTypeCode(SqlTypes.UUID)
+    @MongoId
     private UUID userId;
 
     private String username;
 
-    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Override

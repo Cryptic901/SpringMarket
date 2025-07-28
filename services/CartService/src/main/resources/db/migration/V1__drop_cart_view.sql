@@ -1,0 +1,1 @@
+DROP schema cart_view_schema CASCADE;

@@ -1,0 +1,1 @@
+DROP schema payment_view_schema CASCADE;

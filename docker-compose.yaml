@@ -18,9 +18,9 @@ services:
       - "19093:9093"
     networks:
       - spring-market
-    restart: on-failure:3
+    restart: always
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z localhost:9093"]
+      test: [ "CMD", "bash", "-c", "nc -z localhost:9093" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -40,9 +40,9 @@ services:
       - "29093:9093"
     networks:
       - spring-market
-    restart: on-failure:3
+    restart: always
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z localhost:9093"]
+      test: [ "CMD", "bash", "-c", "nc -z localhost:9093" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -62,9 +62,9 @@ services:
       - "39093:9093"
     networks:
       - spring-market
-    restart: on-failure:3
+    restart: always
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z localhost:9093"]
+      test: [ "CMD", "bash", "-c", "nc -z localhost:9093" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -98,7 +98,7 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     networks:
       - spring-market
-    restart: on-failure:3
+    restart: always
     healthcheck:
       test: [ "CMD", "bash", "-c", "nc -z localhost:9092" ]
       interval: 10s
@@ -136,9 +136,9 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     networks:
       - spring-market
-    restart: on-failure:3
+    restart: always
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z localhost:9092"]
+      test: [ "CMD", "bash", "-c", "nc -z localhost:9092" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -176,20 +176,21 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     networks:
       - spring-market
-    restart: on-failure:3
+    restart: always
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z localhost:9092"]
+      test: [ "CMD", "bash", "-c", "nc -z localhost:9092" ]
       interval: 10s
       timeout: 5s
       retries: 10
 
-  redis:
+  redis-db:
     image: redis:8.2-m01
-    container_name: redis
+    container_name: redis-db
+    restart: always
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -201,6 +202,7 @@ services:
   keycloak-db:
     image: postgres:latest
     container_name: keycloak-db
+    restart: always
     ports:
       - "5400:5432"
     volumes:
@@ -220,13 +222,12 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
-    command: start-dev
+    command: start-dev --health-enabled=true --metrics-enabled=true
     environment:
-      KC_HOSTNAME: localhost
+      KC_HOSTNAME: keycloak
       KC_PROXY: edge
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
-      KC_HEALTH_ENABLED: true
       KC_HTTP_ENABLED: true
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
@@ -248,205 +249,344 @@ services:
     container_name: zipkin
     ports:
       - "9411:9411"
+    restart: on-failure:3
+    networks:
+      - spring-market
+
+  mongo-db:
+    image: mongo:4.4
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
     restart: always
     networks:
       - spring-market
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  config-server:
+    build:
+      context: ./services/ConfigServer
+      dockerfile: Dockerfile
+    container_name: config-server
+    restart: always
+    ports:
+      - "8888:8888"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8888/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      zipkin:
+        condition: service_healthy
+
+  eureka-server:
+    build:
+      context: ./services/EurekaServer
+      dockerfile: Dockerfile
+    container_name: eureka
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+
+  gateway:
+    build:
+      context: ./services/Gateway
+      dockerfile: Dockerfile
+    container_name: gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - spring-market
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  analytic-service:
+    build:
+      context: ./services/AnalyticService
+      dockerfile: Dockerfile
+    container_name: analytic-service
+    restart: on-failure:3
+    ports:
+      - "8085:8085"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - redis-db
+      - broker-1
+      - broker-2
+      - broker-3
+
+  cart-service:
+    build:
+      context: ./services/CartService
+      dockerfile: Dockerfile
+    container_name: cart-service
+    restart: on-failure:3
+    ports:
+      - "8084:8084"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - mongo-db
+      - broker-1
+      - broker-2
+      - broker-3
+
+  notification-service:
+    build:
+      context: ./services/NotificationService
+      dockerfile: Dockerfile
+    container_name: notification-service
+    restart: on-failure:3
+    ports:
+      - "8089:8089"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8089/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - broker-1
+      - broker-2
+      - broker-3
+
+  order-service:
+    build:
+      context: ./services/OrderService
+      dockerfile: Dockerfile
+    container_name: order-service
+    restart: on-failure:3
+    ports:
+      - "8082:8082"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - mongo-db
+      - broker-1
+      - broker-2
+      - broker-3
+
+  payment-service:
+    build:
+      context: ./services/PaymentService
+      dockerfile: Dockerfile
+    container_name: payment-service
+    restart: on-failure:3
+    ports:
+      - "8088:8088"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8088/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - mongo-db
+      - broker-1
+      - broker-2
+      - broker-3
+
+  product-service:
+    build:
+      context: ./services/ProductService
+      dockerfile: Dockerfile
+    container_name: product-service
+    restart: on-failure:3
+    ports:
+      - "8081:8081"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - mongo-db
+      - broker-1
+      - broker-2
+      - broker-3
+
+  review-service:
+    build:
+      context: ./services/ReviewService
+      dockerfile: Dockerfile
+    container_name: review-service
+    restart: on-failure:3
+    ports:
+      - "8083:8083"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - mongo-db
+      - broker-1
+      - broker-2
+      - broker-3
+
+  saga-service:
+    build:
+      context: ./services/SagaService
+      dockerfile: Dockerfile
+    container_name: saga-service
+    restart: on-failure:3
+    ports:
+      - "8090:8090"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8090/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - mongo-db
+      - broker-1
+      - broker-2
+      - broker-3
+
+  user-service:
+    build:
+      context: ./services/UserService
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: on-failure:3
+    ports:
+      - "8086:8086"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - config-server
+      - eureka-server
+      - postgres
+      - mongo-db
+      - broker-1
+      - broker-2
+      - broker-3
 
 volumes:
   keycloak_data:
     driver: local
   redis_data:
-
-#TODO dockerfiles
-#  gateway:
-#    container_name: gateway
-#    image: springmarket-gateway
-#    ports:
-#      - "8080:8080"
-#    networks:
-#      - spring-market
-#
-#  analyticservice:
-#    container_name: analyticservice
-#    image: springmarket-analytic-service
-#    ports:
-#      - "8085:8085"
-#    networks:
-#      - spring-market
-#    depends_on:
-#      - redis
-#
-#  cartservice:
-#    container_name: cartservice
-#    image: springmarket-cart-service
-#    ports:
-#      - "8084:8084"
-#    networks:
-#      - spring-market
-#    depends_on:
-#      - cart-db
-#
-#  cart-db:
-#    container_name: cart-db
-#    image: postgres
-#    environment:
-#      POSTGRES_DB: cart_db
-#      POSTGRES_USER: ${POSTGRES_USER}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#      POSTGRES_URL: jdbc:postgresql://localhost:5432/cart_db
-#    ports:
-#      - "5434:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - spring-market
-#
-#  eureka:
-#    container_name: eureka
-#    image: springmarket-eureka-service
-#    ports:
-#      - "8761:8761"
-#    networks:
-#      - spring-market
-#
-#  notificationservice:
-#    container_name: notificationservice
-#    image: springmarket-notification-service
-#    ports:
-#      - "8089:8089"
-#    networks:
-#      - spring-market
-#
-#  orderservice:
-#    container_name: orderservice
-#    image: springmarket-order-service
-#    ports:
-#      - "8082:8082"
-#    networks:
-#      - spring-market
-#    depends_on:
-#      - order-db
-#
-#  order-db:
-#    container_name: order-db
-#    image: postgres
-#    environment:
-#      POSTGRES_DB: order-db
-#      POSTGRES_USER: ${POSTGRES_USER}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#      POSTGRES_URL: jdbc:postgresql://localhost:5432/order_db
-#    ports:
-#      - "5435:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - spring-market
-#
-#  paymentservice:
-#    container_name: paymentservice
-#    image: springmarket-payment-service
-#    ports:
-#      - "8088:8088"
-#    networks:
-#      - spring-market
-#    depends_on:
-#      - order-db
-#
-#  payment-db:
-#    container_name: payment_db
-#    image: postgres
-#    environment:
-#      POSTGRES_DB: payment_db
-#      POSTGRES_USER: ${POSTGRES_USER}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#      POSTGRES_URL: jdbc:postgresql://localhost:5432/payment_db
-#    ports:
-#      - "5436:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - spring-market
-#
-#  productservice:
-#    container_name: productservice
-#    image: springmarket-product-service
-#    ports:
-#      - "8081:8081"
-#    networks:
-#      - spring-market
-#    depends_on:
-#      - product-db
-#
-#  product-db:
-#    container_name: product_db
-#    image: postgres
-#    environment:
-#      POSTGRES_DB: product_db
-#      POSTGRES_USER: ${POSTGRES_USER}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#      POSTGRES_URL: jdbc:postgresql://localhost:5432/product_db
-#    ports:
-#      - "5437:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - spring-market
-#
-#  reviewservice:
-#    container_name: reviewservice
-#    image: springmarket-review-service
-#    ports:
-#      - "8083:8083"
-#    networks:
-#      - spring-market
-#    depends_on:
-#      - review-db
-#
-#  review-db:
-#    container_name: review_db
-#    image: postgres
-#    environment:
-#      POSTGRES_DB: review_db
-#      POSTGRES_USER: ${POSTGRES_USER}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#      POSTGRES_URL: jdbc:postgresql://localhost:5432/review_db
-#    ports:
-#      - "5438:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - spring-market
-#
-#  sagaservice:
-#    container_name: sagaservice
-#    image: springmarket-saga-service
-#    ports:
-#      - "8090:8090"
-#    networks:
-#      - spring-market
-#
-#  userservice:
-#    container_name: userservice
-#    image: springmarket-user-service
-#    ports:
-#      - "8086:8086"
-#    networks:
-#      - spring-market
-#    depends_on:
-#      - user-db
-#
-#  user-db:
-#    container_name: user_db
-#    image: postgres
-#    environment:
-#      POSTGRES_DB: user_db
-#      POSTGRES_USER: ${POSTGRES_USER}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#      POSTGRES_URL: jdbc:postgresql://localhost:5432/user_db
-#    ports:
-#      - "5439:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - spring-market
-
+  mongo_data:
+  postgres_data:

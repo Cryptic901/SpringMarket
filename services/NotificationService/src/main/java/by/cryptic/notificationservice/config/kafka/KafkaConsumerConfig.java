@@ -40,7 +40,7 @@ public class KafkaConsumerConfig {
     public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer
             (KafkaTemplate<String, DomainEvent> kafkaTemplate) {
         return new DeadLetterPublishingRecoverer(kafkaTemplate,
-                (record, _) -> {
+                (record, exception) -> {
                     String topicName = record.topic();
                     String dlqTopicName = topicName + ".DLQ";
                     return new TopicPartition(dlqTopicName, record.partition());

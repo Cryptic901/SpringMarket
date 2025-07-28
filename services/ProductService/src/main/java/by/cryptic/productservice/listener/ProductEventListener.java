@@ -52,7 +52,7 @@ public class ProductEventListener {
                     });
 
             case ProductDeletedEvent productDeletedEvent ->
-                    productViewRepository.findById(productDeletedEvent.getProductId()).ifPresent(_ ->
+                    productViewRepository.findById(productDeletedEvent.getProductId()).ifPresent(productView ->
                             productViewRepository.deleteById(productDeletedEvent.getProductId()));
 
             case OrderCreatedEvent orderCreatedEvent -> {

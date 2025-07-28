@@ -1,0 +1,1 @@
+DROP schema product_view_schema CASCADE;

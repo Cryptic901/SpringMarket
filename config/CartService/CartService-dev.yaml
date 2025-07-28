@@ -1,13 +1,17 @@
 server:
   port: 8084
+eureka:
+  instance:
+    hostname: cart-service
+    prefer-ip-address: false
 spring:
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9000/realms/springmarket
+          issuer-uri: http://keycloak:9000/realms/springmarket
   kafka:
-    bootstrap-servers: localhost:29094,localhost:39094,localhost:49094
+    bootstrap-servers: broker-1:29094,broker-2:39094,broker-3:49094
     consumer:
       auto-offset-reset: earliest
       group-id: order-consumer-group
@@ -25,6 +29,12 @@ spring:
     listener:
       missing-topics-fatal: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/cart_db
-    username: admin
-    password: $2a$12$WHDRyXGTErJoxwlXnU7tquYrgnSaPoh5D.iCmqnNk17Mdsii17CZO
+    url: jdbc:postgresql://postgres:5432/cart_db
+    username: cart_service
+    password: cart_pass
+  data:
+    mongodb:
+      uri: mongodb://mongo-db:27017/cartDB
+  flyway:
+    enabled: true
+    locations: classpath:sql

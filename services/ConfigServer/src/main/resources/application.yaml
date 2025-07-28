@@ -1,8 +1,13 @@
 server:
   port: 8888
+eureka:
+  instance:
+    hostname: config-server
+    prefer-ip-address: false
 spring:
   application:
     name: ConfigServer
+
   cloud:
     config:
       server:
@@ -15,3 +20,17 @@ spring:
     user:
       name: config
       password: config
+  profiles:
+    default: dev
+    active: dev
+
+management:
+  tracing:
+    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always

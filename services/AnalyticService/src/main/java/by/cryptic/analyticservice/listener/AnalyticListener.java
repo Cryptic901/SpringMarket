@@ -3,8 +3,9 @@ package by.cryptic.analyticservice.listener;
 import by.cryptic.analyticservice.state.AnalyticsStateService;
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.order.OrderCreatedEvent;
+import by.cryptic.utils.event.user.UserDeletedEvent;
 import by.cryptic.utils.event.user.UserLoginedEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import by.cryptic.utils.event.user.UserLogoutEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -27,7 +28,6 @@ public class AnalyticListener implements SmartLifecycle {
     public static final AtomicInteger activeUsers = new AtomicInteger(0);
     public static final AtomicReference<BigDecimal> todayRevenue = new AtomicReference<>(BigDecimal.ZERO);
     public static final AtomicInteger todayOrders = new AtomicInteger(0);
-    private final ObjectMapper objectMapper;
     private final AnalyticsStateService analyticsStateService;
     private volatile boolean running = false;
 
@@ -59,7 +59,9 @@ public class AnalyticListener implements SmartLifecycle {
     public void listenUserRegister(DomainEvent event) {
         log.info("Received user created event and trying to increase the value: {}", event);
         switch (event) {
-            case UserLoginedEvent _ -> activeUsers.incrementAndGet();
+            case UserLoginedEvent userLoginedEvent -> activeUsers.incrementAndGet();
+            case UserDeletedEvent userDeletedEvent -> activeUsers.decrementAndGet();
+            case UserLogoutEvent userLogoutEvent -> activeUsers.decrementAndGet();
             case OrderCreatedEvent orderCreatedEvent -> {
                 BigDecimal totalAmount = orderCreatedEvent.getPrice();
                 todayRevenue.updateAndGet(current -> (current.add(totalAmount)));
