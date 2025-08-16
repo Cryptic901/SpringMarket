@@ -1,0 +1,41 @@
+### Get All Products
+@productName = variable value
+GET {{host}}/api/v1/products?name={{productName}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Get Product By ID
+@productId = variable value
+GET {{host}}/api/v1/products/{{productId}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Create Product
+@categoryId = variable value
+POST {{host}}/api/v1/products
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Honey",
+  "price": {
+    "value": 148.8
+  },
+  "quantity": 28,
+  "description": "honey description",
+  "image": "test/img",
+  "categoryId": "{{categoryId}}"
+}
+
+### Update Product
+PATCH {{host}}/api/v1/products/{productId}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "new products"
+}
+
+### Delete Product
+DELETE {{host}}/api/v1/products/{productId}
+Authorization: Bearer {{authToken}}

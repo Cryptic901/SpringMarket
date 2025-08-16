@@ -1,0 +1,35 @@
+### Get All Categories
+GET {{host}}/api/v1/categories
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Get Category By ID
+@categoryId = variable value
+GET {{host}}/api/v1/categories/{{categoryId}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Create Category
+POST {{host}}/api/v1/categories
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "for family",
+  "description": "category that match for all family"
+}
+
+### Update Category
+@updateCategoryId = variable value
+PATCH {{host}}/api/v1/categories/{updateCategoryId}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "new category name"
+}
+
+### Delete Category
+@deleteCategoryId = variable value
+DELETE {{host}}/api/v1/categories/{{deleteCategoryId}}
+Authorization: Bearer {{authToken}}

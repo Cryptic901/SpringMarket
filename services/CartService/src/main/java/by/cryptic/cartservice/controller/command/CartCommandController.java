@@ -25,9 +25,9 @@ public class CartCommandController {
     private final CartDeleteProductCommandHandler cartDeleteProductCommandHandler;
     private final CartClearCommandHandler cartClearCommandHandler;
 
-    @PostMapping
+    @PostMapping("/{productId}")
     public ResponseEntity<Void> addItemToCart(
-            @RequestParam UUID productId, @AuthenticationPrincipal Jwt jwt) {
+            @PathVariable UUID productId, @AuthenticationPrincipal Jwt jwt) {
         cartAddCommandHandler.handle(new CartAddCommand(productId, JwtUtil.extractUserId(jwt)));
         return ResponseEntity.status(HttpStatusCode.valueOf(201)).build();
     }
@@ -38,9 +38,9 @@ public class CartCommandController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{productId}")
     public ResponseEntity<Void> removeItemFromCart(
-            @RequestParam UUID productId, @AuthenticationPrincipal Jwt jwt) {
+            @PathVariable UUID productId, @AuthenticationPrincipal Jwt jwt) {
         cartDeleteProductCommandHandler.handle(new CartDeleteProductCommand(productId,
                 JwtUtil.extractUserId(jwt)));
         return ResponseEntity.noContent().build();

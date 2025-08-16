@@ -1,0 +1,1 @@
+ALTER TABLE product_db.product_schema.products ADD COLUMN product_status varchar(255);

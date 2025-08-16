@@ -4,6 +4,8 @@ CREATE DATABASE payment_db;
 CREATE DATABASE product_db;
 CREATE DATABASE review_db;
 CREATE DATABASE user_db;
+CREATE DATABASE inventory_db;
+CREATE DATABASE category_db;
 
 CREATE USER cart_service WITH PASSWORD 'cart_pass';
 CREATE USER order_service WITH PASSWORD 'order_pass';
@@ -11,6 +13,8 @@ CREATE USER payment_service WITH PASSWORD 'payment_pass';
 CREATE USER product_service WITH PASSWORD 'product_pass';
 CREATE USER review_service WITH PASSWORD 'review_pass';
 CREATE USER user_service WITH PASSWORD 'user_pass';
+CREATE USER inventory_service WITH PASSWORD 'inventory_pass';
+CREATE USER category_service WITH PASSWORD 'category_pass';
 
 GRANT ALL PRIVILEGES ON DATABASE cart_db TO cart_service;
 GRANT ALL PRIVILEGES ON DATABASE order_db TO order_service;
@@ -18,6 +22,8 @@ GRANT ALL PRIVILEGES ON DATABASE payment_db TO payment_service;
 GRANT ALL PRIVILEGES ON DATABASE product_db TO product_service;
 GRANT ALL PRIVILEGES ON DATABASE review_db TO review_service;
 GRANT ALL PRIVILEGES ON DATABASE user_db TO user_service;
+GRANT ALL PRIVILEGES ON DATABASE inventory_db TO inventory_service;
+GRANT ALL PRIVILEGES ON DATABASE category_db TO category_service;
 
 \c cart_db;
 CREATE SCHEMA cart_schema;
@@ -36,6 +42,24 @@ GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA cart_schema TO cart_service;
 ALTER DEFAULT PRIVILEGES IN SCHEMA cart_schema GRANT ALL ON TABLES TO cart_service;
 ALTER DEFAULT PRIVILEGES IN SCHEMA cart_schema GRANT ALL ON SEQUENCES TO cart_service;
 ALTER DEFAULT PRIVILEGES IN SCHEMA cart_schema GRANT ALL ON FUNCTIONS TO cart_service;
+
+\c category_db;
+CREATE SCHEMA category_schema;
+GRANT ALL ON SCHEMA public TO category_service;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO category_service;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO category_service;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO category_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO category_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO category_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO category_service;
+
+GRANT ALL ON SCHEMA category_schema TO category_service;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA category_schema TO category_service;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA category_schema TO category_service;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA category_schema TO category_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA category_schema GRANT ALL ON TABLES TO category_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA category_schema GRANT ALL ON SEQUENCES TO category_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA category_schema GRANT ALL ON FUNCTIONS TO category_service;
 
 \c order_db;
 CREATE SCHEMA order_schema;
@@ -72,6 +96,24 @@ GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA payment_schema TO payment_servic
 ALTER DEFAULT PRIVILEGES IN SCHEMA payment_schema GRANT ALL ON TABLES TO payment_service;
 ALTER DEFAULT PRIVILEGES IN SCHEMA payment_schema GRANT ALL ON SEQUENCES TO payment_service;
 ALTER DEFAULT PRIVILEGES IN SCHEMA payment_schema GRANT ALL ON FUNCTIONS TO payment_service;
+
+\c inventory_db;
+CREATE SCHEMA inventory_schema;
+GRANT ALL ON SCHEMA public TO inventory_service;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO inventory_service;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO inventory_service;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO inventory_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO inventory_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO inventory_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO inventory_service;
+
+GRANT ALL ON SCHEMA inventory_schema TO inventory_service;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA inventory_schema TO inventory_service;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA inventory_schema TO inventory_service;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA inventory_schema TO inventory_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA inventory_schema GRANT ALL ON TABLES TO inventory_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA inventory_schema GRANT ALL ON SEQUENCES TO inventory_service;
+ALTER DEFAULT PRIVILEGES IN SCHEMA inventory_schema GRANT ALL ON FUNCTIONS TO inventory_service;
 
 \c product_db;
 CREATE SCHEMA product_schema;

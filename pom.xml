@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <java.version>23</java.version>
+        <java.version>21</java.version>
         <spring.kafka.version>4.0.0-M2</spring.kafka.version>
         <spring.version>3.4.5</spring.version>
         <jwt.version>0.12.6</jwt.version>
@@ -33,9 +33,11 @@
 
         <module>services/AnalyticService</module>
         <module>services/CartService</module>
+        <module>services/CategoryService</module>
         <module>services/ConfigServer</module>
         <module>services/EurekaServer</module>
         <module>services/Gateway</module>
+        <module>services/InventoryService</module>
         <module>services/NotificationService</module>
         <module>services/OrderService</module>
         <module>services/PaymentService</module>
@@ -49,7 +51,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-jpa</artifactId>
-                <version>${spring.version}</version>
+                <version>3.5.5</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -243,6 +245,12 @@
                 <artifactId>spring-security-test</artifactId>
                 <scope>test</scope>
                 <version>6.4.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mongodb</artifactId>
+                <version>1.20.6</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>

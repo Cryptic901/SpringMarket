@@ -1,0 +1,25 @@
+resilience4j:
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - java.sql.SQLException
+          - java.net.ConnectException
+          - jakarta.ws.rs.ProcessingException
+          - org.springframework.web.client.HttpClientErrorException
+          - org.springframework.dao.TransientDataAccessResourceException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+          - java.lang.IllegalStateException
+          - java.lang.NullPointerException
+          - org.springframework.dao.DataIntegrityViolationException
+          - jakarta.persistence.EntityNotFoundException
+    instances:
+      reviewRetry:
+        baseConfig: default
+logging:
+  level:
+    io.github.resilience4j: DEBUG
+    by.cryptic.reviewservice: DEBUG

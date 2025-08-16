@@ -1,13 +1,14 @@
 package by.cryptic.productservice.controller.command;
+
+import by.cryptic.productservice.dto.ProductCreateDTO;
 import by.cryptic.productservice.dto.ProductUpdateDTO;
-import by.cryptic.productservice.service.command.product.ProductCreateCommand;
-import by.cryptic.productservice.service.command.product.ProductDeleteCommand;
-import by.cryptic.productservice.service.command.product.ProductUpdateCommand;
-import by.cryptic.productservice.service.command.product.handler.ProductCreateCommandHandler;
-import by.cryptic.productservice.service.command.product.handler.ProductDeleteCommandHandler;
-import by.cryptic.productservice.service.command.product.handler.ProductUpdateCommandHandler;
+import by.cryptic.productservice.service.command.ProductCreateCommand;
+import by.cryptic.productservice.service.command.ProductDeleteCommand;
+import by.cryptic.productservice.service.command.ProductUpdateCommand;
+import by.cryptic.productservice.service.command.handler.ProductCreateCommandHandler;
+import by.cryptic.productservice.service.command.handler.ProductDeleteCommandHandler;
+import by.cryptic.productservice.service.command.handler.ProductUpdateCommandHandler;
 import by.cryptic.security.JwtUtil;
-import by.cryptic.utils.DTO.ProductDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class ProductCommandController {
     private final ProductDeleteCommandHandler productDeleteCommandHandler;
 
     @PostMapping
-    public ResponseEntity<Void> createProduct(@RequestBody @Valid ProductDTO product,
+    public ResponseEntity<Void> createProduct(@RequestBody @Valid ProductCreateDTO product,
                                               @AuthenticationPrincipal Jwt jwt) {
         productCreateCommandHandler.handle(new ProductCreateCommand(
                 product.name(),
@@ -54,7 +55,9 @@ public class ProductCommandController {
                 product.description(),
                 product.image(),
                 JwtUtil.extractUserId(jwt),
-                product.categoryId()
+                product.categoryId(),
+                product.productStatus()
+
         ));
         return ResponseEntity.noContent().build();
     }

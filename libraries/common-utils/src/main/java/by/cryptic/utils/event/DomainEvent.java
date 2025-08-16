@@ -6,6 +6,9 @@ import by.cryptic.utils.event.cart.CartDeletedProductEvent;
 import by.cryptic.utils.event.category.CategoryCreatedEvent;
 import by.cryptic.utils.event.category.CategoryDeletedEvent;
 import by.cryptic.utils.event.category.CategoryUpdatedEvent;
+import by.cryptic.utils.event.inventory.StockCreatedEvent;
+import by.cryptic.utils.event.inventory.StockReservationFailedEvent;
+import by.cryptic.utils.event.inventory.StockReservedEvent;
 import by.cryptic.utils.event.order.*;
 import by.cryptic.utils.event.payment.PaymentCanceledEvent;
 import by.cryptic.utils.event.payment.PaymentCreatedEvent;
@@ -14,6 +17,7 @@ import by.cryptic.utils.event.payment.PaymentSuccessEvent;
 import by.cryptic.utils.event.product.ProductCreatedEvent;
 import by.cryptic.utils.event.product.ProductDeletedEvent;
 import by.cryptic.utils.event.product.ProductUpdatedEvent;
+import by.cryptic.utils.event.product.ProductUpdatedQuantityFromStockEvent;
 import by.cryptic.utils.event.review.ReviewCreatedEvent;
 import by.cryptic.utils.event.review.ReviewDeletedEvent;
 import by.cryptic.utils.event.review.ReviewUpdatedEvent;
@@ -44,6 +48,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = ProductCreatedEvent.class, name = "ProductCreatedEvent"),
         @JsonSubTypes.Type(value = ProductDeletedEvent.class, name = "ProductDeletedEvent"),
         @JsonSubTypes.Type(value = ProductUpdatedEvent.class, name = "ProductUpdatedEvent"),
+        @JsonSubTypes.Type(value = ProductUpdatedQuantityFromStockEvent.class, name = "ProductUpdatedQuantityFromStockEvent"),
 
         @JsonSubTypes.Type(value = PaymentCanceledEvent.class, name = "PaymentCanceledEvent"),
         @JsonSubTypes.Type(value = PaymentCreatedEvent.class, name = "PaymentCreatedEvent"),
@@ -63,6 +68,10 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CartAddedItemEvent.class, name = "CartAddedItemEvent"),
         @JsonSubTypes.Type(value = CartClearedEvent.class, name = "CartClearedEvent"),
         @JsonSubTypes.Type(value = CartDeletedProductEvent.class, name = "CartDeletedProductEvent"),
+
+        @JsonSubTypes.Type(value = StockCreatedEvent.class, name = "StockCreatedEvent"),
+        @JsonSubTypes.Type(value = StockReservationFailedEvent.class, name = "StockReservationFailedEvent"),
+        @JsonSubTypes.Type(value = StockReservedEvent.class, name = "StockReservedEvent"),
 })
 @Data
 public abstract class DomainEvent {

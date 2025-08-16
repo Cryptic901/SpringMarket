@@ -5,6 +5,7 @@ import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.repository.read.OrderViewRepository;
 import by.cryptic.orderservice.service.query.OrderGetAllQuery;
 import by.cryptic.utils.QueryHandler;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
@@ -18,11 +19,16 @@ public class OrderGetAllQueryHandler implements QueryHandler<OrderGetAllQuery, L
 
 
     private final OrderViewRepository orderViewRepository;
-    private final OrderMapper orderMapper;
 
+    @Override
     public List<OrderDTO> handle(OrderGetAllQuery orderGetAllQuery) {
-        return orderViewRepository.findAll().stream()
+        List<OrderDTO> orders = orderViewRepository.findAll().stream()
                 .filter(order -> order.getCreatedBy().equals(orderGetAllQuery.id()))
-                .map(orderMapper::viewToDto).toList();
+                .map(OrderMapper::toDto).toList();
+
+        if (orders.isEmpty()) {
+            throw new EntityNotFoundException("There are no orders");
+        }
+        return orders;
     }
 }

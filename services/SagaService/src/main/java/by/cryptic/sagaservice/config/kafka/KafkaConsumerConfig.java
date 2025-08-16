@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -13,8 +14,11 @@ import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+import java.util.Objects;
+
 @Configuration
 @EnableKafka
+@Profile("kafka")
 @Slf4j
 public class KafkaConsumerConfig {
 
@@ -31,7 +35,7 @@ public class KafkaConsumerConfig {
         );
         errorHandler.setRetryListeners((record, ex, deliveryAttempt)
                 -> log.warn("Retry attempt {} for record {} due to {}",
-                deliveryAttempt, record, ex.getMessage()));
+                deliveryAttempt, record, Objects.requireNonNull(ex).getMessage()));
         factory.setCommonErrorHandler(errorHandler);
         return factory;
     }

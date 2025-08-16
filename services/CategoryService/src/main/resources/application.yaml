@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: CategoryService
+  cloud:
+    config:
+      profile: dev
+      username: config
+      password: config
+  config:
+    import: "optional:configserver:http://config-server:8888"

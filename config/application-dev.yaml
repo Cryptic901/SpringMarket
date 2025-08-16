@@ -3,11 +3,13 @@ eureka:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
 spring:
+  profiles:
+    include: [cache, eureka, feign, jpa, kafka, mongo, security]
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI:http://localhost:9000/realms/springmarket}
+          jwk-set-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/certs
 resilience4j:
   retry:
     configs:
@@ -26,7 +28,6 @@ resilience4j:
           - java.lang.NullPointerException
           - org.springframework.dao.DataIntegrityViolationException
           - jakarta.persistence.EntityNotFoundException
-          - java.lang.RuntimeException
     instances:
       productRetry:
         baseConfig: default
@@ -52,21 +53,6 @@ resilience4j:
       cartCircuitBreaker:
         baseConfig: default
 
-  bulkhead:
-    configs:
-      default:
-        max-concurrent-calls: 5
-        max-wait-duration: 100ms
-    instances:
-      productBulkhead:
-        baseConfig: default
-      reviewBulkhead:
-        baseConfig: default
-      orderBulkhead:
-        baseConfig: default
-      cartBulkhead:
-        baseConfig: default
-
 
 management:
   zipkin:
@@ -89,13 +75,15 @@ logging:
   level:
     org:
       springframework:
-        cache: DEBUG
-        web: DEBUG
-        http: DEBUG
+        cache: INFO
+        web: INFO
+        http: INFO
         security: DEBUG
-        kafka: DEBUG
+        security.oauth2.jwt: DEBUG
+        security.oauth2.server.resource: DEBUG
+        kafka: INFO
       apache:
-        kafka: DEBUG
+        kafka: INFO
     root: info
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"

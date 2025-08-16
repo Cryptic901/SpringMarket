@@ -3,7 +3,6 @@ package by.cryptic.reviewservice.mapper;
 import by.cryptic.reviewservice.model.read.ReviewView;
 import by.cryptic.reviewservice.model.write.Review;
 import by.cryptic.reviewservice.service.command.ReviewUpdateCommand;
-import by.cryptic.reviewservice.service.query.ReviewQuery;
 import by.cryptic.utils.DTO.ReviewDTO;
 import by.cryptic.utils.event.review.ReviewUpdatedEvent;
 import org.springframework.stereotype.Component;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReviewMapper {
 
-    public ReviewDTO toDto(Review review) {
+    public static ReviewDTO toDto(Review review) {
         if (review == null) {
             return null;
         }
@@ -29,7 +28,7 @@ public class ReviewMapper {
 
     }
 
-    public ReviewDTO toDto(ReviewView reviewView) {
+    public static ReviewDTO toDto(ReviewView reviewView) {
         if (reviewView == null) {
             return null;
         }
@@ -47,7 +46,7 @@ public class ReviewMapper {
 
     }
 
-    public void updateEntity(Review review, ReviewUpdateCommand updateDTO) {
+    public static void updateEntity(Review review, ReviewUpdateCommand updateDTO) {
         if (review == null || updateDTO == null) return;
 
         if (updateDTO.reviewId() != null) {
@@ -74,7 +73,7 @@ public class ReviewMapper {
         }
     }
 
-    public void updateEvent(ReviewView reviewView, ReviewUpdatedEvent event) {
+    public static void updateEvent(ReviewView reviewView, ReviewUpdatedEvent event) {
         if (reviewView == null || event == null) return;
 
         if (event.getReviewId() != null) {

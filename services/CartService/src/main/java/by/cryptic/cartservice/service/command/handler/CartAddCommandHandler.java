@@ -2,7 +2,6 @@ package by.cryptic.cartservice.service.command.handler;
 
 import by.cryptic.cartservice.client.ProductServiceClient;
 import by.cryptic.cartservice.exception.NotEnoughProducts;
-import by.cryptic.cartservice.mapper.CartMapper;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.model.write.CartProduct;
 import by.cryptic.cartservice.repository.write.CartRepository;
@@ -15,8 +14,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,22 +22,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@CacheConfig(cacheNames = {"carts"})
 public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
 
     private final CartRepository cartRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final CacheManager cacheManager;
     private final CartUtil cartUtil;
     private final ProductServiceClient productServiceClient;
 
+    @Override
     @Transactional
     @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartAddFallback")
+    @CachePut(cacheNames = "carts", key = "'cart:' + #command.userId()")
     public void handle(CartAddCommand command) {
         Cart cart = cartRepository.findByUserIdWithItems(command.userId())
                 .orElseGet(() -> {
@@ -70,8 +67,6 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                 .price(product.price())
                 .userId(command.userId())
                 .build());
-        Objects.requireNonNull(cacheManager.getCache("carts"))
-                .put("carts:" + command.userId(), CartMapper.toDto(cart));
     }
 
     private List<CartProduct> createOrAddProduct(CartAddCommand command, Cart cart, ProductDTO product) {

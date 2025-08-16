@@ -1,9 +1,9 @@
 package by.cryptic.productservice.controller.query;
 
+import by.cryptic.productservice.service.query.SortParamsQuery;
+import by.cryptic.productservice.service.query.handler.ProductGetAllQueryHandler;
+import by.cryptic.productservice.service.query.handler.ProductGetByIdQueryHandler;
 import by.cryptic.utils.DTO.ProductDTO;
-import by.cryptic.productservice.service.query.product.SortParamsQuery;
-import by.cryptic.productservice.service.query.product.handler.ProductGetAllQueryHandler;
-import by.cryptic.productservice.service.query.product.handler.ProductGetByIdQueryHandler;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;

@@ -26,10 +26,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
-      interval: 30s
-      timeout: 120s
+      interval: 15s
+      timeout: 60s
       retries: 5
-      start_period: 120s
+      start_period: 60s
     volumes:
       - kafka-1_data:/bitnami/kafka
 
@@ -56,10 +56,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
-      interval: 30s
-      timeout: 120s
+      interval: 15s
+      timeout: 60s
       retries: 5
-      start_period: 120s
+      start_period: 60s
     volumes:
       - kafka-2_data:/bitnami/kafka
 
@@ -86,12 +86,41 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
-      interval: 30s
-      timeout: 120s
+      interval: 15s
+      timeout: 60s
       retries: 5
-      start_period: 120s
+      start_period: 60s
     volumes:
       - kafka-3_data:/bitnami/kafka
+
+  debezium:
+    image: debezium/connect:2.7.3.Final
+    container_name: debezium
+    hostname: debezium
+    ports:
+      - "3434:3434"
+    environment:
+      BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: kafka-connect-config
+      OFFSET_STORAGE_TOPIC: kafka-connect-offset
+      STATUS_STORAGE_TOPIC: kafka-connect-status
+      KEY_CONVERTER_SCHEMAS_ENABLE: false
+      VALUE_CONVERTER_SCHEMAS_ENABLE: false
+    depends_on:
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+    networks:
+      - spring-market
+    volumes:
+      - debezium_data:/debezium
+
 
   redis:
     image: redis:8.2-m01
@@ -168,26 +197,36 @@ services:
       retries: 5
 
   keycloak:
-    mem_limit: 2g
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
-    command: start-dev
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-        reservations:
-          memory: 1G
+    entrypoint: [ "/bin/bash", "-c" ]
+    command: >
+      "/opt/keycloak/bin/kc.sh build 
+      --health-enabled=true 
+      --metrics-enabled=true &&
+       /opt/keycloak/bin/kc.sh start-dev
+      --proxy-headers=xforwarded
+      --http-enabled=true 
+      --hostname=localhost:8080 
+      --hostname-strict=false"
+      --hostname-backchannel-dynamic=true
     environment:
       KC_PROXY: edge
-      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_PORT: 8080
       KC_HOSTNAME_STRICT_HTTPS: false
-      KC_HTTP_ENABLED: true
 
-      KC_DB: postgres
+      KC_DB_PASSWORD: postgres
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
       KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: postgres
+      KC_DB: postgres
+
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+
+#      KС_ADMIN: admin
+#      KС_ADMIN_PASSWORD: admin
+
+      BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090 #connection to kafka for spi
     ports:
       - "9000:8080"
     volumes:
@@ -195,6 +234,12 @@ services:
     restart: on-failure
     depends_on:
       keycloak-db:
+        condition: service_healthy
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
         condition: service_healthy
     networks:
       - spring-market
@@ -280,8 +325,8 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
-      keycloak:
-        condition: service_started
+      analytic-service:
+        condition: service_healthy #заменить на healthcheck в keycloak
 
   #  vault:
   #    container_name: vault
@@ -313,8 +358,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -345,8 +391,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -361,6 +408,82 @@ services:
       kafka-2:
         condition: service_healthy
       kafka-3:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  category-service:
+    build:
+      context: ./services/CategoryService
+      dockerfile: Dockerfile
+    container_name: category-service
+    restart: on-failure:3
+    ports:
+      - "8091:8091"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8091/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 25s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      mongo-db:
+        condition: service_healthy
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  inventory-service:
+    build:
+      context: ./services/InventoryService
+      dockerfile: Dockerfile
+    container_name: inventory-service
+    restart: on-failure:3
+    ports:
+      - "8087:8087"
+    networks:
+      - spring-market
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8087/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 25s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      mongo-db:
+        condition: service_healthy
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   notification-service:
@@ -379,8 +502,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8089/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -393,6 +517,8 @@ services:
       kafka-2:
         condition: service_healthy
       kafka-3:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   order-service:
@@ -411,8 +537,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -427,6 +554,8 @@ services:
       kafka-2:
         condition: service_healthy
       kafka-3:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   payment-service:
@@ -445,8 +574,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8088/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -461,6 +591,8 @@ services:
       kafka-2:
         condition: service_healthy
       kafka-3:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   product-service:
@@ -479,8 +611,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -495,6 +628,8 @@ services:
       kafka-2:
         condition: service_healthy
       kafka-3:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   review-service:
@@ -513,8 +648,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -529,6 +665,8 @@ services:
       kafka-2:
         condition: service_healthy
       kafka-3:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   saga-service:
@@ -547,8 +685,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8090/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -563,6 +702,8 @@ services:
       kafka-2:
         condition: service_healthy
       kafka-3:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   user-service:
@@ -581,8 +722,9 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 25s
       retries: 5
+      start_period: 60s
     depends_on:
       config-server:
         condition: service_healthy
@@ -598,6 +740,8 @@ services:
         condition: service_healthy
       kafka-3:
         condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   keycloak_data:
@@ -606,8 +750,6 @@ volumes:
   mongo_data:
   postgres_data:
   kafka-1_data:
-    driver: local
   kafka-2_data:
-    driver: local
   kafka-3_data:
-    driver: local
+  debezium_data:

@@ -1,5 +1,6 @@
 package by.cryptic.productservice.model.write;
 
+import by.cryptic.utils.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -35,6 +36,10 @@ public class Product {
 
     @Column(nullable = false)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "product_status")
+    private ProductStatus productStatus;
 
     @Column(nullable = false)
     private BigDecimal price;

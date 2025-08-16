@@ -14,5 +14,5 @@ public class UserLogoutEvent extends DomainEvent implements UserEvent {
     private UUID userId;
     private static final String version = "1.0";
     @Builder.Default
-    private String source = by.cryptic.utils.event.user.UserLogoutEvent.class.getName();
+    private String source = UserLogoutEvent.class.getName();
 }

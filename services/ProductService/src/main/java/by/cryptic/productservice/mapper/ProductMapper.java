@@ -1,17 +1,17 @@
 package by.cryptic.productservice.mapper;
 
+import by.cryptic.productservice.model.read.ProductView;
+import by.cryptic.productservice.model.write.Product;
+import by.cryptic.productservice.service.command.ProductUpdateCommand;
 import by.cryptic.utils.DTO.OrderedProductDTO;
 import by.cryptic.utils.DTO.ProductDTO;
 import by.cryptic.utils.event.product.ProductUpdatedEvent;
-import by.cryptic.productservice.model.read.ProductView;
-import by.cryptic.productservice.model.write.Product;
-import by.cryptic.productservice.service.command.product.ProductUpdateCommand;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProductMapper {
 
-    public ProductDTO toDto(ProductView product) {
+    public static ProductDTO toDto(ProductView product) {
         if (product == null) {
             return null;
         }
@@ -23,7 +23,7 @@ public class ProductMapper {
                 product.getCategoryId());
     }
 
-    public ProductDTO toDto(Product product) {
+    public static ProductDTO toDto(Product product) {
         if (product == null) {
             return null;
         }
@@ -35,23 +35,7 @@ public class ProductMapper {
                 product.getCategoryId());
     }
 
-    public ProductView toView(Product product) {
-        if (product == null) {
-            return null;
-        }
-        return ProductView.builder()
-                .productId(product.getId())
-                .categoryId(product.getCategoryId())
-                .createdBy(product.getCreatedBy())
-                .description(product.getDescription())
-                .image(product.getImage())
-                .name(product.getName())
-                .quantity(product.getQuantity())
-                .price(product.getPrice())
-                .build();
-    }
-
-    public void updateEntity(Product product, ProductUpdateCommand updateProductDTO) {
+    public static void updateEntity(Product product, ProductUpdateCommand updateProductDTO) {
         if (product == null || updateProductDTO == null) return;
 
         if (updateProductDTO.productId() != null) {
@@ -59,6 +43,9 @@ public class ProductMapper {
         }
         if (updateProductDTO.name() != null) {
             product.setName(updateProductDTO.name());
+        }
+        if (updateProductDTO.productStatus() != null) {
+            product.setProductStatus(updateProductDTO.productStatus());
         }
         if (updateProductDTO.price() != null) {
             product.setPrice(updateProductDTO.price());
@@ -80,7 +67,7 @@ public class ProductMapper {
         }
     }
 
-    public void updateEntity(Product product, OrderedProductDTO orderedProductDTO) {
+    public static void updateEntity(Product product, OrderedProductDTO orderedProductDTO) {
         if (product == null || orderedProductDTO == null) return;
 
         if (orderedProductDTO.productId() != null) {
@@ -91,7 +78,7 @@ public class ProductMapper {
         }
     }
 
-    public void updateView(ProductView product, ProductUpdatedEvent updateProductDTO) {
+    public static void updateView(ProductView product, ProductUpdatedEvent updateProductDTO) {
         if (product == null || updateProductDTO == null) return;
 
         if (updateProductDTO.getProductId() != null) {

@@ -8,20 +8,18 @@ import by.cryptic.cartservice.service.command.CartDeleteProductCommand;
 import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.utils.CommandHandler;
 import by.cryptic.utils.event.cart.CartDeletedProductEvent;
-import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -29,15 +27,15 @@ import java.util.Objects;
 @CacheConfig(cacheNames = {"carts"})
 public class CartDeleteProductCommandHandler implements CommandHandler<CartDeleteProductCommand> {
 
-    private final CacheManager cacheManager;
     private final CartRepository cartRepository;
     private final CartProductRepository cartProductRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final CartUtil cartUtil;
 
+    @Override
     @Transactional
-    @Retry(name = "cartRetry", fallbackMethod = "cartDeleteProductFallback")
-    @Bulkhead(name = "cartBulkhead", fallbackMethod = "cartDeleteProductFallback")
+    @Retry(name = "cartRetry", fallbackMethod = "cartDeleteProductRetryFallback")
+    @CachePut(cacheNames = "carts", key = "'cart:' + #command.userId()")
     public void handle(CartDeleteProductCommand command) {
         List<CartProduct> cartProducts = cartRepository.findByUserIdWithItems(command.userId())
                 .orElseThrow(() -> new EntityNotFoundException("You don't have any products in your cart"))
@@ -58,10 +56,9 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
         Cart cart = cartProducts.getFirst().getCart();
         cart.setTotal(cartUtil.getTotalPrice(cartProducts));
         eventPublisher.publishEvent(new CartDeletedProductEvent(cart.getId(), command.productId()));
-        Objects.requireNonNull(cacheManager.getCache("carts")).evict(command.userId());
     }
 
-    public void cartDeleteProductFallback(CartDeleteProductCommand cartDeleteProductCommand, Throwable t) {
+    public void cartDeleteProductRetryFallback(CartDeleteProductCommand cartDeleteProductCommand, Throwable t) {
         log.error("Failed to delete from cart {}, {}", cartDeleteProductCommand.productId(), t);
         throw new RuntimeException(t.getMessage());
     }

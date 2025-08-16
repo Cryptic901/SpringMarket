@@ -1,13 +1,13 @@
 package by.cryptic.paymentservice.mapper;
 
-import by.cryptic.paymentservice.model.write.Payment;
+import by.cryptic.paymentservice.model.read.PaymentView;
 import by.cryptic.utils.DTO.PaymentDTO;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PaymentMapper {
 
-    public PaymentDTO toDto(Payment payment) {
+    public static PaymentDTO toDto(PaymentView payment) {
         if (payment == null) {
             return null;
         }

@@ -20,6 +20,7 @@ public class OrderGetByIdQueryHandler implements QueryHandler<OrderGetByIdQuery,
 
     private final OrderViewRepository orderViewRepository;
 
+    @Override
     @Cacheable(key = "'order:' + #query.orderId()")
     @Transactional(readOnly = true)
     public OrderDTO handle(OrderGetByIdQuery query) {
@@ -27,7 +28,8 @@ public class OrderGetByIdQueryHandler implements QueryHandler<OrderGetByIdQuery,
                 .stream()
                 .filter(order -> order.getCreatedBy().equals(query.userId()))
                 .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id : %s".formatted(query.orderId())));
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("Order not found with id: " + query.orderId()));
         return FullOrderMapper.toDto(customerOrder);
     }
 }

@@ -1,0 +1,10 @@
+### Get All Users
+GET {{host}}/api/v1/users
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Get User By ID
+@userID = variable value
+GET {{host}}/api/v1/users/{{userID}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
