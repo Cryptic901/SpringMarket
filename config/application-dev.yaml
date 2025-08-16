@@ -7,7 +7,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI:http://localhost:9000/realms/springmarket}
+          jwk-set-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/certs
 resilience4j:
   retry:
     configs:
@@ -89,13 +89,15 @@ logging:
   level:
     org:
       springframework:
-        cache: DEBUG
-        web: DEBUG
-        http: DEBUG
+        cache: INFO
+        web: INFO
+        http: INFO
         security: DEBUG
-        kafka: DEBUG
+        security.oauth2.jwt: DEBUG
+        security.oauth2.server.resource: DEBUG
+        kafka: INFO
       apache:
-        kafka: DEBUG
+        kafka: INFO
     root: info
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"

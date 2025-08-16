@@ -10,6 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableFeignClients
 @EnableCaching
 @EnableAsync
+@EnableKafka
 @EnableMongoRepositories(basePackages = "by.cryptic.cartservice.repository.read")
 @EnableJpaRepositories(basePackages = "by.cryptic.cartservice.repository.write")
 @EnableConfigurationProperties(KafkaTopicsProperties.class)
