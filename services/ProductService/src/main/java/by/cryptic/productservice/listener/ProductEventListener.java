@@ -28,7 +28,6 @@ public class ProductEventListener {
 
     private final ProductViewRepository productViewRepository;
     private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
 
     @KafkaListener(topics = {"product-topic", "order-topic"}, groupId = "product-group")
     public void listenProducts(DomainEvent event) {
@@ -47,7 +46,7 @@ public class ProductEventListener {
 
             case ProductUpdatedEvent productUpdatedEvent ->
                     productViewRepository.findById(productUpdatedEvent.getProductId()).ifPresent(productView -> {
-                        productMapper.updateView(productView, productUpdatedEvent);
+                        ProductMapper.updateView(productView, productUpdatedEvent);
                         productViewRepository.save(productView);
                     });
 
@@ -65,7 +64,7 @@ public class ProductEventListener {
 
                 for (Product product : productsToUpdate) {
                     OrderedProductDTO dto = orderedMap.get(product.getId());
-                    productMapper.updateEntity(product, dto);
+                    ProductMapper.updateEntity(product, dto);
                 }
             }
             default -> throw new IllegalStateException("Unexpected event type: " + event);

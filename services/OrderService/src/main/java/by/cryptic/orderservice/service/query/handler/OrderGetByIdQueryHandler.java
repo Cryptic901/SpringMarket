@@ -27,7 +27,8 @@ public class OrderGetByIdQueryHandler implements QueryHandler<OrderGetByIdQuery,
                 .stream()
                 .filter(order -> order.getCreatedBy().equals(query.userId()))
                 .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id : %s".formatted(query.orderId())));
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("Order not found with id: " + query.orderId()));
         return FullOrderMapper.toDto(customerOrder);
     }
 }

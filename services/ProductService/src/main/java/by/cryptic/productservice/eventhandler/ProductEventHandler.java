@@ -1,9 +1,6 @@
 package by.cryptic.productservice.eventhandler;
 
 import by.cryptic.utils.event.DomainEvent;
-import by.cryptic.utils.event.product.ProductEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;

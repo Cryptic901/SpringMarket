@@ -27,7 +27,6 @@ public class OrderEventListener {
 
     private final OrderViewRepository orderViewRepository;
     private final CustomerOrderRepository orderRepository;
-    private final OrderMapper orderMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     @KafkaListener(topics = "order-topic", groupId = "order-group")
@@ -68,7 +67,7 @@ public class OrderEventListener {
                         .orderStatus(order.getOrderStatus())
                         .orderId(order.getId())
                         .createdBy(order.getCreatedBy())
-                        .listOfProducts(order.getProducts().stream().map(orderMapper::toOrderedDto).toList())
+                        .listOfProducts(order.getProducts().stream().map(OrderMapper::toOrderedDto).toList())
                         .location(order.getLocation())
                         .userEmail(order.getUserEmail())
                         .build());
@@ -84,7 +83,7 @@ public class OrderEventListener {
                         .orderStatus(order.getOrderStatus())
                         .orderId(order.getId())
                         .createdBy(order.getCreatedBy())
-                        .listOfProducts(order.getProducts().stream().map(orderMapper::toOrderedDto).toList())
+                        .listOfProducts(order.getProducts().stream().map(OrderMapper::toOrderedDto).toList())
                         .location(order.getLocation())
                         .userEmail(order.getUserEmail())
                         .build());
