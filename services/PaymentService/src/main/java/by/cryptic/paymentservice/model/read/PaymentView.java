@@ -21,7 +21,7 @@ import java.util.UUID;
 public class PaymentView {
 
     @MongoId
-    private UUID id;
+    private UUID paymentId;
 
     private PaymentMethod paymentMethod;
 
@@ -39,7 +39,7 @@ public class PaymentView {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PaymentView that = (PaymentView) o;
-        return Objects.equals(id, that.id) &&
+        return Objects.equals(paymentId, that.paymentId) &&
                 paymentMethod == that.paymentMethod &&
                 Objects.equals(userId, that.userId) &&
                 Objects.equals(orderId, that.orderId) &&
@@ -49,6 +49,6 @@ public class PaymentView {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, paymentMethod, userId, orderId, price, paymentStatus);
+        return Objects.hash(paymentId, paymentMethod, userId, orderId, price, paymentStatus);
     }
 }

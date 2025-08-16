@@ -1,0 +1,49 @@
+server:
+  port: 8091
+eureka:
+  instance:
+    hostname: category-service
+    prefer-ip-address: false
+spring:
+  kafka:
+    bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
+    consumer:
+      auto-offset-reset: earliest
+      group-id: category-consumer-group
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.trusted.packages: by.cryptic.*
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.value.default.type: by.cryptic.utils.event.DomainEvent
+        spring.json.use.type.headers: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      missing-topics-fatal: false
+    retry:
+      topic:
+        attempts: 5
+    topics:
+      name: category-topic
+      partitions: 3
+      replicas: 3
+      minInsyncReplicas: 1
+      dlq:
+        name: category-topic.DLQ
+        partitions: 3
+        replicas: 3
+        minInsyncReplicas: 1
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/category_db
+    username: category_service
+    password: category_pass
+  data:
+    mongodb:
+      uri: mongodb://mongo-db:27017/categoryDB
+  flyway:
+    schemas: category_schema
+    default-schema: category_schema

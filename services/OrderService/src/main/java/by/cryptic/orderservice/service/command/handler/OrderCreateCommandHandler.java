@@ -1,9 +1,9 @@
 package by.cryptic.orderservice.service.command.handler;
 
+import by.cryptic.exceptions.CreatingException;
 import by.cryptic.exceptions.EmptyCartException;
 import by.cryptic.orderservice.client.CartServiceClient;
 import by.cryptic.orderservice.client.ProductServiceClient;
-import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.model.write.OrderProduct;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
@@ -35,15 +35,16 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = {"orders"})
 public class OrderCreateCommandHandler implements CommandHandler<OrderCreateCommand> {
+
     private final CustomerOrderRepository orderRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final CartServiceClient cartServiceClient;
     private final CacheManager cacheManager;
-    private final OrderMapper orderMapper;
     private final ProductServiceClient productServiceClient;
 
+    @Override
     @Transactional
-    @CircuitBreaker(name = "orderCircuitBreaker", fallbackMethod = "orderCreateFallback")
+    @CircuitBreaker(name = "orderCircuitBreaker", fallbackMethod = "orderCreateCircuitBreakerFallback")
     public void handle(OrderCreateCommand command) {
         log.info("Creating order : {}", command);
 
@@ -100,6 +101,8 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
                     .orderStatus(order.getOrderStatus())
                     .price(order.getPrice())
                     .build());
+            Objects.requireNonNull(cacheManager.getCache("orders"))
+                    .put("order:" + order.getId(), order);
         } catch (Exception e) {
             log.error("Order failed {}", e.getMessage());
             eventPublisher.publishEvent(OrderFailedEvent.builder()
@@ -112,12 +115,10 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
                     .price(order.getPrice())
                     .build());
         }
-        Objects.requireNonNull(cacheManager.getCache("orders"))
-                .put("order:" + command.location() + '-', orderMapper.toDto(order));
     }
 
-    public void orderCreateFallback(OrderCreateCommand orderCreateCommand, Throwable t) {
-        log.error("Failed to create {}, {}", orderCreateCommand.location(), t);
-        throw new RuntimeException(t.getMessage());
+    public void orderCreateCircuitBreakerFallback(OrderCreateCommand orderCreateCommand, Throwable t) {
+        log.error("Failed to create {} after all retry attempts. Cause: {}", orderCreateCommand.toString(), t.getMessage(), t);
+        throw new CreatingException("Failed to create order:" + orderCreateCommand, t);
     }
 }

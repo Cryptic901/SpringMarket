@@ -3,8 +3,6 @@ package by.cryptic.utils.event.payment;
 import by.cryptic.utils.PaymentMethod;
 import by.cryptic.utils.PaymentStatus;
 import by.cryptic.utils.event.DomainEvent;
-import by.cryptic.utils.event.order.OrderCanceledEvent;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,5 +24,5 @@ public class PaymentFailedEvent extends DomainEvent implements PaymentEvent {
     private String email;
     private static final String version = "1.0";
     @Builder.Default
-    private String source = OrderCanceledEvent.class.getName();
+    private String source = PaymentFailedEvent.class.getName();
 }

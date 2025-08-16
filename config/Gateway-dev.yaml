@@ -10,17 +10,17 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER-URI:http://keycloak:8080/realms/springmarket}
+            authorization-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/auth
+            token-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/token
+            user-info-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/userinfo
+            jwk-set-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/certs
         registration:
           keycloak:
             client-id: api-gateway
-            client-secret: ocv0FnSgjzQ3IYKRusilob1tMoY8FSw4
-            scope:
-              - openid
-              - email
-              - profile
+            client-secret: 1tqdg0yCH9sTJ6P9fmLYeExji2I64ZwP
+            scope: openid,email,profile
             authorization-grant-type: authorization_code
-            redirect-uri: {$KEYCLOAK_REDIRECT_URI:http://localhost:9000/login/oauth2/code/keycloak}
+            redirect-uri: http://localhost:8080/login/oauth2/code/keycloak
   cloud:
     discovery:
       enabled: true
@@ -31,45 +31,64 @@ spring:
           predicates:
             - Path=/api/v1/products/**
             - Path=/api/v1/categories/**
+          filters:
+            - TokenRelay
 
         - id: order-routes
           uri: lb://OrderService
           predicates:
             - Path=/api/v1/orders/**
+          filters:
+            - TokenRelay
 
         - id: cart-routes
           uri: lb://CartService
           predicates:
             - Path=/api/v1/carts/**
+          filters:
+            - TokenRelay
 
         - id: review-routes
           uri: lb://ReviewService
           predicates:
             - Path=/api/v1/reviews/**
+          filters:
+            - TokenRelay
 
         - id: user-routes
           uri: lb://UserService
           predicates:
             - Path=/api/v1/users/**
+          filters:
+            - TokenRelay
 
         - id: payment-routes
           uri: lb://PaymentService
           predicates:
             - Path=/api/v1/payments/**
+          filters:
+            - TokenRelay
 
         - id: notification-routes
           uri: lb://NotificationService
           predicates:
             - Path=/api/v1/notifications/**
+          filters:
+            - TokenRelay
 
         - id: analytic-routes
           uri: lb://AnalyticService
           predicates:
             - Path=/api/v1/admin/**
+          filters:
+            - TokenRelay
+
+        - id: keycloak-routes
+          uri: http://keycloak:8080
+          predicates:
+            - Path=/realms/**
 
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
-      default-filters:
-        - TokenRelay

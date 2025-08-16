@@ -1,0 +1,37 @@
+### Get All Reviews
+@productId = variable value
+GET {{host}}/api/v1/reviews/product{{productId}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Get Review By ID
+@reviewId = variable value
+GET {{host}}/api/v1/reviews/{{reviewId}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Create Review
+POST {{host}}/api/v1/reviews
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Review",
+  "description": "review desc",
+  "rating": 3.8,
+  "image": "img/save",
+  "productId": {{productId}}
+}
+
+### Update Review
+PATCH {{host}}/api/v1/reviews/{reviewId}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "new review"
+}
+
+### Delete Review
+DELETE {{host}}/api/v1/reviews/{reviewId}
+Authorization: Bearer {{authToken}}

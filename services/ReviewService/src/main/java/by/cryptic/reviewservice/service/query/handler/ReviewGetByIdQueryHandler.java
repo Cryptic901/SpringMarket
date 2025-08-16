@@ -1,8 +1,9 @@
 package by.cryptic.reviewservice.service.query.handler;
 
 import by.cryptic.reviewservice.mapper.ReviewMapper;
+import by.cryptic.reviewservice.model.read.ReviewView;
 import by.cryptic.reviewservice.model.write.Review;
-import by.cryptic.reviewservice.repository.write.ReviewRepository;
+import by.cryptic.reviewservice.repository.read.ReviewViewRepository;
 import by.cryptic.utils.DTO.ReviewDTO;
 import by.cryptic.utils.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,10 +22,10 @@ import java.util.UUID;
 @CacheConfig(cacheNames = {"reviews"})
 public class ReviewGetByIdQueryHandler implements QueryHandler<UUID, ReviewDTO> {
 
-    private final ReviewRepository reviewRepository;
+    private final ReviewViewRepository reviewRepository;
     private final CacheManager cacheManager;
-    private final ReviewMapper reviewMapper;
 
+    @Override
     public ReviewDTO handle(UUID id) {
         return findInCacheOrDB(id);
     }
@@ -36,16 +37,16 @@ public class ReviewGetByIdQueryHandler implements QueryHandler<UUID, ReviewDTO> 
             Review cachedReview = cache.get(cacheKey, Review.class);
             if (cachedReview != null) {
                 log.debug("Review was found in cache {}", cachedReview);
-                return reviewMapper.toDto(cachedReview);
+                return ReviewMapper.toDto(cachedReview);
             }
         }
 
-        Review dbReview = reviewRepository.findById(id)
+        ReviewView dbReview = reviewRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Review with id %s was not found"
                         .formatted(id)));
         if (cache != null) {
             cache.put(cacheKey, dbReview);
         }
-        return reviewMapper.toDto(dbReview);
+        return ReviewMapper.toDto(dbReview);
     }
 }

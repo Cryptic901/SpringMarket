@@ -18,7 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.AccessDeniedException;
 import java.util.UUID;
 
 @RestController
@@ -47,7 +46,7 @@ public class ReviewCommandController {
     @PatchMapping("/{id}")
     public ResponseEntity<ReviewDTO> updateReview(@PathVariable UUID id,
                                                   @RequestBody @Valid ReviewUpdateDTO updateReviewDTO,
-                                                  @AuthenticationPrincipal Jwt jwt) throws AccessDeniedException {
+                                                  @AuthenticationPrincipal Jwt jwt) {
         reviewUpdateCommandHandler.handle(new ReviewUpdateCommand(
                 id,
                 updateReviewDTO.title(),

@@ -1,0 +1,24 @@
+### Get All Cart Products
+GET {{host}}/api/v1/carts
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Get Cart product By ID
+@productId = variable value
+GET {{host}}/api/v1/carts/{{productId}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Add product to cart
+@addProductId = variable value
+POST {{host}}/api/v1/carts/{addProductId}
+Authorization: Bearer {{authToken}}
+
+### Clear Cart
+DELETE {{host}}/api/v1/carts/clear
+Authorization: Bearer {{authToken}}
+
+### Delete Cart product
+@deleteCartProductId = variable value
+DELETE {{host}}/api/v1/cart/{{deleteCartProductId}}
+Authorization: Bearer {{authToken}}

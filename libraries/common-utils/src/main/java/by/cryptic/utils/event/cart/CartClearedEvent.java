@@ -1,7 +1,6 @@
 package by.cryptic.utils.event.cart;
 
 import by.cryptic.utils.event.DomainEvent;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 
 import java.util.UUID;
@@ -17,7 +16,4 @@ public class CartClearedEvent extends DomainEvent implements CartEvent {
     @Builder.Default
     private String source = CartClearedEvent.class.getName();
 
-    public CartClearedEvent(UUID cartId) {
-        this.cartId = cartId;
-    }
 }

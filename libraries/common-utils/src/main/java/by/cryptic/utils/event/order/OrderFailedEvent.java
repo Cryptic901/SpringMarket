@@ -3,7 +3,6 @@ package by.cryptic.utils.event.order;
 import by.cryptic.utils.DTO.OrderedProductDTO;
 import by.cryptic.utils.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -26,5 +25,5 @@ public class OrderFailedEvent extends DomainEvent implements OrderEvent {
     private UUID createdBy;
     private static final String version = "1.0";
     @Builder.Default
-    private String source = OrderSuccessEvent.class.getName();
+    private String source = OrderFailedEvent.class.getName();
 }

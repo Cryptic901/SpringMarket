@@ -20,7 +20,7 @@ public class PaymentEventListener {
     public void listenPayments(DomainEvent event) {
         switch (event) {
             case PaymentSuccessEvent paymentSuccessEvent -> paymentViewRepository.save(PaymentView.builder()
-                    .id(paymentSuccessEvent.getPaymentId())
+                    .paymentId(paymentSuccessEvent.getPaymentId())
                     .paymentMethod(paymentSuccessEvent.getPaymentMethod())
                     .price(paymentSuccessEvent.getPrice())
                     .orderId(paymentSuccessEvent.getOrderId())
@@ -30,7 +30,7 @@ public class PaymentEventListener {
                     .build());
 
             case PaymentFailedEvent paymentFailedEvent -> paymentViewRepository.save(PaymentView.builder()
-                    .id(paymentFailedEvent.getPaymentId())
+                    .paymentId(paymentFailedEvent.getPaymentId())
                     .paymentMethod(paymentFailedEvent.getPaymentMethod())
                     .price(paymentFailedEvent.getPrice())
                     .orderId(paymentFailedEvent.getOrderId())

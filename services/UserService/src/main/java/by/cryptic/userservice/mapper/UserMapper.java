@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    public UserDTO toDto(AppUserView user) {
+    public static UserDTO toDto(AppUserView user) {
         if (user == null) {
             return null;
         }
@@ -19,7 +19,7 @@ public class UserMapper {
                 .build();
     }
 
-    public void updateEntity(AppUser user, UserUpdatedEvent dto) {
+    public static void updateEntity(AppUser user, UserUpdatedEvent dto) {
         if (user == null || dto == null) return;
 
         if (dto.getUserId() != null) {
@@ -42,7 +42,7 @@ public class UserMapper {
         }
     }
 
-    public void updateView(AppUserView user, UserUpdatedEvent event) {
+    public static void updateView(AppUserView user, UserUpdatedEvent event) {
         if (user == null || event == null) return;
 
         if (event.getUserId() != null) {

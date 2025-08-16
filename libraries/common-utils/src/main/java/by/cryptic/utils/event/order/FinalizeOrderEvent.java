@@ -15,5 +15,5 @@ public class FinalizeOrderEvent extends DomainEvent implements OrderEvent {
     private UUID paymentId;
     private static final String version = "1.0";
     @Builder.Default
-    private String source = OrderSuccessEvent.class.getName();
+    private String source = FinalizeOrderEvent.class.getName();
 }

@@ -38,12 +38,12 @@ public class OrderCommandController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PatchMapping
+    @PatchMapping("/{orderId}")
     public ResponseEntity<Void> updateOrder(
-            @RequestBody OrderUpdateDTO order, @AuthenticationPrincipal Jwt jwt) {
+            @RequestBody OrderUpdateDTO order, @PathVariable UUID orderId, @AuthenticationPrincipal Jwt jwt) {
         orderUpdatedCommandHandler.handle(
                 new OrderUpdateCommand(
-                        order.orderId(),
+                        orderId,
                         order.location(),
                         JwtUtil.extractUserId(jwt),
                         JwtUtil.extractEmail(jwt)
@@ -52,9 +52,9 @@ public class OrderCommandController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/cancel")
+    @PatchMapping("/cancel/{id}")
     public ResponseEntity<Void> cancelOrder(
-            @RequestParam UUID id, @AuthenticationPrincipal Jwt jwt) {
+            @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
         orderCancelCommandHandler.handle(new OrderCancelCommand(
                 id,
                 JwtUtil.extractUserId(jwt),

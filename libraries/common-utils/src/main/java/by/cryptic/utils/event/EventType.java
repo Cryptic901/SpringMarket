@@ -5,13 +5,16 @@ public enum EventType {
 
     CategoryCreatedEvent, CategoryUpdatedEvent, CategoryDeletedEvent,
 
-    OrderCanceledEvent, OrderSuccessEvent, OrderFailedEvent, OrderUpdatedEvent, OrderCreatedEvent,
+    StockCreatedEvent, StockReservationFailedEvent, StockReservedEvent,
 
-    ProductCreatedEvent, ProductUpdatedEvent, ProductDeletedEvent,
+    OrderCanceledEvent, OrderSuccessEvent, OrderFailedEvent, OrderUpdatedEvent, OrderCreatedEvent,
+    FinalizeOrderEvent,
+
+    ProductCreatedEvent, ProductUpdatedEvent, ProductDeletedEvent, ProductUpdatedQuantityFromStockEvent,
 
     ReviewCreatedEvent, ReviewUpdatedEvent, ReviewDeletedEvent,
 
-    UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent, UserLoginedEvent,
+    UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent, UserLoginedEvent, UserLogoutEvent,
 
     PaymentSuccessEvent, PaymentFailedEvent, PaymentCreatedEvent, PaymentCanceledEvent
 }

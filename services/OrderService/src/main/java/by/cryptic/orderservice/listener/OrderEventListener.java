@@ -27,20 +27,21 @@ public class OrderEventListener {
 
     private final OrderViewRepository orderViewRepository;
     private final CustomerOrderRepository orderRepository;
-    private final OrderMapper orderMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     @KafkaListener(topics = "order-topic", groupId = "order-group")
     public void listenOrders(DomainEvent event) {
         switch (event) {
-            case OrderSuccessEvent orderSuccessEvent -> orderViewRepository.save(CustomerOrderView.builder()
-                    .orderStatus(orderSuccessEvent.getOrderStatus())
-                    .orderId(orderSuccessEvent.getOrderId())
-                    .createdBy(orderSuccessEvent.getCreatedBy())
-                    .createdAt(orderSuccessEvent.getTimestamp())
-                    .location(orderSuccessEvent.getLocation())
-                    .price(orderSuccessEvent.getPrice())
-                    .build());
+            case OrderSuccessEvent orderSuccessEvent -> {
+                orderViewRepository.save(CustomerOrderView.builder()
+                        .orderStatus(orderSuccessEvent.getOrderStatus())
+                        .orderId(orderSuccessEvent.getOrderId())
+                        .createdBy(orderSuccessEvent.getCreatedBy())
+                        .createdAt(orderSuccessEvent.getTimestamp())
+                        .location(orderSuccessEvent.getLocation())
+                        .price(orderSuccessEvent.getPrice())
+                        .build());
+            }
 
             case OrderFailedEvent orderFailedEvent -> orderViewRepository.save(CustomerOrderView.builder()
                     .orderStatus(OrderStatus.FAILED)
@@ -68,7 +69,7 @@ public class OrderEventListener {
                         .orderStatus(order.getOrderStatus())
                         .orderId(order.getId())
                         .createdBy(order.getCreatedBy())
-                        .listOfProducts(order.getProducts().stream().map(orderMapper::toOrderedDto).toList())
+                        .listOfProducts(order.getProducts().stream().map(OrderMapper::toOrderedDto).toList())
                         .location(order.getLocation())
                         .userEmail(order.getUserEmail())
                         .build());
@@ -84,7 +85,7 @@ public class OrderEventListener {
                         .orderStatus(order.getOrderStatus())
                         .orderId(order.getId())
                         .createdBy(order.getCreatedBy())
-                        .listOfProducts(order.getProducts().stream().map(orderMapper::toOrderedDto).toList())
+                        .listOfProducts(order.getProducts().stream().map(OrderMapper::toOrderedDto).toList())
                         .location(order.getLocation())
                         .userEmail(order.getUserEmail())
                         .build());

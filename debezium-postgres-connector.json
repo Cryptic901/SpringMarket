@@ -1,0 +1,28 @@
+{
+  "name": "inventory-outbox-connector",
+  "config": {
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "database.hostname": "postgres",
+  "database.port": "5432",
+  "database.user": "postgres",
+  "database.password": "postgres",
+  "database.dbname": "inventory",
+  "database.server.name": "inventory-db",
+  "table.include.list": "inventory_schema.outbox",
+  "tombstones.on.delete": "false",
+  "slot.name": "inventory_slot",
+  "plugin.name": "pgoutput",
+
+  "transforms": "unwrap",
+  "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+  "transforms.unwrap.drop.tombstones": "true",
+  "transforms.unwrap.delete.handling.mode": "drop",
+
+  "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "key.converter.schemas.enable": "false",
+  "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+  "value.converter.schemas.enable": "false",
+
+  "topic.prefix": "outbox-event"
+  }
+}

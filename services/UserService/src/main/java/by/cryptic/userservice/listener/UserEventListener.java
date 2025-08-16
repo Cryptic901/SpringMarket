@@ -21,7 +21,6 @@ public class UserEventListener {
 
     private final AppUserRepository appUserRepository;
     private final UserViewRepository viewRepository;
-    private final UserMapper userMapper;
 
     @KafkaListener(topics = "user-topic", groupId = "user-group")
     public void listenUserEvents(DomainEvent event) {
@@ -46,11 +45,11 @@ public class UserEventListener {
 
             case UserUpdatedEvent userUpdatedEvent -> {
                 appUserRepository.findById(userUpdatedEvent.getUserId()).ifPresent(appUser -> {
-                    userMapper.updateEntity(appUser, userUpdatedEvent);
+                    UserMapper.updateEntity(appUser, userUpdatedEvent);
                     appUserRepository.save(appUser);
                 });
                 viewRepository.findById(userUpdatedEvent.getUserId()).ifPresent(view -> {
-                    userMapper.updateView(view, userUpdatedEvent);
+                    UserMapper.updateView(view, userUpdatedEvent);
                     viewRepository.save(view);
                 });
             }

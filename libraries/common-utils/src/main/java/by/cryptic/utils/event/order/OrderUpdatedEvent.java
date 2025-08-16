@@ -2,7 +2,6 @@ package by.cryptic.utils.event.order;
 
 import by.cryptic.utils.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 
 import java.util.UUID;
