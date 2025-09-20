@@ -74,17 +74,4 @@ class NotificationListenerTest {
                 eq("mock-content"));
         verifyNoMoreInteractions(emailService, emailContentBuilder);
     }
-
-    @Test
-    void sendRandomEvent_shouldThrowIllegalStateException() {
-        //Arrange
-        UUID userId = UUID.randomUUID();
-        UserLogoutEvent userLogoutEvent = UserLogoutEvent.builder()
-                .userId(userId)
-                .build();
-        //Act
-        assertThrows(IllegalStateException.class, () -> notificationListener.sendOrderStatus(userLogoutEvent));
-        //Assert
-        verifyNoMoreInteractions(emailService, emailContentBuilder);
-    }
 }

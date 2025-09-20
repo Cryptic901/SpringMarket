@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class ReviewEventListener {
     private final ReviewViewRepository reviewViewRepository;
 
-    @KafkaListener(topics = "review-topic", groupId = "review-group")
+    @KafkaListener(topics = "review-topic")
     public void listenReviews(DomainEvent event) {
         switch (event) {
             case ReviewCreatedEvent reviewCreatedEvent -> reviewViewRepository.save(ReviewView.builder()

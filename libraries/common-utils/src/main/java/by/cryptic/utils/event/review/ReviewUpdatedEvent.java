@@ -3,6 +3,7 @@ package by.cryptic.utils.event.review;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -17,6 +18,7 @@ public class ReviewUpdatedEvent extends DomainEvent implements ReviewEvent {
     private String description;
     private Double rating;
     private String image;
+    private LocalDateTime updatedAt;
     private UUID updatedBy;
     private static final String version = "1.0";
     @Builder.Default

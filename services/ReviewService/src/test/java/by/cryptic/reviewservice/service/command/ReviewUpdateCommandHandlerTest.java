@@ -1,9 +1,9 @@
 package by.cryptic.reviewservice.service.command;
 
 import by.cryptic.reviewservice.model.write.Review;
+import by.cryptic.reviewservice.publisher.ReviewEventPublisher;
 import by.cryptic.reviewservice.repository.write.ReviewRepository;
 import by.cryptic.reviewservice.service.command.handler.ReviewUpdateCommandHandler;
-import by.cryptic.utils.event.review.ReviewUpdatedEvent;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,14 +13,12 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.startsWith;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewUpdateCommandHandlerTest {
@@ -29,7 +27,13 @@ class ReviewUpdateCommandHandlerTest {
     private ReviewRepository reviewRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private ReviewEventPublisher reviewEventPublisher;
+
+    @Mock
+    private CacheManager cacheManager;
+
+    @Mock
+    private Cache cache;
 
     @InjectMocks
     private ReviewUpdateCommandHandler reviewUpdateCommandHandler;
@@ -52,13 +56,13 @@ class ReviewUpdateCommandHandlerTest {
         ReviewUpdateCommand reviewUpdateCommand = new ReviewUpdateCommand(reviewId,
                 "newTitle", null, null, null, userId);
         Mockito.when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+        Mockito.when(cacheManager.getCache("reviews")).thenReturn(cache);
         //Act
         reviewUpdateCommandHandler.handle(reviewUpdateCommand);
         //Assert
         Mockito.verify(reviewRepository, Mockito.times(1)).findById(reviewId);
         Mockito.verify(reviewRepository, Mockito.times(1)).save(any(Review.class));
-        Mockito.verify(applicationEventPublisher, Mockito.times(1)).publishEvent(any(ReviewUpdatedEvent.class));
-        Mockito.verifyNoMoreInteractions(reviewRepository, applicationEventPublisher);
+        Mockito.verifyNoMoreInteractions(reviewRepository);
     }
 
     @Test

@@ -1,10 +1,4 @@
 CREATE SCHEMA IF NOT EXISTS product_schema;
-CREATE TABLE IF NOT EXISTS product_schema.categories
-(
-    id          uuid unique not null primary key,
-    name        varchar(255),
-    description text
-);
 CREATE TABLE IF NOT EXISTS product_schema.products
 (
     id          uuid unique not null primary key,
@@ -12,7 +6,7 @@ CREATE TABLE IF NOT EXISTS product_schema.products
     quantity    int,
     description text,
     image       text,
-    category_id uuid references product_schema.categories (id),
+    category_id uuid,
     price       numeric(10, 2) default 0,
     created_by  uuid,
     updated_by  uuid,

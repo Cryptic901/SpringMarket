@@ -1,7 +1,7 @@
 package by.cryptic.productservice.service.command;
 
 
-import by.cryptic.utils.ProductStatus;
+import by.cryptic.utils.enums.ProductStatus;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

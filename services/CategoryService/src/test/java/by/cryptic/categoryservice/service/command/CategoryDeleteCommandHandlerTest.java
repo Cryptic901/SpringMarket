@@ -1,9 +1,9 @@
 package by.cryptic.categoryservice.service.command;
 
 import by.cryptic.categoryservice.model.write.Category;
+import by.cryptic.categoryservice.publisher.CategoryEventPublisher;
 import by.cryptic.categoryservice.repository.write.CategoryRepository;
 import by.cryptic.categoryservice.service.command.handler.CategoryDeleteCommandHandler;
-import by.cryptic.utils.event.category.CategoryDeletedEvent;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -26,7 +25,7 @@ class CategoryDeleteCommandHandlerTest {
     private CategoryRepository categoryRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private CategoryEventPublisher categoryEventPublisher;
 
     @InjectMocks
     private CategoryDeleteCommandHandler categoryDeleteCommandHandler;
@@ -42,14 +41,13 @@ class CategoryDeleteCommandHandlerTest {
                 .build();
         CategoryDeleteCommand categoryDeleteCommand = new CategoryDeleteCommand(categoryId);
         Mockito.when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-        Mockito.doNothing().when(categoryRepository).deleteById(categoryId);
+        Mockito.doNothing().when(categoryRepository).delete(any());
         //Act
         categoryDeleteCommandHandler.handle(categoryDeleteCommand);
         //Assert
-        Mockito.verify(categoryRepository, Mockito.times(1)).deleteById(categoryId);
-        Mockito.verify(applicationEventPublisher, Mockito.times(1))
-                .publishEvent(any(CategoryDeletedEvent.class));
-        Mockito.verifyNoMoreInteractions(categoryRepository, applicationEventPublisher);
+        Mockito.verify(categoryRepository, Mockito.times(1)).findById(categoryId);
+        Mockito.verify(categoryRepository, Mockito.times(1)).delete(any());
+        Mockito.verifyNoMoreInteractions(categoryRepository);
     }
 
     @Test

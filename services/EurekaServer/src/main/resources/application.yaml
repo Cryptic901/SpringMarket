@@ -3,7 +3,6 @@ spring:
     name: EurekaServer
   cloud:
     config:
-      profile: dev
       username: config
       password: config
   config:

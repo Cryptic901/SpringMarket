@@ -1,6 +1,7 @@
 package by.cryptic.utils.event.inventory;
 
 import by.cryptic.utils.DTO.ReservedProductDTO;
+import by.cryptic.utils.enums.PaymentMethod;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class StockReservedEvent extends DomainEvent implements StockEvent {
     private UUID orderId;
     private String userEmail;
+    private PaymentMethod paymentMethod;
     private BigDecimal orderPrice;
     private UUID userId;
     private List<ReservedProductDTO> products;

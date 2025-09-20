@@ -1,4 +1,6 @@
 package by.cryptic.orderservice.service.command;
 
-public record OrderCreateDTO(String location) {
+import by.cryptic.utils.enums.PaymentMethod;
+
+public record OrderCreateDTO(String location, PaymentMethod paymentMethod) {
 }

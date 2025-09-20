@@ -3,12 +3,14 @@ package by.cryptic.cartservice.listener;
 import by.cryptic.cartservice.model.read.CartProductView;
 import by.cryptic.cartservice.model.read.CartView;
 import by.cryptic.cartservice.model.write.Cart;
+import by.cryptic.cartservice.publisher.CartEventPublisher;
 import by.cryptic.cartservice.repository.read.CartViewRepository;
 import by.cryptic.cartservice.repository.write.CartRepository;
 import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.cart.CartAddedItemEvent;
-import by.cryptic.utils.event.cart.CartClearedEvent;
+import by.cryptic.utils.event.cart.CartClearedBySagaEvent;
+import by.cryptic.utils.event.cart.CartClearedByUserEvent;
 import by.cryptic.utils.event.cart.CartDeletedProductEvent;
 import by.cryptic.utils.event.user.UserCreatedEvent;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,8 +29,9 @@ public class CartEventListener {
     private final CartViewRepository cartViewRepository;
     private final CartRepository cartRepository;
     private final CartUtil cartUtil;
+    private final CartEventPublisher cartEventPublisher;
 
-    @KafkaListener(topics = {"cart-topic", "user-topic"}, groupId = "cart-group")
+    @KafkaListener(topics = {"user-topic", "cart-topic"}, groupId = "cart-group")
     public void listenCart(DomainEvent event) {
         switch (event) {
             case CartAddedItemEvent cartAddedItemEvent -> {
@@ -56,18 +59,18 @@ public class CartEventListener {
                 cartView.setTotal(cartUtil.getTotalViewPrice(cartView.getProducts()));
                 cartViewRepository.save(cartView);
             }
-            case CartClearedEvent cartClearedEvent -> {
-                CartView cart = cartViewRepository.findById(cartClearedEvent.getCartId())
+            case CartClearedByUserEvent cartClearedEvent -> {
+                CartView cart = cartViewRepository.findCartViewByUserId(cartClearedEvent.getUserId())
                         .orElseThrow(() -> new EntityNotFoundException
-                                ("Cart not found with id %s".formatted(cartClearedEvent.getCartId())));
+                                ("Cart not found to user with id %s".formatted(cartClearedEvent.getUserId())));
                 cart.getProducts().clear();
                 cart.setTotal(BigDecimal.ZERO);
                 cartViewRepository.save(cart);
             }
             case CartDeletedProductEvent cartDeletedProductEvent -> {
-                CartView cartView = cartViewRepository.findById(cartDeletedProductEvent.getCartId())
+                CartView cartView = cartViewRepository.findCartViewByUserId(cartDeletedProductEvent.getUserId())
                         .orElseThrow(() -> new EntityNotFoundException
-                                ("Cart not found with id %s".formatted(cartDeletedProductEvent.getCartId())));
+                                ("Cart not found to user with id %s".formatted(cartDeletedProductEvent.getUserId())));
                 cartView.getProducts().stream()
                         .filter(p -> p.getProductId().equals(cartDeletedProductEvent.getProductId()))
                         .findFirst()
@@ -94,6 +97,32 @@ public class CartEventListener {
                 cartViewRepository.save(cartView);
             }
             default -> throw new IllegalStateException("Unexpected event type: " + event);
+        }
+    }
+
+    @KafkaListener(topics = "saga-topic")
+    public void listenSaga(DomainEvent event) {
+        log.info("-------------------------------------------");
+        log.info("SAGA LISTENING IN CART EVENT LISTENER");
+        log.info("!!!!!Event class: {}", event.getClass().getSimpleName());
+        switch (event) {
+            case CartClearedBySagaEvent cartClearedEvent -> {
+                try {
+                    CartView cart = cartViewRepository.findCartViewByUserId(cartClearedEvent.getUserId())
+                            .orElseThrow(() -> new EntityNotFoundException
+                                    ("Cart not found to user with id %s".formatted(cartClearedEvent.getUserId())));
+                    cart.getProducts().clear();
+                    cart.setTotal(BigDecimal.ZERO);
+                    cartViewRepository.save(cart);
+
+                    cartEventPublisher.cartClearedSuccessEventPublisher(cartClearedEvent);
+                    log.info("SUCCESS!: {}", cartClearedEvent);
+                } catch (Exception e) {
+                    log.warn("FAILED!: {}", cartClearedEvent);
+                    cartEventPublisher.cartClearedFailedEventPublisher(cartClearedEvent);
+                }
+            }
+            default -> log.warn("Ignoring event {}", event);
         }
     }
 }

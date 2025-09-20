@@ -5,7 +5,7 @@ import by.cryptic.orderservice.mapper.FullOrderMapper;
 import by.cryptic.orderservice.model.read.CustomerOrderView;
 import by.cryptic.orderservice.repository.read.OrderViewRepository;
 import by.cryptic.orderservice.service.query.OrderGetByIdQuery;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;

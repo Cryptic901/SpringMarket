@@ -1,6 +1,6 @@
 package by.cryptic.utils.event.order;
 
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
 

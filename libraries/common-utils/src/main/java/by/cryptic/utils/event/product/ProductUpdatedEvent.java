@@ -1,6 +1,6 @@
 package by.cryptic.utils.event.product;
 
-import by.cryptic.utils.ProductStatus;
+import by.cryptic.utils.enums.ProductStatus;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
 

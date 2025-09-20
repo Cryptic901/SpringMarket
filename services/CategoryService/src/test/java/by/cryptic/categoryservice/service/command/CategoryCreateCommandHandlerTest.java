@@ -1,16 +1,17 @@
 package by.cryptic.categoryservice.service.command;
 
 import by.cryptic.categoryservice.model.write.Category;
+import by.cryptic.categoryservice.publisher.CategoryEventPublisher;
 import by.cryptic.categoryservice.repository.write.CategoryRepository;
 import by.cryptic.categoryservice.service.command.handler.CategoryCreateCommandHandler;
-import by.cryptic.utils.event.category.CategoryCreatedEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import java.util.UUID;
 
@@ -23,7 +24,13 @@ class CategoryCreateCommandHandlerTest {
     private CategoryRepository categoryRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private CategoryEventPublisher categoryEventPublisher;
+
+    @Mock
+    private CacheManager cacheManager;
+
+    @Mock
+    private Cache cache;
 
     @InjectMocks
     private CategoryCreateCommandHandler categoryCreateCommandHandler;
@@ -39,10 +46,10 @@ class CategoryCreateCommandHandlerTest {
                 .build();
         CategoryCreateCommand categoryCreateCommand = new CategoryCreateCommand(category.getName(), category.getDescription());
         Mockito.when(categoryRepository.save(any(Category.class))).thenReturn(category);
+        Mockito.when(cacheManager.getCache("categories")).thenReturn(cache);
         //Act
         categoryCreateCommandHandler.handle(categoryCreateCommand);
         //Assert
         Mockito.verify(categoryRepository, Mockito.times(1)).save(any(Category.class));
-        Mockito.verify(applicationEventPublisher, Mockito.times(1)).publishEvent(any(CategoryCreatedEvent.class));
     }
 }

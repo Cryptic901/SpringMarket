@@ -39,7 +39,7 @@ public class Reservation {
     private UUID warehouseId;
 
 
-    public void addQuantity(int quantityToAdd) {
+    public void addQuantity(Integer quantityToAdd) {
         quantityToReserve += quantityToAdd;
     }
 

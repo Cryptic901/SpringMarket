@@ -5,7 +5,7 @@ import by.cryptic.productservice.model.read.ProductView;
 import by.cryptic.productservice.model.write.Product;
 import by.cryptic.productservice.repository.read.ProductViewRepository;
 import by.cryptic.utils.DTO.ProductDTO;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

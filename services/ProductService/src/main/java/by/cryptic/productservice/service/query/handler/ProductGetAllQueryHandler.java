@@ -4,7 +4,7 @@ import by.cryptic.productservice.mapper.ProductMapper;
 import by.cryptic.productservice.model.read.ProductView;
 import by.cryptic.productservice.service.query.SortParamsQuery;
 import by.cryptic.utils.DTO.ProductDTO;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.Decimal128;
 import org.springframework.data.domain.Page;

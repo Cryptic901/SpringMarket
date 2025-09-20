@@ -1,7 +1,7 @@
 package by.cryptic.utils.event.order;
 
 import by.cryptic.utils.DTO.OrderedProductDTO;
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
 
@@ -19,7 +19,7 @@ public class OrderSuccessEvent extends DomainEvent implements OrderEvent {
     private String userEmail;
     private BigDecimal price;
     @Builder.Default
-    private OrderStatus orderStatus = OrderStatus.IN_PROGRESS;
+    private OrderStatus orderStatus = OrderStatus.IN_PROGRESS_OF_DELIVERY;
     private List<OrderedProductDTO> listOfProducts;
     private String location;
     private UUID createdBy;

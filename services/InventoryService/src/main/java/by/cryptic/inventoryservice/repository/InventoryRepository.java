@@ -13,10 +13,6 @@ import java.util.UUID;
 public interface InventoryRepository extends JpaRepository<Inventory, UUID> {
     void deleteByProductId(UUID productId);
 
-    @Query("SELECT i FROM Inventory i WHERE i.productId = :productId AND i.warehouseId = :warehouseId")
-    Optional<Inventory> findByProductIdAndWarehouseId(@Param("productId") UUID productId,
-                                                      @Param("warehouseId") UUID warehouseId);
-
     @Query("SELECT i FROM Inventory i WHERE i.productId = :productId AND" +
             " i.availableQuantity > :quantityToReserve")
     Optional<Inventory> findAvailableByProductId(@Param("productId") UUID productId,

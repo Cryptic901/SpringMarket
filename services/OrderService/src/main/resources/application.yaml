@@ -3,7 +3,6 @@ spring:
     name: OrderService
   cloud:
     config:
-      profile: dev
       username: config
       password: config
   config:

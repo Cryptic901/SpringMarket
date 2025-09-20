@@ -6,6 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,9 +14,9 @@ import java.util.UUID;
 @FeignClient(name = "CartService", path = "/api/v1/carts", configuration = FeignClientConfig.class)
 public interface CartServiceClient {
 
-    @DeleteMapping("/clear")
-    ResponseEntity<Void> removeAllItemsFromCart(UUID userId);
+    @DeleteMapping("/clear/{userId}")
+    ResponseEntity<Void> removeAllItemsFromCartByUserId(@PathVariable UUID userId);
 
-    @GetMapping
-    ResponseEntity<List<CartProductDTO>> getCartProducts();
+    @GetMapping("/internal/user/{userId}")
+    ResponseEntity<List<CartProductDTO>> getCartProductsByUserId(@PathVariable UUID userId);
 }

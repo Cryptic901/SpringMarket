@@ -1,6 +1,6 @@
 package by.cryptic.productservice.model.read;
 
-import by.cryptic.utils.ProductStatus;
+import by.cryptic.utils.enums.ProductStatus;
 import jakarta.persistence.Column;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;

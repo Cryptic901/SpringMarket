@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 @Builder
-@Table(name = "categories", schema = "product_schema")
+@Table(name = "categories", schema = "category_schema")
 @Entity
 public class Category {
 

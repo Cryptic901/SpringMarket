@@ -1,7 +1,7 @@
 package by.cryptic.utils.event.order;
 
 import by.cryptic.utils.DTO.OrderedProductDTO;
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
 
@@ -17,12 +17,10 @@ import java.util.UUID;
 public class OrderFailedEvent extends DomainEvent implements OrderEvent {
     private UUID orderId;
     private String userEmail;
-    private BigDecimal price;
     @Builder.Default
     private OrderStatus orderStatus = OrderStatus.FAILED;
     private List<OrderedProductDTO> listOfProducts;
-    private String location;
-    private UUID createdBy;
+    private String failureReason;
     private static final String version = "1.0";
     @Builder.Default
     private String source = OrderFailedEvent.class.getName();

@@ -3,15 +3,17 @@ package by.cryptic.reviewservice.service.query.handler;
 import by.cryptic.reviewservice.mapper.ReviewMapper;
 import by.cryptic.reviewservice.repository.read.ReviewViewRepository;
 import by.cryptic.utils.DTO.ReviewDTO;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = {"reviews"})

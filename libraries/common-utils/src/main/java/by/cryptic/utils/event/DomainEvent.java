@@ -1,8 +1,6 @@
 package by.cryptic.utils.event;
 
-import by.cryptic.utils.event.cart.CartAddedItemEvent;
-import by.cryptic.utils.event.cart.CartClearedEvent;
-import by.cryptic.utils.event.cart.CartDeletedProductEvent;
+import by.cryptic.utils.event.cart.*;
 import by.cryptic.utils.event.category.CategoryCreatedEvent;
 import by.cryptic.utils.event.category.CategoryDeletedEvent;
 import by.cryptic.utils.event.category.CategoryUpdatedEvent;
@@ -10,7 +8,6 @@ import by.cryptic.utils.event.inventory.StockCreatedEvent;
 import by.cryptic.utils.event.inventory.StockReservationFailedEvent;
 import by.cryptic.utils.event.inventory.StockReservedEvent;
 import by.cryptic.utils.event.order.*;
-import by.cryptic.utils.event.payment.PaymentCanceledEvent;
 import by.cryptic.utils.event.payment.PaymentCreatedEvent;
 import by.cryptic.utils.event.payment.PaymentFailedEvent;
 import by.cryptic.utils.event.payment.PaymentSuccessEvent;
@@ -50,12 +47,11 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = ProductUpdatedEvent.class, name = "ProductUpdatedEvent"),
         @JsonSubTypes.Type(value = ProductUpdatedQuantityFromStockEvent.class, name = "ProductUpdatedQuantityFromStockEvent"),
 
-        @JsonSubTypes.Type(value = PaymentCanceledEvent.class, name = "PaymentCanceledEvent"),
         @JsonSubTypes.Type(value = PaymentCreatedEvent.class, name = "PaymentCreatedEvent"),
         @JsonSubTypes.Type(value = PaymentFailedEvent.class, name = "PaymentFailedEvent"),
         @JsonSubTypes.Type(value = PaymentSuccessEvent.class, name = "PaymentSuccessEvent"),
 
-        @JsonSubTypes.Type(value = OrderCanceledEvent.class, name = "OrderCanceledEvent"),
+        @JsonSubTypes.Type(value = FinalizeOrderEvent.class, name = "FinalizeOrderEvent"),
         @JsonSubTypes.Type(value = OrderCreatedEvent.class, name = "OrderCreatedEvent"),
         @JsonSubTypes.Type(value = OrderFailedEvent.class, name = "OrderFailedEvent"),
         @JsonSubTypes.Type(value = OrderSuccessEvent.class, name = "OrderSuccessEvent"),
@@ -66,7 +62,10 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CategoryUpdatedEvent.class, name = "CategoryUpdatedEvent"),
 
         @JsonSubTypes.Type(value = CartAddedItemEvent.class, name = "CartAddedItemEvent"),
-        @JsonSubTypes.Type(value = CartClearedEvent.class, name = "CartClearedEvent"),
+        @JsonSubTypes.Type(value = CartClearedBySagaEvent.class, name = "CartClearedBySagaEvent"),
+        @JsonSubTypes.Type(value = CartClearedByUserEvent.class, name = "CartClearedByUserEvent"),
+        @JsonSubTypes.Type(value = CartClearedSuccessEvent.class, name = "CartClearedSuccessEvent"),
+        @JsonSubTypes.Type(value = CartClearedFailedEvent.class, name = "CartClearedFailedEvent"),
         @JsonSubTypes.Type(value = CartDeletedProductEvent.class, name = "CartDeletedProductEvent"),
 
         @JsonSubTypes.Type(value = StockCreatedEvent.class, name = "StockCreatedEvent"),

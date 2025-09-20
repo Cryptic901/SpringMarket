@@ -5,13 +5,16 @@ import by.cryptic.inventoryservice.model.Reservation;
 import by.cryptic.inventoryservice.repository.InventoryRepository;
 import by.cryptic.inventoryservice.repository.ReservationRepository;
 import by.cryptic.inventoryservice.service.command.InventoryReturnToStockReservedProductCommand;
-import by.cryptic.utils.CommandHandler;
+import by.cryptic.utils.handler.CommandHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InventoryReturnToStockReservedProductCommandHandler implements CommandHandler<InventoryReturnToStockReservedProductCommand> {
@@ -22,12 +25,17 @@ public class InventoryReturnToStockReservedProductCommandHandler implements Comm
     @Override
     @Transactional
     public void handle(InventoryReturnToStockReservedProductCommand command) {
-
-        List<Reservation> reservations = reservationRepository.findByOrderId(command.orderId());
+        log.info("SAGA INVENTORY RETURN TO STOCK RESERVED PRODUCT: {}", command);
+        List<Reservation> reservations = reservationRepository
+                .findAllByOrderId(command.orderId());
 
         if (reservations.isEmpty()) {
-            throw new IllegalArgumentException("No reservations found for " + command.orderId());
+            log.warn("No reservations found for {}", command.orderId());
+            return;
         }
+
+        log.info("SAGA VALIDATE AND GET RESERVATIONS {}", reservations);
+        List<Inventory> inventories = new ArrayList<>();
 
         for (Reservation reservation : reservations) {
             Inventory inventory = inventoryRepository.findByProductId(reservation.getProductId())
@@ -35,9 +43,12 @@ public class InventoryReturnToStockReservedProductCommandHandler implements Comm
                             "Not found inventory for product " + reservation.getProductId()));
 
             inventory.returnToStock(reservation.getQuantityToReserve());
-
-            reservationRepository.delete(reservation);
-            inventoryRepository.save(inventory);
+            inventories.add(inventory);
+            log.info("SAGA INVENTORY {}", inventory);
         }
+        reservationRepository.deleteAllById(reservations.stream()
+                .map(Reservation::getId)
+                .toList());
+        inventoryRepository.saveAll(inventories);
     }
 }

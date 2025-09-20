@@ -3,7 +3,6 @@ spring:
     name: NotificationService
   cloud:
     config:
-      profile: dev
       username: config
       password: config
   config:

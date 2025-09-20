@@ -2,17 +2,16 @@ package by.cryptic.orderservice.service.command.handler;
 
 import by.cryptic.exceptions.DeletingException;
 import by.cryptic.orderservice.model.write.CustomerOrder;
+import by.cryptic.orderservice.publisher.OrderEventPublisher;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
 import by.cryptic.orderservice.service.command.OrderCancelCommand;
-import by.cryptic.utils.CommandHandler;
-import by.cryptic.utils.OrderStatus;
-import by.cryptic.utils.event.order.OrderCanceledEvent;
+import by.cryptic.utils.handler.CommandHandler;
+import by.cryptic.utils.enums.OrderStatus;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,17 +20,24 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderCancelCommandHandler implements CommandHandler<OrderCancelCommand> {
 
-    private final CustomerOrderRepository customerOrderRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final CustomerOrderRepository orderRepository;
+    private final OrderEventPublisher orderEventPublisher;
 
     @Override
     @Transactional
     @CacheEvict(cacheNames = "orders", key = "'order:' + #command.orderId()")
-    @Retry(name = "orderRetry", fallbackMethod = "orderCancelRetryFallback")
     public void handle(OrderCancelCommand command) {
         log.info("Handling order cancel command {}", command);
-        CustomerOrder order = customerOrderRepository.findById(command.orderId())
+
+        CustomerOrder order = validateAndGetOrder(command);
+
+        saveOrder(order);
+
+        orderEventPublisher.cancelOrderWithRetry(order, command);
+    }
+
+    private CustomerOrder validateAndGetOrder(OrderCancelCommand command) {
+        CustomerOrder order = orderRepository.findById(command.orderId())
                 .orElseThrow(() -> new EntityNotFoundException
                         ("Order not found with id : %s".formatted(command.orderId())));
 
@@ -43,13 +49,16 @@ public class OrderCancelCommandHandler implements CommandHandler<OrderCancelComm
             log.error("Order cannot be cancelled");
             throw new IllegalStateException("Order not completed");
         }
+        return order;
+    }
+
+    @Retry(name = "orderRetry", fallbackMethod = "orderSaveCancelRetryFallback")
+    public void saveOrder(CustomerOrder order) {
         orderRepository.save(order);
-        eventPublisher.publishEvent(new OrderCanceledEvent(order.getId(), command.email()));
     }
 
-    public void orderCancelRetryFallback(OrderCancelCommand orderCancelCommand, Throwable t) {
-        log.error("Failed to cancel {} after all retry attempts. Cause: {}", orderCancelCommand.orderId(), t.getMessage(), t);
-        throw new DeletingException("Failed to delete order:" + orderCancelCommand.orderId(), t);
+    public void orderSaveCancelRetryFallback(CustomerOrder order, Throwable t) {
+        log.error("Failed to save {} after all retry attempts. Cause: {}", order.getId(), t.getMessage(), t);
+        throw new DeletingException("Failed to save cancelling:" + order.getId(), t);
     }
-
 }

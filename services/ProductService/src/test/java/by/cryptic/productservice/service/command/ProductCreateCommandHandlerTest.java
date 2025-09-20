@@ -1,6 +1,7 @@
 package by.cryptic.productservice.service.command;
 
 import by.cryptic.productservice.model.write.Product;
+import by.cryptic.productservice.publisher.ProductEventPublisher;
 import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.productservice.service.command.handler.ProductCreateCommandHandler;
 import by.cryptic.utils.event.product.ProductCreatedEvent;
@@ -27,7 +28,7 @@ class ProductCreateCommandHandlerTest {
     private ProductRepository productRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private ProductEventPublisher productEventPublisher;
 
     @Mock
     private CacheManager cacheManager;
@@ -68,6 +69,6 @@ class ProductCreateCommandHandlerTest {
         Mockito.verify(cacheManager).getCache("products");
         Mockito.verify(cache, Mockito.times(1)).put(startsWith("product:"), any());
         Mockito.verify(productRepository, Mockito.times(1)).save(any(Product.class));
-        Mockito.verify(applicationEventPublisher, Mockito.times(1)).publishEvent(any(ProductCreatedEvent.class));
+        Mockito.verify(productEventPublisher, Mockito.times(1)).saveProductView(any());
     }
 }

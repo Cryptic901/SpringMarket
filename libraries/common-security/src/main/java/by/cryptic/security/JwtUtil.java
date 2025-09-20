@@ -1,6 +1,6 @@
 package by.cryptic.security;
 
-import by.cryptic.utils.Role;
+import by.cryptic.utils.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class JwtUtil {
 
     public static Role extractRole(Jwt jwt) {
         for (String authority : jwt.getClaimAsStringList("realm_access.roles")) {
-            if(authority.startsWith("ROLE_")) {
+            if (authority.startsWith("ROLE_")) {
                 return Role.valueOf(authority);
             }
         }

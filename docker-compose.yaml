@@ -25,7 +25,7 @@ services:
       - spring-market
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
+      test: [ "CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1" ]
       interval: 15s
       timeout: 60s
       retries: 5
@@ -55,7 +55,7 @@ services:
       - spring-market
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
+      test: [ "CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1" ]
       interval: 15s
       timeout: 60s
       retries: 5
@@ -85,7 +85,7 @@ services:
       - spring-market
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
+      test: [ "CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1" ]
       interval: 15s
       timeout: 60s
       retries: 5
@@ -97,9 +97,11 @@ services:
     image: debezium/connect:2.7.3.Final
     container_name: debezium
     hostname: debezium
+    restart: unless-stopped
     ports:
-      - "3434:3434"
+      - "3434:8083"
     environment:
+      REST_PORT: 8083
       BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090
       KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
@@ -120,7 +122,13 @@ services:
       - spring-market
     volumes:
       - debezium_data:/debezium
-
+      - ./connectors:/docker-entrypoint-init.d/
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8083/connectors || exit 1" ]
+      start_period: 60s
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:8.2-m01
@@ -146,6 +154,12 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    command: [
+      "postgres",
+      "-c", "wal_level=logical",
+      "-c", "max_replication_slots=10",
+      "-c", "max_wal_senders=10"
+    ]
     ports:
       - "5434:5432"
     volumes:
@@ -223,9 +237,6 @@ services:
       KC_HEALTH_ENABLED: true
       KC_METRICS_ENABLED: true
 
-#      KС_ADMIN: admin
-#      KС_ADMIN_PASSWORD: admin
-
       BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090 #connection to kafka for spi
     ports:
       - "9000:8080"
@@ -270,7 +281,7 @@ services:
       SPRING_PROFILES_ACTIVE: native
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8888/actuator/health || exit 1" ]
-      start_period: 15s
+      start_period: 60s
       interval: 10s
       timeout: 5s
       retries: 5
@@ -291,10 +302,11 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
+      start_period: 60s
       interval: 10s
       timeout: 5s
       retries: 5
@@ -313,10 +325,11 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
+      start_period: 90s
       interval: 15s
       timeout: 5s
       retries: 5
@@ -353,14 +366,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -386,14 +399,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -423,14 +436,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8091/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -460,14 +473,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8087/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -497,14 +510,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8089/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -532,14 +545,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -569,14 +582,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8088/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -606,14 +619,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -643,14 +656,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -680,14 +693,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8090/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy
@@ -717,14 +730,14 @@ services:
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1" ]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     depends_on:
       config-server:
         condition: service_healthy

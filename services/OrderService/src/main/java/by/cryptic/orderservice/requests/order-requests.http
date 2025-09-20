@@ -4,7 +4,6 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 ### Get Order By ID
-@orderId = variable value
 GET {{host}}/api/v1/orders/{{orderId}}
 Accept: application/json
 Authorization: Bearer {{authToken}}
@@ -18,17 +17,6 @@ Content-Type: application/json
   "location": "city Gomel"
 }
 
-### Update Order
-@updateOrderId = variable value
-PATCH {{host}}/api/v1/orders/{updateOrderId}
-Authorization: Bearer {{authToken}}
-Content-Type: application/json
-
-{
-  "location": "new location"
-}
-
 ### Cancel Order
-@cancelOrderId = variable value
-PATCH {{host}}/api/v1/orders/cancel/{{cancelOrderId}}
+PATCH {{host}}/api/v1/orders/cancel/{{orderId}}
 Authorization: Bearer {{authToken}}

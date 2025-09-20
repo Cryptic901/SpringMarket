@@ -1,6 +1,6 @@
 package by.cryptic.productservice.model.write;
 
-import by.cryptic.utils.ProductStatus;
+import by.cryptic.utils.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;

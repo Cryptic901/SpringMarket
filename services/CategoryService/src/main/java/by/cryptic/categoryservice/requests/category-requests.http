@@ -4,7 +4,6 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 ### Get Category By ID
-@categoryId = variable value
 GET {{host}}/api/v1/categories/{{categoryId}}
 Accept: application/json
 Authorization: Bearer {{authToken}}
@@ -19,9 +18,9 @@ Content-Type: application/json
   "description": "category that match for all family"
 }
 
+
 ### Update Category
-@updateCategoryId = variable value
-PATCH {{host}}/api/v1/categories/{updateCategoryId}
+PATCH {{host}}/api/v1/categories/{{categoryId}}
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
@@ -30,6 +29,5 @@ Content-Type: application/json
 }
 
 ### Delete Category
-@deleteCategoryId = variable value
-DELETE {{host}}/api/v1/categories/{{deleteCategoryId}}
+DELETE {{host}}/api/v1/categories/{{categoryId}}
 Authorization: Bearer {{authToken}}

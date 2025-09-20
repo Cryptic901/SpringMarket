@@ -1,13 +1,10 @@
 package by.cryptic.orderservice.controller.command;
 
-import by.cryptic.orderservice.dto.OrderUpdateDTO;
 import by.cryptic.orderservice.service.command.OrderCancelCommand;
 import by.cryptic.orderservice.service.command.OrderCreateCommand;
 import by.cryptic.orderservice.service.command.OrderCreateDTO;
-import by.cryptic.orderservice.service.command.OrderUpdateCommand;
 import by.cryptic.orderservice.service.command.handler.OrderCancelCommandHandler;
 import by.cryptic.orderservice.service.command.handler.OrderCreateCommandHandler;
-import by.cryptic.orderservice.service.command.handler.OrderUpdatedCommandHandler;
 import by.cryptic.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,7 +21,6 @@ import java.util.UUID;
 public class OrderCommandController {
 
     private final OrderCreateCommandHandler orderCreateCommandHandler;
-    private final OrderUpdatedCommandHandler orderUpdatedCommandHandler;
     private final OrderCancelCommandHandler orderCancelCommandHandler;
 
     @PostMapping
@@ -32,24 +28,11 @@ public class OrderCommandController {
             @RequestBody OrderCreateDTO order, @AuthenticationPrincipal Jwt jwt) {
         orderCreateCommandHandler.handle(new OrderCreateCommand(
                 order.location(),
+                order.paymentMethod(),
                 JwtUtil.extractUserId(jwt),
                 JwtUtil.extractEmail(jwt)
         ));
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @PatchMapping("/{orderId}")
-    public ResponseEntity<Void> updateOrder(
-            @RequestBody OrderUpdateDTO order, @PathVariable UUID orderId, @AuthenticationPrincipal Jwt jwt) {
-        orderUpdatedCommandHandler.handle(
-                new OrderUpdateCommand(
-                        orderId,
-                        order.location(),
-                        JwtUtil.extractUserId(jwt),
-                        JwtUtil.extractEmail(jwt)
-                )
-        );
-        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/cancel/{id}")

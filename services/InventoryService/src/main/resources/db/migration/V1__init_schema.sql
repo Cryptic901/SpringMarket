@@ -7,7 +7,7 @@ CREATE TABLE inventory_schema.inventory
     available_quantity int
 );
 
-CREATE TABLE inventory_schema.reservaton
+CREATE TABLE inventory_schema.reservation
 (
     id                  uuid primary key,
     product_id          uuid,

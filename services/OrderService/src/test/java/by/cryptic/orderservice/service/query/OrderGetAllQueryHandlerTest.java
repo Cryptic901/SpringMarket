@@ -5,7 +5,7 @@ import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.read.CustomerOrderView;
 import by.cryptic.orderservice.repository.read.OrderViewRepository;
 import by.cryptic.orderservice.service.query.handler.OrderGetAllQueryHandler;
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

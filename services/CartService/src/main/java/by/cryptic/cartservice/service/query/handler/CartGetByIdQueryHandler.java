@@ -5,7 +5,7 @@ import by.cryptic.cartservice.model.read.CartView;
 import by.cryptic.cartservice.repository.read.CartViewRepository;
 import by.cryptic.cartservice.service.query.CartGetByIdQuery;
 import by.cryptic.utils.DTO.CartProductDTO;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -100,5 +100,9 @@ public class ReviewMapper {
         if (event.getUpdatedBy() != null) {
             reviewView.setUpdatedBy(event.getUpdatedBy());
         }
+
+        if (event.getUpdatedAt() != null) {
+            reviewView.setUpdatedAt(event.getUpdatedAt());
+        }
     }
 }

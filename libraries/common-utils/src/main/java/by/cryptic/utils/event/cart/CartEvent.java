@@ -4,5 +4,5 @@ import java.util.UUID;
 
 @FunctionalInterface
 public interface CartEvent {
-    UUID getCartId();
+    UUID getUserId();
 }

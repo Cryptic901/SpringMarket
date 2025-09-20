@@ -3,7 +3,6 @@ spring:
     name: ProductService
   cloud:
     config:
-      profile: dev
       username: config
       password: config
   config:

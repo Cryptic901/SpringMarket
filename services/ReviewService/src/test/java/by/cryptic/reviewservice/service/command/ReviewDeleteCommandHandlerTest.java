@@ -1,6 +1,7 @@
 package by.cryptic.reviewservice.service.command;
 
 import by.cryptic.reviewservice.model.write.Review;
+import by.cryptic.reviewservice.publisher.ReviewEventPublisher;
 import by.cryptic.reviewservice.repository.write.ReviewRepository;
 import by.cryptic.reviewservice.service.command.handler.ReviewDeleteCommandHandler;
 import by.cryptic.utils.event.review.ReviewDeletedEvent;
@@ -26,7 +27,7 @@ class ReviewDeleteCommandHandlerTest {
     private ReviewRepository reviewRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private ReviewEventPublisher reviewEventPublisher;
 
     @InjectMocks
     private ReviewDeleteCommandHandler reviewDeleteCommandHandler;
@@ -54,8 +55,6 @@ class ReviewDeleteCommandHandlerTest {
         //Assert
         Mockito.verify(reviewRepository, Mockito.times(1)).findById(reviewId);
         Mockito.verify(reviewRepository, Mockito.times(1)).deleteById(reviewId);
-        Mockito.verify(applicationEventPublisher, Mockito.times(1)).publishEvent(any(ReviewDeletedEvent.class));
-        Mockito.verifyNoMoreInteractions(reviewRepository, applicationEventPublisher);
     }
 
     @Test

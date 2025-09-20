@@ -1,9 +1,13 @@
 package by.cryptic.gateway.security;
 
+import by.cryptic.gateway.filter.AuthLoggingFilter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -11,17 +15,18 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtGrantedAuthoritiesConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
+@Slf4j
 @Configuration
 @EnableWebFluxSecurity
 public class GatewayFilterChain {
 
     @Bean
-    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http, AuthLoggingFilter authLoggingFilter) {
         return http
                 .authorizeExchange(auth ->
                         auth.pathMatchers("/login/**", "/oauth2/**", "/actuator/**").permitAll()
@@ -29,6 +34,7 @@ public class GatewayFilterChain {
                                 .pathMatchers(HttpMethod.POST, "/api/v1/categories/**").hasRole("ADMIN")
                                 .pathMatchers(HttpMethod.PATCH, "/api/v1/categories/**").hasRole("ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/api/v1/categories/**").hasRole("ADMIN")
+                                .pathMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                 .anyExchange().authenticated())
                 .oauth2ResourceServer(configurer ->
                         configurer.jwt(
@@ -43,14 +49,16 @@ public class GatewayFilterChain {
                                     jwt.jwtAuthenticationConverter(converter);
                                 }
                         ))
+                .addFilterAfter(authLoggingFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();
     }
 
     private static ReactiveJwtGrantedAuthoritiesConverterAdapter getReactiveJwtGrantedAuthoritiesConverterAdapter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("realm_access.roles");
+        ExpressionJwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new ExpressionJwtGrantedAuthoritiesConverter(
+                new SpelExpressionParser().parseRaw("[realm_access][roles]")
+        );
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
         return new ReactiveJwtGrantedAuthoritiesConverterAdapter(jwtGrantedAuthoritiesConverter);
     }

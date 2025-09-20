@@ -6,7 +6,7 @@ import by.cryptic.productservice.model.write.Product;
 import by.cryptic.productservice.service.command.handler.ProductCreateCommandHandler;
 import by.cryptic.productservice.service.command.handler.ProductDeleteCommandHandler;
 import by.cryptic.productservice.service.command.handler.ProductUpdateCommandHandler;
-import by.cryptic.utils.ProductStatus;
+import by.cryptic.utils.enums.ProductStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
