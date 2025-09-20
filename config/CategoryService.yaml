@@ -24,10 +24,3 @@ spring:
     url: jdbc:postgresql://localhost:5432/category_db
     username: admin
     password: $2a$12$WHDRyXGTErJoxwlXnU7tquYrgnSaPoh5D.iCmqnNk17Mdsii17CZO
-  jpa:
-    properties:
-      hibernate:
-        jdbc:
-          batch_size: 50
-        order_updates: true
-        order_inserts: true

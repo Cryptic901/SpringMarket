@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -26,6 +28,12 @@ class CategoryGetByIdQueryHandlerTest {
 
     @Mock
     private CategoryViewRepository categoryViewRepository;
+
+    @Mock
+    private CacheManager cacheManager;
+
+    @Mock
+    private Cache cache;
 
     @InjectMocks
     private CategoryGetByIdQueryHandler categoryGetByIdQueryHandler;
@@ -42,6 +50,7 @@ class CategoryGetByIdQueryHandlerTest {
         CategoryView categoryView = new CategoryView(categoryId, category.getName(), category.getDescription());
         CategoryDTO categoryDTO = new CategoryDTO(category.getName(), category.getDescription());
         Mockito.when(categoryViewRepository.findById(categoryId)).thenReturn(Optional.of(categoryView));
+        Mockito.when(cacheManager.getCache("categories")).thenReturn(cache);
         //Act
         CategoryDTO result = categoryGetByIdQueryHandler.handle(categoryId);
         //Assert

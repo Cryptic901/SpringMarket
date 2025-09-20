@@ -4,24 +4,25 @@ import by.cryptic.cartservice.client.ProductServiceClient;
 import by.cryptic.cartservice.exception.NotEnoughProducts;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.model.write.CartProduct;
+import by.cryptic.cartservice.publisher.CartEventPublisher;
 import by.cryptic.cartservice.repository.write.CartRepository;
 import by.cryptic.cartservice.service.command.CartAddCommand;
 import by.cryptic.cartservice.util.CartUtil;
-import by.cryptic.utils.CommandHandler;
+import by.cryptic.exceptions.CreatingException;
+import by.cryptic.utils.handler.CommandHandler;
 import by.cryptic.utils.DTO.ProductDTO;
-import by.cryptic.utils.event.cart.CartAddedItemEvent;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -29,26 +30,17 @@ import java.util.List;
 public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
 
     private final CartRepository cartRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final CartUtil cartUtil;
+    private final CacheManager cacheManager;
     private final ProductServiceClient productServiceClient;
+    private final CartEventPublisher cartEventPublisher;
 
     @Override
     @Transactional
-    @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartAddFallback")
-    @CachePut(cacheNames = "carts", key = "'cart:' + #command.userId()")
     public void handle(CartAddCommand command) {
-        Cart cart = cartRepository.findByUserIdWithItems(command.userId())
-                .orElseGet(() -> {
-                    Cart newCart = Cart.builder()
-                            .userId(command.userId())
-                            .total(BigDecimal.ZERO)
-                            .items(new ArrayList<>())
-                            .build();
-                    return cartRepository.save(newCart);
-                });
-        log.info("Cart after mapping to entity: {}", cart);
-        ProductDTO product = productServiceClient.getProductById(command.productId()).getBody();
+        Cart cart = getOrCreateCart(command);
+
+        ProductDTO product = getProductDTO(command);
 
         if (product == null) {
             throw new EntityNotFoundException("Product with id %s not found"
@@ -56,17 +48,12 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
         }
 
         List<CartProduct> products = createOrAddProduct(command, cart, product);
-
         cart.setTotal(cartUtil.getTotalPrice(products));
-        cart.setUserId(command.userId());
 
         cartRepository.save(cart);
-        eventPublisher.publishEvent(CartAddedItemEvent.builder()
-                .cartId(cart.getId())
-                .productId(command.productId())
-                .price(product.price())
-                .userId(command.userId())
-                .build());
+
+        cartEventPublisher.cartAddView(cart, product, command);
+        updateCache(cart);
     }
 
     private List<CartProduct> createOrAddProduct(CartAddCommand command, Cart cart, ProductDTO product) {
@@ -93,8 +80,36 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
         return products;
     }
 
-    public void cartAddFallback(CartAddCommand cartAddCommand, Throwable t) {
-        log.error("Failed to add {}, {}", cartAddCommand.productId(), t);
-        throw new RuntimeException(t.getMessage());
+    private void updateCache(Cart cart) {
+        Objects.requireNonNull(cacheManager.getCache("carts"))
+                .put("cart:" + cart.getUserId(), cart);
+    }
+
+    @CircuitBreaker(name = "productCircuitBreaker", fallbackMethod = "productClientCircuitBreakerFallback")
+    public ProductDTO getProductDTO(CartAddCommand command) {
+        return productServiceClient.getProductById(command.productId()).getBody();
+    }
+
+    @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartCreatingCircuitBreakerFallback")
+    private Cart getOrCreateCart(CartAddCommand command) {
+        return cartRepository.findByUserIdWithItems(command.userId())
+                .orElseGet(() -> {
+                    Cart newCart = Cart.builder()
+                            .userId(command.userId())
+                            .total(BigDecimal.ZERO)
+                            .items(new ArrayList<>())
+                            .build();
+                    return cartRepository.save(newCart);
+                });
+    }
+
+    public void productClientCircuitBreakerFallback(CartAddCommand command, Throwable t) {
+        log.error("Failed to add {} after all attempts to cart. Cause: {}", command.productId(), t.getMessage(), t);
+        throw new CreatingException("Failed to add product:" + command.productId(), t);
+    }
+
+    public void cartCreatingCircuitBreakerFallback(CartAddCommand command, Throwable t) {
+        log.error("Failed to create or find cart of user {} after all attempts. Cause: {}", command.userId(), t.getMessage(), t);
+        throw new CreatingException("Failed to create cart:" + command.productId(), t);
     }
 }

@@ -1,7 +1,7 @@
 package by.cryptic.paymentservice.model.read;
 
-import by.cryptic.utils.PaymentMethod;
-import by.cryptic.utils.PaymentStatus;
+import by.cryptic.utils.enums.PaymentMethod;
+import by.cryptic.utils.enums.PaymentStatus;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;

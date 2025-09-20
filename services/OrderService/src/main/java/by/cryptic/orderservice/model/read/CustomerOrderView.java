@@ -1,6 +1,6 @@
 package by.cryptic.orderservice.model.read;
 
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;

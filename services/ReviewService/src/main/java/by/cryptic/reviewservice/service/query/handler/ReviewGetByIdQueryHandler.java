@@ -5,7 +5,7 @@ import by.cryptic.reviewservice.model.read.ReviewView;
 import by.cryptic.reviewservice.model.write.Review;
 import by.cryptic.reviewservice.repository.read.ReviewViewRepository;
 import by.cryptic.utils.DTO.ReviewDTO;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

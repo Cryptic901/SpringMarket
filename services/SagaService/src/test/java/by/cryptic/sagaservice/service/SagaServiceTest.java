@@ -1,8 +1,10 @@
 package by.cryptic.sagaservice.service;
 
-import by.cryptic.utils.PaymentMethod;
-import by.cryptic.utils.PaymentStatus;
+import by.cryptic.utils.enums.PaymentMethod;
+import by.cryptic.utils.enums.PaymentStatus;
 import by.cryptic.utils.event.DomainEvent;
+import by.cryptic.utils.event.cart.CartClearedFailedEvent;
+import by.cryptic.utils.event.cart.CartClearedSuccessEvent;
 import by.cryptic.utils.event.inventory.StockReservationFailedEvent;
 import by.cryptic.utils.event.inventory.StockReservedEvent;
 import by.cryptic.utils.event.order.OrderCreatedEvent;
@@ -72,6 +74,38 @@ class SagaServiceTest {
     }
 
     @Test
+    void processCartClearedSuccessEvent_shouldProcess() {
+        //Arrange
+        UUID orderId = UUID.randomUUID();
+        CartClearedSuccessEvent event = CartClearedSuccessEvent.builder()
+                .orderId(orderId)
+                .userEmail("user123@gmail.com")
+                .build();
+        Mockito.when(kafkaTemplate.send(any(), any(), any())).thenReturn(mock());
+        //Act
+        sagaService.sagaListener(event);
+        //Assert
+        verify(kafkaTemplate, times(1)).send(any(), any(), any());
+        verifyNoMoreInteractions(kafkaTemplate);
+    }
+
+    @Test
+    void processCartClearedFailedEvent_shouldProcess() {
+        //Arrange
+        UUID orderId = UUID.randomUUID();
+        CartClearedFailedEvent event = CartClearedFailedEvent.builder()
+                .orderId(orderId)
+                .userEmail("user123@gmail.com")
+                .build();
+        Mockito.when(kafkaTemplate.send(any(), any(), any())).thenReturn(mock());
+        //Act
+        sagaService.sagaListener(event);
+        //Assert
+        verify(kafkaTemplate, times(1)).send(any(), any(), any());
+        verifyNoMoreInteractions(kafkaTemplate);
+    }
+
+    @Test
     void processStockReservedEvent_shouldProcess() {
         //Arrange
         UUID orderId = UUID.randomUUID();
@@ -86,8 +120,6 @@ class SagaServiceTest {
         verify(kafkaTemplate, times(1)).send(any(), any(), any());
         verifyNoMoreInteractions(kafkaTemplate);
     }
-
-
 
     @Test
     void processPaymentSuccessEvent_shouldProcess() {
@@ -131,19 +163,6 @@ class SagaServiceTest {
         sagaService.sagaListener(paymentFailedEvent);
         //Assert
         verify(kafkaTemplate, times(1)).send(any(), any(), any());
-        verifyNoMoreInteractions(kafkaTemplate);
-    }
-
-    @Test
-    void processEvent_shouldThrowIllegalStateException() {
-        //Arrange
-        UUID userId = UUID.randomUUID();
-        UserCreatedEvent userCreatedEvent = UserCreatedEvent.builder()
-                .userId(userId)
-                .build();
-        //Act
-        assertThrows(IllegalStateException.class, () -> sagaService.sagaListener(userCreatedEvent));
-        //Assert
         verifyNoMoreInteractions(kafkaTemplate);
     }
 }

@@ -1,10 +1,18 @@
 package by.cryptic.orderservice.service.command;
 
+import by.cryptic.exceptions.EmptyCartException;
+import by.cryptic.orderservice.client.CartServiceClient;
+import by.cryptic.orderservice.client.ProductServiceClient;
 import by.cryptic.orderservice.model.write.CustomerOrder;
+import by.cryptic.orderservice.model.write.OrderProduct;
+import by.cryptic.orderservice.publisher.OrderEventPublisher;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
 import by.cryptic.orderservice.service.command.handler.OrderCreateCommandHandler;
-import by.cryptic.utils.OrderStatus;
-import by.cryptic.utils.event.order.OrderCreatedEvent;
+import by.cryptic.utils.DTO.CartProductDTO;
+import by.cryptic.utils.DTO.ProductDTO;
+import by.cryptic.utils.enums.OrderStatus;
+import by.cryptic.utils.enums.PaymentMethod;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,10 +21,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -29,7 +38,13 @@ class OrderCreateCommandHandlerTest {
     private CustomerOrderRepository orderRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private OrderEventPublisher orderEventPublisher;
+
+    @Mock
+    private CartServiceClient cartServiceClient;
+
+    @Mock
+    private ProductServiceClient productServiceClient;
 
     @Mock
     private CacheManager cacheManager;
@@ -41,21 +56,28 @@ class OrderCreateCommandHandlerTest {
     private OrderCreateCommandHandler orderCreateCommandHandler;
 
     @Test
-    void createOrder_whenFieldsAreOk_shouldSaveOrder() {
+    void createOrder_whenProductsEnoughCartNotEmptyAndFieldsAreOk_shouldSaveOrder() {
         //Arrange
         UUID userId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
+        OrderProduct orderProduct = new OrderProduct();
         CustomerOrder order = CustomerOrder.builder()
                 .id(orderId)
                 .orderStatus(OrderStatus.PENDING)
                 .location("gomel")
                 .userId(userId)
-                .products(new ArrayList<>())
+                .products(List.of(orderProduct))
                 .price(BigDecimal.ZERO)
                 .build();
-        OrderCreateCommand orderCreateCommand = new OrderCreateCommand(order.getLocation(),
+        OrderCreateCommand orderCreateCommand = new OrderCreateCommand(order.getLocation(), PaymentMethod.APPLE_PAY,
                 userId, "user123@gmail.com");
+        List<CartProductDTO> cartProductDTOS = new ArrayList<>();
+        cartProductDTOS.add(new CartProductDTO(UUID.randomUUID(), 1488, BigDecimal.ONE));
         Mockito.when(orderRepository.save(any(CustomerOrder.class))).thenReturn(order);
+        Mockito.when(cartServiceClient.getCartProductsByUserId(userId)).thenReturn(ResponseEntity.ok(cartProductDTOS));
+        Mockito.when(productServiceClient.getProductById(any())).thenReturn
+                (ResponseEntity.ok(new ProductDTO("name", BigDecimal.ONE, 2000, "desc",
+                        "image/url", UUID.randomUUID())));
         Mockito.when(cacheManager.getCache("orders")).thenReturn(cache);
         //Act
         orderCreateCommandHandler.handle(orderCreateCommand);
@@ -63,6 +85,55 @@ class OrderCreateCommandHandlerTest {
         Mockito.verify(cacheManager).getCache("orders");
         Mockito.verify(cache, Mockito.times(1)).put(startsWith("order:"), any());
         Mockito.verify(orderRepository, Mockito.times(1)).save(any(CustomerOrder.class));
-        Mockito.verify(applicationEventPublisher, Mockito.times(1)).publishEvent(any(OrderCreatedEvent.class));
+    }
+
+    @Test
+    void createOrder_whenProductsNotEnoughCartNotEmptyAndFieldsAreOk_shouldSaveOrder() {
+        //Arrange
+        UUID userId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        OrderProduct orderProduct = new OrderProduct();
+        CustomerOrder order = CustomerOrder.builder()
+                .id(orderId)
+                .orderStatus(OrderStatus.PENDING)
+                .location("gomel")
+                .userId(userId)
+                .products(List.of(orderProduct))
+                .price(BigDecimal.ZERO)
+                .build();
+        OrderCreateCommand orderCreateCommand = new OrderCreateCommand(order.getLocation(), PaymentMethod.APPLE_PAY,
+                userId, "user123@gmail.com");
+        List<CartProductDTO> cartProductDTOS = new ArrayList<>();
+        cartProductDTOS.add(new CartProductDTO(UUID.randomUUID(), 2, BigDecimal.ONE));
+        Mockito.when(cartServiceClient.getCartProductsByUserId(userId)).thenReturn(ResponseEntity.ok(cartProductDTOS));
+        Mockito.when(productServiceClient.getProductById(any())).thenReturn
+                (ResponseEntity.ok(new ProductDTO("name", BigDecimal.ONE, 1, "desc",
+                        "image/url", UUID.randomUUID())));
+        //Act
+        //Assert
+        Assert.assertThrows(IllegalStateException.class,() -> orderCreateCommandHandler.handle(orderCreateCommand));
+    }
+
+    @Test
+    void createOrder_whenProductsEnoughCartIsEmptyAndFieldsAreOk_shouldSaveOrder() {
+        //Arrange
+        UUID userId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        OrderProduct orderProduct = new OrderProduct();
+        CustomerOrder order = CustomerOrder.builder()
+                .id(orderId)
+                .orderStatus(OrderStatus.PENDING)
+                .location("gomel")
+                .userId(userId)
+                .products(List.of(orderProduct))
+                .price(BigDecimal.ZERO)
+                .build();
+        OrderCreateCommand orderCreateCommand = new OrderCreateCommand(order.getLocation(), PaymentMethod.APPLE_PAY,
+                userId, "user123@gmail.com");
+        List<CartProductDTO> cartProductDTOS = new ArrayList<>();
+        Mockito.when(cartServiceClient.getCartProductsByUserId(userId)).thenReturn(ResponseEntity.ok(cartProductDTOS));
+        //Act
+        //Assert
+        Assert.assertThrows(EmptyCartException.class,() -> orderCreateCommandHandler.handle(orderCreateCommand));
     }
 }

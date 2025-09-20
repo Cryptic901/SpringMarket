@@ -3,7 +3,7 @@ package by.cryptic.userservice.service.handler;
 import by.cryptic.userservice.dto.UserDTO;
 import by.cryptic.userservice.mapper.UserMapper;
 import by.cryptic.userservice.repository.read.UserViewRepository;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;

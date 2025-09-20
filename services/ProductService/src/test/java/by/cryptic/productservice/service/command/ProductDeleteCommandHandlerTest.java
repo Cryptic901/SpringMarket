@@ -1,6 +1,7 @@
 package by.cryptic.productservice.service.command;
 
 import by.cryptic.productservice.model.write.Product;
+import by.cryptic.productservice.publisher.ProductEventPublisher;
 import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.productservice.service.command.handler.ProductDeleteCommandHandler;
 import by.cryptic.utils.event.product.ProductDeletedEvent;
@@ -27,7 +28,7 @@ class ProductDeleteCommandHandlerTest {
     private ProductRepository productRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private ProductEventPublisher productEventPublisher;
 
     @InjectMocks
     private ProductDeleteCommandHandler productDeleteCommandHandler;
@@ -56,8 +57,8 @@ class ProductDeleteCommandHandlerTest {
         //Assert
         Mockito.verify(productRepository, Mockito.times(1)).findById(productId);
         Mockito.verify(productRepository, Mockito.times(1)).deleteById(productId);
-        Mockito.verify(applicationEventPublisher, Mockito.times(1)).publishEvent(any(ProductDeletedEvent.class));
-        Mockito.verifyNoMoreInteractions(productRepository, applicationEventPublisher);
+        Mockito.verify(productEventPublisher, Mockito.times(1)).deleteProductAndView(any());
+        Mockito.verifyNoMoreInteractions(productRepository, productEventPublisher);
     }
 
     @Test

@@ -1,6 +1,6 @@
 package by.cryptic.productservice.dto;
 
-import by.cryptic.utils.ProductStatus;
+import by.cryptic.utils.enums.ProductStatus;
 
 import java.math.BigDecimal;
 import java.util.UUID;

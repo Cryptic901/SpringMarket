@@ -4,7 +4,7 @@ import by.cryptic.paymentservice.mapper.PaymentMapper;
 import by.cryptic.paymentservice.repository.read.PaymentViewRepository;
 import by.cryptic.paymentservice.service.query.PaymentGetAllQuery;
 import by.cryptic.utils.DTO.PaymentDTO;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

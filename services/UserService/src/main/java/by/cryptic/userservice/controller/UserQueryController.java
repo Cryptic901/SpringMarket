@@ -5,7 +5,7 @@ import by.cryptic.userservice.dto.UserDTO;
 import by.cryptic.userservice.service.UserGetAllQuery;
 import by.cryptic.userservice.service.handler.UserGetAllQueryHandler;
 import by.cryptic.userservice.service.handler.UserGetByIdQueryHandler;
-import by.cryptic.utils.Role;
+import by.cryptic.utils.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

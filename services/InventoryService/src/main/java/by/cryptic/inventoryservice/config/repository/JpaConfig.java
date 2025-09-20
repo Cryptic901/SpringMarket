@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EnableJpaRepositories(basePackages = "by.cryptic.productservice.repository.write")
+@EnableJpaRepositories(basePackages = "by.cryptic.inventoryservice.repository")
 @Profile("jpa")
 @Configuration
 public class JpaConfig {

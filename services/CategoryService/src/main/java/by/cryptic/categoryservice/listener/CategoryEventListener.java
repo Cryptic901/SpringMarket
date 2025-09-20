@@ -19,7 +19,7 @@ public class CategoryEventListener {
 
     private final CategoryViewRepository categoryViewRepository;
 
-    @KafkaListener(topics = "category-topic", groupId = "category-group")
+    @KafkaListener(topics = "category-topic", groupId = "category-consumer-group")
     public void listenCategory(DomainEvent event) {
         log.info("Received event type {}", event);
         switch (event) {

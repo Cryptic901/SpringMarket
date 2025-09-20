@@ -7,7 +7,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -39,24 +38,21 @@ public class Inventory {
     @Column(name = "available_quantity")
     private Integer availableQuantity;
 
-    public boolean canReserve(int quantityToReserve) {
+    public boolean canReserve(Integer quantityToReserve) {
         return availableQuantity >= quantityToReserve;
     }
 
-    public void reserve(int quantityToReserve) {
+    public void reserve(Integer quantityToReserve) {
         if (!canReserve(quantityToReserve)) {
             throw new OutOfStockException("There are not enough products to reserve it");
         }
         availableQuantity -= quantityToReserve;
     }
 
-    public void returnToStock(int quantityToReturn) {
+    public void returnToStock(Integer quantityToReturn) {
         availableQuantity += quantityToReturn;
     }
 
-    public void confirmFromReserve(int quantityToRelease) {
-        availableQuantity -= quantityToRelease;
-    }
 
     @Override
     public boolean equals(Object o) {

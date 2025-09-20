@@ -1,10 +1,10 @@
 package by.cryptic.productservice.service.command;
 
 import by.cryptic.productservice.model.write.Product;
+import by.cryptic.productservice.publisher.ProductEventPublisher;
 import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.productservice.service.command.handler.ProductUpdateCommandHandler;
-import by.cryptic.utils.ProductStatus;
-import by.cryptic.utils.event.product.ProductUpdatedEvent;
+import by.cryptic.utils.enums.ProductStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -28,7 +27,7 @@ class ProductUpdateCommandHandlerTest {
     private ProductRepository productRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private ProductEventPublisher productEventPublisher;
 
     @InjectMocks
     private ProductUpdateCommandHandler productUpdateCommandHandler;
@@ -57,8 +56,8 @@ class ProductUpdateCommandHandlerTest {
         //Assert
         Mockito.verify(productRepository, Mockito.times(1)).findById(productId);
         Mockito.verify(productRepository, Mockito.times(1)).save(any(Product.class));
-        Mockito.verify(applicationEventPublisher, Mockito.times(1)).publishEvent(any(ProductUpdatedEvent.class));
-        Mockito.verifyNoMoreInteractions(productRepository, applicationEventPublisher);
+        Mockito.verify(productEventPublisher, Mockito.times(1)).updateProductView(any(), any());
+        Mockito.verifyNoMoreInteractions(productRepository, productEventPublisher);
     }
 
     @Test

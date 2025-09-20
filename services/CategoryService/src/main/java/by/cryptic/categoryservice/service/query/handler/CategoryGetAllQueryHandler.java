@@ -3,7 +3,7 @@ import by.cryptic.categoryservice.dto.CategoryDTO;
 import by.cryptic.categoryservice.mapper.CategoryMapper;
 import by.cryptic.categoryservice.repository.read.CategoryViewRepository;
 import by.cryptic.categoryservice.service.query.CategoryGetAllQuery;
-import by.cryptic.utils.QueryHandler;
+import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

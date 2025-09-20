@@ -12,7 +12,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class CartAddedItemEvent extends DomainEvent implements CartEvent {
-
     private UUID cartId;
     private UUID productId;
     private UUID userId;

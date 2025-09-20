@@ -18,5 +18,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     Optional<Reservation> findByReservedByProductId(@Param("orderId") UUID orderId,
                                                     @Param("productId") UUID productId);
 
-    List<Reservation> findByOrderId(UUID orderId);
+    List<Reservation> findAllByOrderId(UUID orderId);
 }

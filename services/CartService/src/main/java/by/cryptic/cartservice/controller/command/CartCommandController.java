@@ -38,6 +38,12 @@ public class CartCommandController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/clear/{userId}")
+    public ResponseEntity<Void> removeAllItemsFromCartByUserId(@PathVariable UUID userId) {
+        cartClearCommandHandler.handle(new CartClearCommand(userId));
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> removeItemFromCart(
             @PathVariable UUID productId, @AuthenticationPrincipal Jwt jwt) {

@@ -1,7 +1,8 @@
 package by.cryptic.utils.event;
 
 public enum EventType {
-    CartAddedItemEvent, CartClearedEvent, CartDeletedProductEvent,
+    CartAddedItemEvent, CartClearedEvent, CartClearedByUserEvent, CartClearedBySagaEvent,
+    CartClearedSuccessEvent, CartClearedFailedEvent, CartDeletedProductEvent,
 
     CategoryCreatedEvent, CategoryUpdatedEvent, CategoryDeletedEvent,
 

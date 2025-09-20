@@ -59,15 +59,15 @@ public class AnalyticListener implements SmartLifecycle {
     public void listenUserRegister(DomainEvent event) {
         log.info("Received user created event and trying to increase the value: {}", event);
         switch (event) {
-            case UserLoginedEvent userLoginedEvent -> activeUsers.incrementAndGet();
-            case UserDeletedEvent userDeletedEvent -> activeUsers.decrementAndGet();
-            case UserLogoutEvent userLogoutEvent -> activeUsers.decrementAndGet();
+            case UserLoginedEvent ignored -> activeUsers.incrementAndGet();
+            case UserDeletedEvent ignored -> activeUsers.decrementAndGet();
+            case UserLogoutEvent ignored -> activeUsers.decrementAndGet();
             case OrderCreatedEvent orderCreatedEvent -> {
                 BigDecimal totalAmount = orderCreatedEvent.getPrice();
                 todayRevenue.updateAndGet(current -> (current.add(totalAmount)));
                 todayOrders.incrementAndGet();
             }
-            default -> throw new IllegalStateException("Unexpected event type: " + event);
+            default -> log.warn("Unexpected event type: {}", event);
         }
     }
 

@@ -5,7 +5,7 @@ import by.cryptic.paymentservice.model.read.PaymentView;
 import by.cryptic.paymentservice.repository.read.PaymentViewRepository;
 import by.cryptic.paymentservice.service.query.handler.PaymentGetByIdQueryHandler;
 import by.cryptic.utils.DTO.PaymentDTO;
-import by.cryptic.utils.PaymentMethod;
+import by.cryptic.utils.enums.PaymentMethod;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -11,14 +11,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class CartDeletedProductEvent extends DomainEvent implements CartEvent {
-    private UUID cartId;
+    private UUID userId;
     private UUID productId;
     private static final String version = "1.0";
     @Builder.Default
     private String source = CartDeletedProductEvent.class.getName();
 
-    public CartDeletedProductEvent(UUID cartId, UUID productId) {
-        this.cartId = cartId;
+    public CartDeletedProductEvent(UUID userId, UUID productId) {
+        this.userId = userId;
         this.productId = productId;
     }
 }

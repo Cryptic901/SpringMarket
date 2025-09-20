@@ -1,11 +1,12 @@
 package by.cryptic.paymentservice.service.command;
 
-import by.cryptic.paymentservice.model.write.Payment;
+import by.cryptic.paymentservice.listener.PaymentEventListener;
+import by.cryptic.paymentservice.model.read.PaymentView;
+import by.cryptic.paymentservice.publisher.PaymentEventPublisher;
+import by.cryptic.paymentservice.repository.read.PaymentViewRepository;
 import by.cryptic.paymentservice.repository.write.PaymentRepository;
-import by.cryptic.paymentservice.service.command.handler.PaymentCreateCommandHandler;
-import by.cryptic.utils.PaymentMethod;
-import by.cryptic.utils.PaymentStatus;
-import by.cryptic.utils.event.payment.PaymentCreatedEvent;
+import by.cryptic.utils.enums.PaymentMethod;
+import by.cryptic.utils.enums.PaymentStatus;
 import by.cryptic.utils.event.payment.PaymentFailedEvent;
 import by.cryptic.utils.event.payment.PaymentSuccessEvent;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -29,10 +29,13 @@ class PaymentCreateCommandHandlerTest {
     private PaymentRepository paymentRepository;
 
     @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
+    private PaymentViewRepository paymentViewRepository;
+
+    @Mock
+    private PaymentEventPublisher paymentEventPublisher;
 
     @InjectMocks
-    private PaymentCreateCommandHandler paymentCreateCommandHandler;
+    private PaymentEventListener paymentEventListener;
 
     @Test
     void createPayment_whenPaymentOk_shouldSavePaymentAndPublishPaymentSuccessEvent() {
@@ -40,30 +43,27 @@ class PaymentCreateCommandHandlerTest {
         UUID paymentId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        Payment payment = Payment.builder()
-                .id(paymentId)
+        PaymentView payment = PaymentView.builder()
+                .paymentId(paymentId)
                 .paymentMethod(PaymentMethod.PAYPAL)
                 .orderId(orderId)
                 .userId(userId)
                 .price(BigDecimal.valueOf(148.8))
                 .build();
-        PaymentCreatedEvent paymentCreateCommand =
-                PaymentCreatedEvent.builder()
+        PaymentSuccessEvent paymentCreateCommand =
+                PaymentSuccessEvent.builder()
                         .paymentId(paymentId)
                         .paymentMethod(PaymentMethod.PAYPAL)
                         .orderId(orderId)
                         .userId(userId)
-                        .userEmail("user123@gmail.com")
                         .price(BigDecimal.valueOf(148.8))
                         .paymentStatus(PaymentStatus.PENDING)
                         .build();
-        Mockito.when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
+        Mockito.when(paymentViewRepository.save(any(PaymentView.class))).thenReturn(payment);
         //Act
-        paymentCreateCommandHandler.handle(paymentCreateCommand);
+        paymentEventListener.listenPayments(paymentCreateCommand);
         //Assert
-        Mockito.verify(paymentRepository, Mockito.times(1)).save(any(Payment.class));
-        Mockito.verify(applicationEventPublisher, Mockito.times(1))
-                .publishEvent(any(PaymentSuccessEvent.class));
+        Mockito.verify(paymentViewRepository, Mockito.times(1)).save(any(PaymentView.class));
     }
 
     @Test
@@ -72,22 +72,19 @@ class PaymentCreateCommandHandlerTest {
         UUID paymentId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        PaymentCreatedEvent paymentCreateCommand =
-                PaymentCreatedEvent.builder()
+        PaymentFailedEvent paymentCreateCommand =
+                PaymentFailedEvent.builder()
                         .paymentId(paymentId)
                         .paymentMethod(PaymentMethod.PAYPAL)
                         .orderId(orderId)
                         .userId(userId)
-                        .userEmail("user123@gmail.com")
                         .price(BigDecimal.valueOf(148.8))
                         .paymentStatus(PaymentStatus.PENDING)
                         .build();
-        Mockito.when(paymentRepository.save(any(Payment.class))).thenThrow(DataProcessingException.class);
+        Mockito.when(paymentViewRepository.save(any(PaymentView.class))).thenReturn(any(PaymentView.class));
         //Act
-        paymentCreateCommandHandler.handle(paymentCreateCommand);
+        paymentEventListener.listenPayments(paymentCreateCommand);
         //Assert
-        Mockito.verify(paymentRepository, Mockito.times(1)).save(any(Payment.class));
-        Mockito.verify(applicationEventPublisher, Mockito.times(1))
-                .publishEvent(any(PaymentFailedEvent.class));
+        Mockito.verify(paymentViewRepository, Mockito.times(1)).save(any(PaymentView.class));
     }
 }

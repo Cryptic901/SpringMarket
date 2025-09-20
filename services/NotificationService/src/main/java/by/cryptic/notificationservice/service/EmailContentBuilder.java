@@ -1,6 +1,6 @@
 package by.cryptic.notificationservice.service;
 
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;

@@ -4,7 +4,7 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 ### Get User By ID
-@userID = variable value
+@userID = 58a96bc8-50f2-4674-b49b-e1ea699a007b
 GET {{host}}/api/v1/users/{{userID}}
 Accept: application/json
 Authorization: Bearer {{authToken}}

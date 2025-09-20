@@ -3,16 +3,14 @@ package by.cryptic.reviewservice.service.command.handler;
 import by.cryptic.exceptions.CreatingException;
 import by.cryptic.reviewservice.mapper.ReviewMapper;
 import by.cryptic.reviewservice.model.write.Review;
+import by.cryptic.reviewservice.publisher.ReviewEventPublisher;
 import by.cryptic.reviewservice.repository.write.ReviewRepository;
 import by.cryptic.reviewservice.service.command.ReviewCreateCommand;
-import by.cryptic.utils.CommandHandler;
-import by.cryptic.utils.event.review.ReviewCreatedEvent;
+import by.cryptic.utils.handler.CommandHandler;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,15 +21,32 @@ import java.util.Objects;
 @Slf4j
 public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCommand> {
 
-    private final ApplicationEventPublisher eventPublisher;
     private final CacheManager cacheManager;
     private final ReviewRepository reviewRepository;
+    private final ReviewEventPublisher reviewEventPublisher;
 
     @Override
     @Transactional
-    @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryFallback")
     public void handle(ReviewCreateCommand dto) {
-        log.debug("Trying to create review: {}", dto);
+        log.info("Trying to create review: {}", dto);
+        Review review = saveReview(dto);
+
+        reviewEventPublisher.saveReviewView(review);
+
+        updateCache(review);
+    }
+
+    private void updateCache(Review review) {
+        try {
+            Objects.requireNonNull(cacheManager.getCache("reviews"))
+                    .put("review:" + review.getId(), ReviewMapper.toDto(review));
+        } catch (Exception e) {
+            log.warn("Failed to update review cache", e);
+        }
+    }
+
+    @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryFallback")
+    public Review saveReview(ReviewCreateCommand dto) {
         Review review = Review.builder()
                 .title(dto.title())
                 .rating(dto.rating())
@@ -40,21 +55,11 @@ public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCo
                 .productId(dto.productId())
                 .userId(dto.userId())
                 .build();
-        reviewRepository.save(review);
-        eventPublisher.publishEvent(ReviewCreatedEvent.builder()
-                .reviewId(review.getId())
-                .productId(dto.productId())
-                .createdBy(review.getCreatedBy())
-                .title(review.getTitle())
-                .description(review.getDescription())
-                .image(review.getImage())
-                .build());
-        Objects.requireNonNull(cacheManager.getCache("reviews"))
-                .put("review:" + review.getId(), ReviewMapper.toDto(review));
+        return reviewRepository.save(review);
     }
 
-    public void reviewRetryFallback(ReviewCreateCommand reviewCreateCommand, Throwable t) {
-        log.error("Failed to create {} after all retry attempts. Cause: {}", reviewCreateCommand.title(), t.getMessage(), t);
-        throw new CreatingException("Failed to create review:" + reviewCreateCommand.title(), t);
+    public void reviewRetryFallback(ReviewCreateCommand dto, Throwable t) {
+        log.error("Failed to create {} after all retry attempts. Cause: {}", dto.title(), t.getMessage(), t);
+        throw new CreatingException("Failed to create review:" + dto.title(), t);
     }
 }

@@ -1,7 +1,8 @@
 package by.cryptic.utils.event.order;
 
 import by.cryptic.utils.DTO.OrderedProductDTO;
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
+import by.cryptic.utils.enums.PaymentMethod;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class OrderCreatedEvent extends DomainEvent implements OrderEvent {
     private UUID orderId;
     private String userEmail;
     private BigDecimal price;
+    private PaymentMethod paymentMethod;
     @Builder.Default
     private OrderStatus orderStatus = OrderStatus.PENDING;
     private List<OrderedProductDTO> listOfProducts;

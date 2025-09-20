@@ -1,0 +1,11 @@
+### Get All Payments
+@productName = variable value
+GET {{host}}/api/v1/payments
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Get Product By ID
+@paymentId = variable value
+GET {{host}}/api/v1/payments{{paymentId}}
+Accept: application/json
+Authorization: Bearer {{authToken}}

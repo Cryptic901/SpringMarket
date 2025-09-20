@@ -1,10 +1,4 @@
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
 spring:
-  profiles:
-    include: [cache, eureka, feign, jpa, kafka, mongo, security]
   security:
     oauth2:
       resourceserver:
@@ -23,6 +17,9 @@ resilience4j:
           - org.springframework.web.client.HttpClientErrorException
           - org.springframework.dao.TransientDataAccessResourceException
         ignore-exceptions:
+          - by.cryptic.exceptions.UpdatingException
+          - by.cryptic.exceptions.DeletingException
+          - by.cryptic.exceptions.CreatingException
           - java.lang.IllegalArgumentException
           - java.lang.IllegalStateException
           - java.lang.NullPointerException
@@ -52,9 +49,22 @@ resilience4j:
         baseConfig: default
       cartCircuitBreaker:
         baseConfig: default
+      productCircuitBreaker:
+        baseConfig: default
+
+  ratelimiter:
+    configs:
+      default:
+        limit-for-period: 100
+        limit-refresh-period: 1s
+        timeout-duration: 10s
+        register-health-indicator: true
+    instances:
+      paymentRatelimiter:
+        baseConfig: default
 
 
-management:
+managment:
   zipkin:
     tracing:
       endpoint: http://zipkin:9411/api/v2/spans
@@ -68,11 +78,15 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    ratelimiters:
+      enabled: true
   info:
     env:
       enabled: true
 logging:
   level:
+    io.github.resilience4j: DEBUG
     org:
       springframework:
         cache: INFO

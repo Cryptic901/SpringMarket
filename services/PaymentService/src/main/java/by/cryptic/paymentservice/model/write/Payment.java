@@ -1,7 +1,7 @@
 package by.cryptic.paymentservice.model.write;
 
-import by.cryptic.utils.PaymentMethod;
-import by.cryptic.utils.PaymentStatus;
+import by.cryptic.utils.enums.PaymentMethod;
+import by.cryptic.utils.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;

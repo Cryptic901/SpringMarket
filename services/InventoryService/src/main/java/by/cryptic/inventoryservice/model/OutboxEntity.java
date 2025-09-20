@@ -1,14 +1,13 @@
 package by.cryptic.inventoryservice.model;
 
 import by.cryptic.utils.event.DomainEvent;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -45,7 +44,8 @@ public class OutboxEntity {
     @Column(columnDefinition = "jsonb")
     private DomainEvent payload;
 
-    @Column(name = "created_at")
+    @Column(nullable = false, updatable = false, name = "created_at")
+    @CreatedDate
     private LocalDateTime createdAt;
 
     @Override

@@ -14,72 +14,86 @@ spring:
             token-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/token
             user-info-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/userinfo
             jwk-set-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/certs
+
         registration:
           keycloak:
             client-id: api-gateway
-            client-secret: 1tqdg0yCH9sTJ6P9fmLYeExji2I64ZwP
+            client-secret: ZxR7Gdhbt0apBewaZnZX3oZN4rybsnFc
             scope: openid,email,profile
             authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/keycloak
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
   cloud:
     discovery:
       enabled: true
     gateway:
       routes:
         - id: product-routes
-          uri: lb://ProductService
+          uri: lb://PRODUCTSERVICE
           predicates:
             - Path=/api/v1/products/**
+          filters:
+            - TokenRelay
+
+        - id: category-routes
+          uri: lb://CATEGORYSERVICE
+          predicates:
             - Path=/api/v1/categories/**
           filters:
             - TokenRelay
 
         - id: order-routes
-          uri: lb://OrderService
+          uri: lb://ORDERSERVICE
           predicates:
             - Path=/api/v1/orders/**
           filters:
             - TokenRelay
 
-        - id: cart-routes
-          uri: lb://CartService
+        - id: inventory-routes
+          uri: lb://INVENTORYSERVICE
           predicates:
-            - Path=/api/v1/carts/**
+            - Path=/api/v1/inventories/**
           filters:
             - TokenRelay
 
         - id: review-routes
-          uri: lb://ReviewService
+          uri: lb://REVIEWSERVICE
           predicates:
             - Path=/api/v1/reviews/**
           filters:
             - TokenRelay
 
         - id: user-routes
-          uri: lb://UserService
+          uri: lb://USERSERVICE
           predicates:
             - Path=/api/v1/users/**
           filters:
             - TokenRelay
 
         - id: payment-routes
-          uri: lb://PaymentService
+          uri: lb://PAYMENTSERVICE
           predicates:
             - Path=/api/v1/payments/**
           filters:
             - TokenRelay
 
         - id: notification-routes
-          uri: lb://NotificationService
+          uri: lb://NOTIFICATIONSERVICE
           predicates:
             - Path=/api/v1/notifications/**
           filters:
             - TokenRelay
 
         - id: analytic-routes
-          uri: lb://AnalyticService
+          uri: lb://ANALYTICSERVICE
           predicates:
             - Path=/api/v1/admin/**
+          filters:
+            - TokenRelay
+
+        - id: cart-routes
+          uri: lb://CARTSERVICE
+          predicates:
+            - Path=/api/v1/carts/**
           filters:
             - TokenRelay
 

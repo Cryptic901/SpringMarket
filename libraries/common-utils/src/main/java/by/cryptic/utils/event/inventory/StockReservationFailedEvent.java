@@ -15,5 +15,5 @@ public class StockReservationFailedEvent extends DomainEvent implements StockEve
     private String userEmail;
     private static final String version = "1.0";
     @Builder.Default
-    private String source = StockReservedEvent.class.getName();
+    private String source = StockReservationFailedEvent.class.getName();
 }

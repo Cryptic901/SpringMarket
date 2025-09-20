@@ -1,41 +1,57 @@
 ### Get All Products
-@productName = variable value
+GET {{host}}/api/v1/products
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+### Get All Products with name
+@productName = Butter
 GET {{host}}/api/v1/products?name={{productName}}
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
+### Get All Products with price
+@minPrice = 100
+@maxPrice = 199
+GET {{host}}/api/v1/products?min={{minPrice}}&max={{maxPrice}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+### Get All Products with sorting
+@order = desc
+@sortBy = price
+GET {{host}}/api/v1/products?order={{order}}&sortBy={{sortBy}}
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
 ### Get Product By ID
-@productId = variable value
 GET {{host}}/api/v1/products/{{productId}}
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
 ### Create Product
-@categoryId = variable value
 POST {{host}}/api/v1/products
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
   "name": "Honey",
-  "price": {
-    "value": 148.8
-  },
-  "quantity": 28,
-  "description": "honey description",
+  "price": 148.8,
+  "quantity": 14,
+  "description": "Honey description",
   "image": "test/img",
   "categoryId": "{{categoryId}}"
 }
 
 ### Update Product
-PATCH {{host}}/api/v1/products/{productId}
+PATCH {{host}}/api/v1/products/{{productId}}
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "name": "new products"
+  "name": "new product"
 }
 
 ### Delete Product
-DELETE {{host}}/api/v1/products/{productId}
+DELETE {{host}}/api/v1/products/{{productId}}
 Authorization: Bearer {{authToken}}

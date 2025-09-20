@@ -1,6 +1,6 @@
 package by.cryptic.orderservice.model.write;
 
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;

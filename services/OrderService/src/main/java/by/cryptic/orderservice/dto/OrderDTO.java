@@ -1,6 +1,6 @@
 package by.cryptic.orderservice.dto;
 
-import by.cryptic.utils.OrderStatus;
+import by.cryptic.utils.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

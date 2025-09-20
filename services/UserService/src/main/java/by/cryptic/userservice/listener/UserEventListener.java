@@ -22,7 +22,7 @@ public class UserEventListener {
     private final AppUserRepository appUserRepository;
     private final UserViewRepository viewRepository;
 
-    @KafkaListener(topics = "user-topic", groupId = "user-group")
+    @KafkaListener(topics = "user-topic")
     public void listenUserEvents(DomainEvent event) {
         log.debug("Received event: {}", event);
         switch (event) {
