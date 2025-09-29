@@ -4,14 +4,15 @@ import by.cryptic.exceptions.CreatingException;
 import by.cryptic.exceptions.DeletingException;
 import by.cryptic.exceptions.UpdatingException;
 import by.cryptic.reviewservice.model.write.OutboxEntity;
+import by.cryptic.reviewservice.model.write.RatingOnlyReview;
 import by.cryptic.reviewservice.model.write.Review;
 import by.cryptic.reviewservice.repository.write.OutboxRepository;
+import by.cryptic.reviewservice.service.command.RatingOnlyReviewDeleteCommand;
+import by.cryptic.reviewservice.service.command.RatingOnlyReviewUpdateCommand;
 import by.cryptic.reviewservice.service.command.ReviewDeleteCommand;
 import by.cryptic.reviewservice.service.command.ReviewUpdateCommand;
 import by.cryptic.utils.event.EventType;
-import by.cryptic.utils.event.review.ReviewCreatedEvent;
-import by.cryptic.utils.event.review.ReviewDeletedEvent;
-import by.cryptic.utils.event.review.ReviewUpdatedEvent;
+import by.cryptic.utils.event.review.*;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,22 @@ public class ReviewEventPublisher {
         outboxRepository.save(outboxEntity);
     }
 
+    @Retry(name = "reviewRetry", fallbackMethod = "ratingOnlyReviewRetryFallback")
+    public void saveRatingOnlyReviewView(RatingOnlyReview review) {
+        OutboxEntity outboxEntity = OutboxEntity.builder()
+                .aggregateId(review.getId())
+                .aggregateType("review")
+                .eventType(String.valueOf(EventType.RatingOnlyReviewCreatedEvent))
+                .payload(RatingOnlyReviewCreatedEvent.builder()
+                        .reviewId(review.getId())
+                        .productId(review.getProductId())
+                        .createdBy(review.getCreatedBy())
+                        .rating(review.getRating())
+                        .build())
+                .build();
+        outboxRepository.save(outboxEntity);
+    }
+
     @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryDeleteFallback")
     public void deleteReviewView(ReviewDeleteCommand command) {
         OutboxEntity outboxEntity = OutboxEntity.builder()
@@ -50,6 +67,19 @@ public class ReviewEventPublisher {
                 .aggregateType("review")
                 .eventType(String.valueOf(EventType.ReviewDeletedEvent))
                 .payload(ReviewDeletedEvent.builder()
+                        .reviewId(command.reviewId())
+                        .build())
+                .build();
+        outboxRepository.save(outboxEntity);
+    }
+
+    @Retry(name = "reviewRetry", fallbackMethod = "ratingOnlyReviewRetryDeleteFallback")
+    public void deleteRatingOnlyReview(RatingOnlyReviewDeleteCommand command) {
+        OutboxEntity outboxEntity = OutboxEntity.builder()
+                .aggregateId(command.reviewId())
+                .aggregateType("review")
+                .eventType(String.valueOf(EventType.RatingOnlyReviewDeletedEvent))
+                .payload(RatingOnlyReviewDeletedEvent.builder()
                         .reviewId(command.reviewId())
                         .build())
                 .build();
@@ -76,7 +106,29 @@ public class ReviewEventPublisher {
         outboxRepository.save(outboxEntity);
     }
 
+    @Retry(name = "reviewRetry", fallbackMethod = "ratingOnlyReviewRetryUpdateFallback")
+    public void updateRatingOnlyReviewView(RatingOnlyReview review,
+                                           RatingOnlyReviewUpdateCommand dto) {
+        OutboxEntity outboxEntity = OutboxEntity.builder()
+                .aggregateId(review.getId())
+                .aggregateType("review")
+                .eventType(String.valueOf(EventType.RatingOnlyReviewUpdatedEvent))
+                .payload(RatingOnlyReviewUpdatedEvent.builder()
+                        .rating(review.getRating())
+                        .reviewId(dto.reviewId())
+                        .productId(review.getProductId())
+                        .build())
+                .build();
+        outboxRepository.save(outboxEntity);
+    }
+
     public void reviewRetryDeleteFallback(ReviewDeleteCommand reviewDeleteCommand, Throwable t) {
+        log.error("Failed to delete {} after all retry attempts. Cause: {}", reviewDeleteCommand.reviewId(), t.getMessage(), t);
+        throw new DeletingException("Failed to delete review:" + reviewDeleteCommand.reviewId(), t);
+    }
+
+    public void ratingOnlyReviewRetryDeleteFallback(ReviewDeleteCommand reviewDeleteCommand,
+                                                    Throwable t) {
         log.error("Failed to delete {} after all retry attempts. Cause: {}", reviewDeleteCommand.reviewId(), t.getMessage(), t);
         throw new DeletingException("Failed to delete review:" + reviewDeleteCommand.reviewId(), t);
     }
@@ -86,8 +138,18 @@ public class ReviewEventPublisher {
         throw new CreatingException("Failed to create review:" + review.getTitle(), t);
     }
 
+    public void ratingOnlyReviewRetryFallback(RatingOnlyReview review, Throwable t) {
+        log.error("Failed to create review {} after all retry attempts. Cause: {}", review.getId(), t.getMessage(), t);
+        throw new CreatingException("Failed to create review:" + review.getId(), t);
+    }
+
     public void reviewRetryUpdateFallback(Review review, ReviewUpdateCommand dto, Throwable t) {
         log.error("Failed to update {} after all retry attempts. Cause: {}", dto.title(), t.getMessage(), t);
         throw new UpdatingException("Failed to update review:" + dto.title(), t);
+    }
+
+    public void ratingOnlyReviewRetryUpdateFallback(RatingOnlyReview review, RatingOnlyReviewUpdateCommand dto, Throwable t) {
+        log.error("Failed to update review {} after all retry attempts. Cause: {}", dto.reviewId(), t.getMessage(), t);
+        throw new UpdatingException("Failed to update review:" + dto.reviewId(), t);
     }
 }

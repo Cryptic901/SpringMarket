@@ -63,7 +63,7 @@ class ReviewGetByIdQueryHandlerTest {
         ReviewDTO reviewDTO = ReviewMapper.toDto(review);
         Mockito.when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(reviewView));
         //Act
-        ReviewDTO result = reviewGetByIdQueryHandler.handle(reviewId);
+        ReviewDTO result = reviewGetByIdQueryHandler.handle(new ReviewGetByIdQuery(reviewId));
         //Assert
         assertEquals(reviewDTO, result);
         Mockito.verify(cacheManager).getCache("reviews");
@@ -78,7 +78,7 @@ class ReviewGetByIdQueryHandlerTest {
         Mockito.when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
         //Act
         //Assert
-        assertThrows(EntityNotFoundException.class, () -> reviewGetByIdQueryHandler.handle(reviewId));
+        assertThrows(EntityNotFoundException.class, () -> reviewGetByIdQueryHandler.handle(new ReviewGetByIdQuery(reviewId)));
         Mockito.verify(reviewRepository, Mockito.times(1)).findById(reviewId);
         Mockito.verifyNoMoreInteractions(reviewRepository);
     }

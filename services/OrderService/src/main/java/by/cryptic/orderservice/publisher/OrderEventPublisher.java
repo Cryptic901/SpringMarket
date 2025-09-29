@@ -103,6 +103,7 @@ public class OrderEventPublisher {
                 .eventType(String.valueOf(EventType.OrderCanceledEvent))
                 .payload(OrderCanceledEvent.builder()
                         .orderId(order.getId())
+                        .userId(order.getUserId())
                         .orderStatus(OrderStatus.CANCELLED)
                         .userEmail(order.getUserEmail())
                         .cancelReason("User cancelling")

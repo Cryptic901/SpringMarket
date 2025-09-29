@@ -7,6 +7,7 @@ import by.cryptic.inventoryservice.repository.InventoryRepository;
 import by.cryptic.inventoryservice.repository.ReservationRepository;
 import by.cryptic.inventoryservice.service.command.InventoryConfirmFromReserveCommand;
 import by.cryptic.utils.handler.CommandHandler;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class InventoryConfirmFromReserveCommandHandler implements CommandHandler
 
     private void confirmFromReserve(Reservation reservation, List<Inventory> inventories) {
         Inventory inventory = inventoryRepository.findByProductId(reservation.getProductId())
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         "Not found inventory for product " + reservation.getProductId()));
 
         inventories.add(inventory);

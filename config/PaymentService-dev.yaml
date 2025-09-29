@@ -1,20 +1,12 @@
 server:
   port: 8088
+
 eureka:
   instance:
     hostname: payment-service
     prefer-ip-address: false
+
 spring:
-  datasource:
-    url: jdbc:postgresql://postgres:5432/payment_db
-    username: payment_service
-    password: payment_pass
-  data:
-    mongodb:
-      uri: mongodb://mongo-db:27017/paymentDB
-  flyway:
-    schemas: payment_schema
-    default-schema: payment_schema
   kafka:
     bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
     consumer:
@@ -43,4 +35,21 @@ spring:
         partitions: 3
         replicas: 3
         minInsyncReplicas: 1
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/payment_db
+    username: payment_service
+    password: payment_pass
+  data:
+    mongodb:
+      uri: mongodb://mongo-db:27017/paymentDB
+  flyway:
+    schemas: payment_schema
+    default-schema: payment_schema
+
+springdoc:
+  api-docs:
+    path: /payment-service/v3/api-docs
+  swagger-ui:
+    path: /payment-service/swagger-ui.html
 

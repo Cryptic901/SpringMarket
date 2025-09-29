@@ -109,7 +109,7 @@ public class CartEventPublisher {
     }
 
     public void cartDeleteProductRetryFallback(CartDeleteProductCommand cartDeleteProductCommand, Throwable t) {
-        log.error("Failed to delete from cart {}, {}", cartDeleteProductCommand.productId(), t);
-        throw new RuntimeException(t.getMessage());
+        log.error("Failed to delete from cart {} after all retry attempts. Cause: {}", cartDeleteProductCommand.productId(), t.getMessage(), t);
+        throw new DeletingException("Failed to delete product from cart:" + cartDeleteProductCommand.productId(), t);
     }
 }

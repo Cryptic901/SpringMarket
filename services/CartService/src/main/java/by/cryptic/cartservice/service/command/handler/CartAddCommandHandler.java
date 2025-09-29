@@ -1,7 +1,7 @@
 package by.cryptic.cartservice.service.command.handler;
 
 import by.cryptic.cartservice.client.ProductServiceClient;
-import by.cryptic.cartservice.exception.NotEnoughProducts;
+import by.cryptic.exceptions.NotEnoughProductsException;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.model.write.CartProduct;
 import by.cryptic.cartservice.publisher.CartEventPublisher;
@@ -66,7 +66,7 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                 .orElse(null);
         if (cartProduct != null) {
             if (cartProduct.getQuantity() >= product.quantity()) {
-                throw new NotEnoughProducts("You're trying to add product, that is out of stock");
+                throw new NotEnoughProductsException("You're trying to add product, that is out of stock");
             }
             cartProduct.setQuantity(cartProduct.getQuantity() + 1);
         } else {

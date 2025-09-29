@@ -28,7 +28,7 @@ public class ReviewUpdateCommandHandler implements CommandHandler<ReviewUpdateCo
 
     @Override
     @Transactional
-    public void handle(ReviewUpdateCommand dto) throws IllegalCallerException {
+    public void handle(ReviewUpdateCommand dto) {
         Review review = getReviewAndValidateAccess(dto);
 
         updateReview(review, dto);

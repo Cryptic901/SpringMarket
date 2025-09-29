@@ -216,7 +216,6 @@ services:
     entrypoint: [ "/bin/bash", "-c" ]
     command: >
       "/opt/keycloak/bin/kc.sh build 
-      --health-enabled=true 
       --metrics-enabled=true &&
        /opt/keycloak/bin/kc.sh start-dev
       --proxy-headers=xforwarded
@@ -234,7 +233,6 @@ services:
       KC_DB_USERNAME: postgres
       KC_DB: postgres
 
-      KC_HEALTH_ENABLED: true
       KC_METRICS_ENABLED: true
 
       BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090 #connection to kafka for spi
@@ -242,7 +240,7 @@ services:
       - "9000:8080"
     volumes:
       - ./providers:/opt/keycloak/providers
-    restart: on-failure
+    restart: on-failure:3
     depends_on:
       keycloak-db:
         condition: service_healthy
@@ -255,17 +253,111 @@ services:
     networks:
       - spring-market
 
-  zipkin:
-    image: openzipkin/zipkin:latest
-    container_name: zipkin
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
     ports:
-      - "9411:9411"
+      - "9410:9090"
     restart: on-failure:3
     networks:
       - spring-market
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/var/lib/prometheus
     healthcheck:
-      start_period: 25s
-      test: [ ]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1" ]
+      start_period: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: on-failure:3
+    networks:
+      - spring-market
+    volumes:
+      - grafana_data:/var/lib/grafana
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1" ]
+      start_period: 15s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
+#  grafana-loki:
+#    image: grafana/loki:latest
+#    container_name: grafana-loki
+#    ports:
+#      - "3100:3100"
+#    restart: on-failure:3
+#    networks:
+#      - spring-market
+#    volumes:
+#      - grafana_data:/var/lib/grafana
+#    healthcheck:
+#      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
+#      start_period: 15s
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    depends_on:
+#      prometheus:
+#        condition: service_healthy
+#      grafana:
+#        condition: service_healthy
+#
+#  grafana-alloy:
+#    image: grafana/alloy:latest
+#    container_name: grafana-alloy
+#    ports:
+#      - "12345:12345"
+#    restart: on-failure:3
+#    networks:
+#      - spring-market
+#    volumes:
+#      - grafana_data:/var/lib/grafana
+#    healthcheck:
+#      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9080/ready || exit 1" ]
+#      start_period: 15s
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    depends_on:
+#      prometheus:
+#        condition: service_healthy
+#      grafana:
+#        condition: service_healthy
+#
+#  grafana-tempo:
+#    image: grafana/tempo:latest
+#    container_name: grafana-tempo
+#    ports:
+#      - "9411:9411"
+#      - "3200:3200"
+#    restart: on-failure:3
+#    networks:
+#      - spring-market
+#    volumes:
+#      - grafana_data:/var/lib/grafana
+#      -
+#    healthcheck:
+#      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3200/ready || exit 1" ]
+#      start_period: 15s
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    depends_on:
+#      prometheus:
+#        condition: service_healthy
+#      grafana:
+#        condition: service_healthy
 
   config-server:
     build:
@@ -287,9 +379,6 @@ services:
       retries: 5
     volumes:
       - /home/cryptic/IdeaProjects/SpringMarket/config:/config
-    depends_on:
-      zipkin:
-        condition: service_healthy
 
   eureka-server:
     build:
@@ -766,3 +855,5 @@ volumes:
   kafka-2_data:
   kafka-3_data:
   debezium_data:
+  prometheus_data:
+  grafana_data:

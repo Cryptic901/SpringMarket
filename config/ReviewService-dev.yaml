@@ -1,9 +1,11 @@
 server:
   port: 8083
+
 eureka:
   instance:
     hostname: review-service
     prefer-ip-address: false
+
 spring:
   kafka:
     bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
@@ -33,6 +35,7 @@ spring:
         partitions: 3
         replicas: 3
         minInsyncReplicas: 1
+
   datasource:
     url: jdbc:postgresql://postgres:5432/review_db
     username: review_service
@@ -43,3 +46,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://mongo-db:27017/reviewDB
+
+springdoc:
+  api-docs:
+    path: /review-service/v3/api-docs
+  swagger-ui:
+    path: /review-service/swagger-ui.html

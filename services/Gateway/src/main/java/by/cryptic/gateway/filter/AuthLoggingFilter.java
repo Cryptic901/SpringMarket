@@ -16,7 +16,16 @@ public class AuthLoggingFilter implements WebFilter {
 
     @Override
     @NonNull
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, @NonNull WebFilterChain chain) {
+        String path = exchange.getRequest().getPath().value();
+        String method = exchange.getRequest().getMethod().name();
+
+        log.info("Incoming request: {} {}", method, path);
+
+        if (path.contains("api-docs")) {
+            log.warn("API-DOCS request detected: {} {}", method, path);
+            log.warn("Headers: {}", exchange.getRequest().getHeaders());
+        }
         return exchange.getPrincipal()
                 .cast(Authentication.class)
                 .doOnNext(auth -> {

@@ -1,11 +1,14 @@
 package by.cryptic.notificationservice;
 
+import by.cryptic.exceptions.handler.GlobalExceptionHandler;
 import by.cryptic.utils.properties.KafkaTopicsProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
+@Import(GlobalExceptionHandler.class)
 @EnableConfigurationProperties(KafkaTopicsProperties.class)
 public class NotificationServiceApplication {
 

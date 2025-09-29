@@ -8,6 +8,7 @@ import by.cryptic.cartservice.repository.write.CartRepository;
 import by.cryptic.cartservice.service.command.CartDeleteProductCommand;
 import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.exceptions.DeletingException;
+import by.cryptic.exceptions.EmptyCartException;
 import by.cryptic.utils.handler.CommandHandler;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,13 +36,12 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
     @Override
     @Transactional
     public void handle(CartDeleteProductCommand command) {
-        List<CartProduct> cartProducts = cartRepository.findByUserIdWithItems(command.userId())
-                .orElseThrow(() -> new EntityNotFoundException("You don't have any products in your cart"))
-                .getItems();
+        Cart cart = cartRepository.findByUserIdWithItems(command.userId())
+                .orElseThrow(() -> new EntityNotFoundException("You don't have any products in your cart"));
+        List<CartProduct> cartProducts = cart.getItems();
 
         decreasingProducts(cartProducts, command);
 
-        Cart cart = cartProducts.getFirst().getCart();
         cart.setTotal(cartUtil.getTotalPrice(cartProducts));
 
         cartEventPublisher.deleteCartView(command);
@@ -61,6 +61,9 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
     @Retry(name = "cartRetry", fallbackMethod = "cartDeleteProductRetryFallback")
     public void decreasingProducts(List<CartProduct> cartProducts,
                                    CartDeleteProductCommand command) {
+        if (cartProducts.isEmpty()) {
+            throw new EmptyCartException("Your cart is empty");
+        }
         Iterator<CartProduct> iterator = cartProducts.iterator();
         while (iterator.hasNext()) {
             CartProduct cartProduct = iterator.next();
@@ -72,6 +75,9 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
                     iterator.remove();
                     cartProductRepository.delete(cartProduct);
                 }
+            } else {
+                throw new EntityNotFoundException("You don't have product with id "
+                        + command.productId() + " in your cart");
             }
         }
     }

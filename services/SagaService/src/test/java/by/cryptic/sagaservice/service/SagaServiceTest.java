@@ -10,7 +10,6 @@ import by.cryptic.utils.event.inventory.StockReservedEvent;
 import by.cryptic.utils.event.order.OrderCreatedEvent;
 import by.cryptic.utils.event.payment.PaymentFailedEvent;
 import by.cryptic.utils.event.payment.PaymentSuccessEvent;
-import by.cryptic.utils.event.user.UserCreatedEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +22,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 

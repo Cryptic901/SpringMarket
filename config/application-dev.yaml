@@ -63,24 +63,31 @@ resilience4j:
       paymentRatelimiter:
         baseConfig: default
 
-
-managment:
+management:
   zipkin:
     tracing:
-      endpoint: http://zipkin:9411/api/v2/spans
+      endpoint: http://grafana-tempo:9411/api/v2/spans
   tracing:
     sampling:
       probability: 1.0
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,env
+        include: health,metrics,prometheus,info
   endpoint:
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
     health:
       show-details: always
   health:
     ratelimiters:
       enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
   info:
     env:
       enabled: true
@@ -101,3 +108,6 @@ logging:
     root: info
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"
+  file:
+    name: /var/log/springmarket/springmarket.log

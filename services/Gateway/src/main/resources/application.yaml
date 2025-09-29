@@ -7,3 +7,6 @@ spring:
       password: config
   config:
     import: "optional:configserver:http://config-server:8888"
+
+
+

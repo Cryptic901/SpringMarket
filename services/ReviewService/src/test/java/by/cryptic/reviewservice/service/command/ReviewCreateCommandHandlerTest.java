@@ -1,10 +1,12 @@
 package by.cryptic.reviewservice.service.command;
 
+import by.cryptic.reviewservice.client.ProductServiceClient;
 import by.cryptic.reviewservice.mapper.ReviewMapper;
 import by.cryptic.reviewservice.model.write.Review;
 import by.cryptic.reviewservice.publisher.ReviewEventPublisher;
 import by.cryptic.reviewservice.repository.write.ReviewRepository;
 import by.cryptic.reviewservice.service.command.handler.ReviewCreateCommandHandler;
+import by.cryptic.utils.DTO.ProductDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,7 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,10 +35,15 @@ class ReviewCreateCommandHandlerTest {
     private ReviewEventPublisher reviewEventPublisher;
 
     @Mock
+    private ProductServiceClient productServiceClient;
+
+    @Mock
     private CacheManager cacheManager;
 
     @Mock
     private Cache cache;
+
+    //TODO написать тесты под рейтинг онли отзывы и протестить все остальные тесты после добавление доков а также переделать it тесты
 
     @InjectMocks
     private ReviewCreateCommandHandler reviewCreateCommandHandler;
@@ -59,8 +68,11 @@ class ReviewCreateCommandHandlerTest {
                 review.getImage(),
                 productId,
                 userId);
+        ProductDTO productDTO = new ProductDTO("name", BigDecimal.ONE, 42, "desc",
+                "img/url", UUID.randomUUID());
         Mockito.when(reviewRepository.save(any(Review.class))).thenReturn(review);
         Mockito.when(cacheManager.getCache("reviews")).thenReturn(cache);
+        Mockito.when(productServiceClient.getProductById(productId)).thenReturn(ResponseEntity.ok(productDTO));
         //Act
         reviewCreateCommandHandler.handle(reviewCreateCommand);
         //Assert

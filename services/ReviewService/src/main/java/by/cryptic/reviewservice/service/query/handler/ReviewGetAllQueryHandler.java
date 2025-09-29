@@ -2,6 +2,7 @@ package by.cryptic.reviewservice.service.query.handler;
 
 import by.cryptic.reviewservice.mapper.ReviewMapper;
 import by.cryptic.reviewservice.repository.read.ReviewViewRepository;
+import by.cryptic.reviewservice.service.query.ReviewGetAllQuery;
 import by.cryptic.utils.DTO.ReviewDTO;
 import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,20 +12,19 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = {"reviews"})
-public class ReviewGetAllQueryHandler implements QueryHandler<UUID, List<ReviewDTO>> {
+public class ReviewGetAllQueryHandler implements QueryHandler<ReviewGetAllQuery, List<ReviewDTO>> {
 
     private final ReviewViewRepository reviewViewRepository;
 
     @Override
-    public List<ReviewDTO> handle(UUID productId) {
+    public List<ReviewDTO> handle(ReviewGetAllQuery query) {
         List<ReviewDTO> result = reviewViewRepository.findAll().stream()
-                .filter(rev -> rev.getProductId().equals(productId))
+                .filter(rev -> rev.getProductId().equals(query.productId()))
                 .map(ReviewMapper::toDto).toList();
 
         if (result.isEmpty()) {

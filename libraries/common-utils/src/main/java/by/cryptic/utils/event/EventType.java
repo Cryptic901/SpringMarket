@@ -14,6 +14,7 @@ public enum EventType {
     ProductCreatedEvent, ProductUpdatedEvent, ProductDeletedEvent, ProductUpdatedQuantityFromStockEvent,
 
     ReviewCreatedEvent, ReviewUpdatedEvent, ReviewDeletedEvent,
+    RatingOnlyReviewCreatedEvent, RatingOnlyReviewUpdatedEvent, RatingOnlyReviewDeletedEvent,
 
     UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent, UserLoginedEvent, UserLogoutEvent,
 

@@ -1,6 +1,8 @@
 package by.cryptic.cartservice.service.command;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.UUID;
 
-public record CartDeleteProductCommand(UUID productId, UUID userId) {
+public record CartDeleteProductCommand(@NotNull UUID productId, @NotNull UUID userId) {
 }

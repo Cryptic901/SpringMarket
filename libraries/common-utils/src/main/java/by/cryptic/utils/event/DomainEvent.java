@@ -15,9 +15,7 @@ import by.cryptic.utils.event.product.ProductCreatedEvent;
 import by.cryptic.utils.event.product.ProductDeletedEvent;
 import by.cryptic.utils.event.product.ProductUpdatedEvent;
 import by.cryptic.utils.event.product.ProductUpdatedQuantityFromStockEvent;
-import by.cryptic.utils.event.review.ReviewCreatedEvent;
-import by.cryptic.utils.event.review.ReviewDeletedEvent;
-import by.cryptic.utils.event.review.ReviewUpdatedEvent;
+import by.cryptic.utils.event.review.*;
 import by.cryptic.utils.event.user.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -41,6 +39,10 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = ReviewCreatedEvent.class, name = "ReviewCreatedEvent"),
         @JsonSubTypes.Type(value = ReviewDeletedEvent.class, name = "ReviewDeletedEvent"),
         @JsonSubTypes.Type(value = ReviewUpdatedEvent.class, name = "ReviewUpdatedEvent"),
+
+        @JsonSubTypes.Type(value = RatingOnlyReviewCreatedEvent.class, name = "RatingOnlyReviewCreatedEvent"),
+        @JsonSubTypes.Type(value = RatingOnlyReviewDeletedEvent.class, name = "RatingOnlyReviewDeletedEvent"),
+        @JsonSubTypes.Type(value = RatingOnlyReviewUpdatedEvent.class, name = "RatingOnlyReviewUpdatedEvent"),
 
         @JsonSubTypes.Type(value = ProductCreatedEvent.class, name = "ProductCreatedEvent"),
         @JsonSubTypes.Type(value = ProductDeletedEvent.class, name = "ProductDeletedEvent"),

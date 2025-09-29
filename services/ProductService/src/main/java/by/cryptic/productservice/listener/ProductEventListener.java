@@ -32,7 +32,7 @@ public class ProductEventListener {
 
     @KafkaListener(topics = {"product-topic", "order-topic"})
     public void listenProducts(DomainEvent event) {
-        log.debug("Receive product event {}", event);
+        log.debug("Received event: {}", event.getClass().getSimpleName());
         switch (event) {
             case ProductCreatedEvent productCreatedEvent -> productViewRepository.save(ProductView.builder()
                     .productId(productCreatedEvent.getProductId())
@@ -74,7 +74,7 @@ public class ProductEventListener {
                 productRepository.saveAll(productsToUpdate);
             }
 
-            default -> throw new IllegalStateException("Unexpected event type: " + event);
+            default -> log.warn("Unexpected event type: {}", event.getClass().getSimpleName());
         }
     }
 

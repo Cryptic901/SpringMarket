@@ -1,5 +1,6 @@
 package by.cryptic.productservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,8 +13,10 @@ public record ProductCreateDTO(@NotBlank(message = "Product should have name")
                                BigDecimal price,
                                @NotNull(message = "Product should have quantity")
                                Integer quantity,
+                               @JsonProperty(defaultValue = "No description")
                                String description,
                                @NotBlank(message = "Product should have image")
                                String image,
+                               @NotNull(message = "Product should have category")
                                UUID categoryId) {
 }
