@@ -1,9 +1,11 @@
 server:
   port: 8082
+
 eureka:
   instance:
     hostname: order-service
     prefer-ip-address: false
+
 spring:
   kafka:
     bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
@@ -44,3 +46,9 @@ spring:
   flyway:
     schemas: order_schema
     default-schema: order_schema
+
+springdoc:
+  api-docs:
+    path: /order-service/v3/api-docs
+  swagger-ui:
+    path: /order-service/swagger-ui.html

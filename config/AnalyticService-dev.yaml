@@ -1,9 +1,11 @@
 server:
   port: 8085
+
 eureka:
   instance:
     hostname: analytic-service
     prefer-ip-address: false
+
 spring:
   kafka:
     bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
@@ -40,3 +42,9 @@ spring:
     redis:
       host: redis
       port: 6379
+
+springdoc:
+  api-docs:
+    path: /analytic-service/v3/api-docs
+  swagger-ui:
+    path: /analytic-service/swagger-ui.html

@@ -55,6 +55,7 @@ public class OrderEventListener {
         }
     }
 
+    @Transactional
     public void updateOrderStatus(OrderStatus orderStatus, UUID orderId) {
         CustomerOrderView customerOrderView = orderViewRepository
                 .findById(orderId)

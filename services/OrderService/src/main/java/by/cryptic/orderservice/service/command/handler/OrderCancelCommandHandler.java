@@ -1,6 +1,7 @@
 package by.cryptic.orderservice.service.command.handler;
 
 import by.cryptic.exceptions.DeletingException;
+import by.cryptic.exceptions.UpdatingException;
 import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.publisher.OrderEventPublisher;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
@@ -59,6 +60,6 @@ public class OrderCancelCommandHandler implements CommandHandler<OrderCancelComm
 
     public void orderSaveCancelRetryFallback(CustomerOrder order, Throwable t) {
         log.error("Failed to save {} after all retry attempts. Cause: {}", order.getId(), t.getMessage(), t);
-        throw new DeletingException("Failed to save cancelling:" + order.getId(), t);
+        throw new UpdatingException("Failed to save cancelling:" + order.getId(), t);
     }
 }

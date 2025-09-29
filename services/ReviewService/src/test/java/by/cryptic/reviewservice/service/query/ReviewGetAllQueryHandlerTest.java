@@ -43,7 +43,7 @@ class ReviewGetAllQueryHandlerTest {
         ReviewDTO reviewDTO = ReviewMapper.toDto(reviewView);
         Mockito.when(reviewViewRepository.findAll()).thenReturn(Collections.singletonList(reviewView));
         //Act
-        List<ReviewDTO> result = reviewGetAllQueryHandler.handle(productId);
+        List<ReviewDTO> result = reviewGetAllQueryHandler.handle(new ReviewGetAllQuery(productId));
         //Assert
         assertEquals(Collections.singletonList(reviewDTO), result);
         Mockito.verify(reviewViewRepository, Mockito.times(1)).findAll();
@@ -56,7 +56,7 @@ class ReviewGetAllQueryHandlerTest {
         Mockito.when(reviewViewRepository.findAll()).thenReturn(Collections.emptyList());
         //Act
         //Assert
-        assertThrows(EntityNotFoundException.class, () -> reviewGetAllQueryHandler.handle(UUID.randomUUID()));
+        assertThrows(EntityNotFoundException.class, () -> reviewGetAllQueryHandler.handle(new ReviewGetAllQuery(UUID.randomUUID())));
         Mockito.verify(reviewViewRepository, Mockito.times(1)).findAll();
         Mockito.verifyNoMoreInteractions(reviewViewRepository);
     }

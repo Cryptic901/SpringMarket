@@ -2,6 +2,7 @@ package by.cryptic.orderservice.service.command.handler;
 
 import by.cryptic.exceptions.CreatingException;
 import by.cryptic.exceptions.EmptyCartException;
+import by.cryptic.exceptions.NotEnoughProductsException;
 import by.cryptic.orderservice.client.CartServiceClient;
 import by.cryptic.orderservice.client.ProductServiceClient;
 import by.cryptic.orderservice.model.write.CustomerOrder;
@@ -62,7 +63,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
             log.info("-- Products to order : {}", productsToOrder);
             log.info("-- Products to update : {}", productsToUpdate);
 
-        } catch (EmptyCartException | EntityNotFoundException | IllegalStateException e) {
+        } catch (EmptyCartException | EntityNotFoundException e) {
             log.error("Error while creating order", e);
             orderEventPublisher.sentOrderFailedEventWithException(order, productsToUpdate, e);
             throw e;
@@ -92,7 +93,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
                     .quantity(cartProduct.getQuantity())
                     .build();
 
-            ProductDTO productFromCart = getProductByFeignClient(cartProduct);
+            ProductDTO productFromCart = getProductByFeignClient(cartProduct.getProductId());
 
             if (productFromCart == null) {
                 throw new EntityNotFoundException("Product with id %s not found".formatted(cartProduct.getProductId()));
@@ -102,7 +103,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
 
             log.info(" -- Remaining quantity {}", remainingQuantity);
             if (remainingQuantity < 0) {
-                throw new IllegalStateException("Not enough products");
+                throw new NotEnoughProductsException("Not enough products");
             }
             productsToUpdate.add(new OrderedProductDTO(cartProduct.getProductId(), cartProduct.getQuantity()));
 
@@ -129,13 +130,12 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
     }
 
     @CircuitBreaker(name = "productCircuitBreaker", fallbackMethod = "productClientCircuitBreakerFallback")
-    public ProductDTO getProductByFeignClient(CartProductDTO cartProduct) {
-        return productServiceClient.getProductById(cartProduct.getProductId()).getBody();
+    public ProductDTO getProductByFeignClient(UUID productId) {
+        return productServiceClient.getProductById(productId).getBody();
     }
 
     @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartClientGetListOfCartProductsCircuitBreakerFallback")
     public List<CartProductDTO> getListOfCartProductsByFeignClient(UUID userId) {
-        log.info("--- userId = {} ---", userId);
         return cartServiceClient.getCartProductsByUserId(userId).getBody();
     }
 
@@ -169,8 +169,8 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
         throw new CreatingException("Failed to create order:" + orderCreateCommand, t);
     }
 
-    public void productClientCircuitBreakerFallback(CartProductDTO cartProductDTO, Throwable t) {
-        log.error("Failed to create {} after all retry attempts. Cause: {}", cartProductDTO.toString(), t.getMessage(), t);
-        throw new CreatingException("Failed to create order:" + cartProductDTO, t);
+    public void productClientCircuitBreakerFallback(UUID productId, Throwable t) {
+        log.error("Failed to create order with product id {} after all retry attempts. Cause: {}", productId, t.getMessage(), t);
+        throw new CreatingException("Failed to create order with productId:" + productId, t);
     }
 }

@@ -1,9 +1,11 @@
 server:
   port: 8084
+
 eureka:
   instance:
     hostname: cart-service
     prefer-ip-address: false
+
 spring:
   kafka:
     bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
@@ -44,3 +46,9 @@ spring:
   flyway:
     schemas: cart_schema
     default-schema: cart_schema
+
+springdoc:
+  api-docs:
+    path: /cart-service/v3/api-docs
+  swagger-ui:
+    path: /cart-service/swagger-ui.html

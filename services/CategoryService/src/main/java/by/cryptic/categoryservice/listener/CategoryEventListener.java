@@ -7,6 +7,7 @@ import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.category.CategoryCreatedEvent;
 import by.cryptic.utils.event.category.CategoryDeletedEvent;
 import by.cryptic.utils.event.category.CategoryUpdatedEvent;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,7 +22,7 @@ public class CategoryEventListener {
 
     @KafkaListener(topics = "category-topic", groupId = "category-consumer-group")
     public void listenCategory(DomainEvent event) {
-        log.info("Received event type {}", event);
+        log.debug("Received event: {}", event.getClass().getSimpleName());
         switch (event) {
             case CategoryCreatedEvent categoryCreatedEvent -> categoryViewRepository.save(CategoryView.builder()
                     .name(categoryCreatedEvent.getName())
@@ -35,10 +36,15 @@ public class CategoryEventListener {
                         categoryViewRepository.save(categoryView);
                     });
 
-            case CategoryDeletedEvent categoryDeletedEvent ->
-                    categoryViewRepository.deleteById(categoryDeletedEvent.getCategoryId());
+            case CategoryDeletedEvent categoryDeletedEvent -> {
+                long deleted = categoryViewRepository
+                        .deleteByCategoryIdReturningCount(categoryDeletedEvent.getCategoryId());
+                if (deleted == 0) {
+                    throw new EntityNotFoundException("Category not found by id");
+                }
+            }
 
-            default -> throw new IllegalStateException("Unexpected event type: " + event);
+            default -> log.warn("Unexpected event type: {}", event);
         }
     }
 }

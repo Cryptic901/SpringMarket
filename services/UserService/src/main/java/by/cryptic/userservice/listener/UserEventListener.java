@@ -9,6 +9,7 @@ import by.cryptic.utils.event.DomainEvent;
 import by.cryptic.utils.event.user.UserCreatedEvent;
 import by.cryptic.utils.event.user.UserDeletedEvent;
 import by.cryptic.utils.event.user.UserUpdatedEvent;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -24,7 +25,7 @@ public class UserEventListener {
 
     @KafkaListener(topics = "user-topic")
     public void listenUserEvents(DomainEvent event) {
-        log.debug("Received event: {}", event);
+        log.debug("Received event: {}", event.getClass().getSimpleName());
         switch (event) {
             case UserCreatedEvent createdEvent -> {
                 appUserRepository.save(AppUser.builder()
@@ -55,16 +56,18 @@ public class UserEventListener {
             }
 
             case UserDeletedEvent userDeletedEvent -> {
-                appUserRepository.findById(userDeletedEvent.getUserId())
-                        .ifPresent(appUser -> appUserRepository.deleteById(
-                                userDeletedEvent.getUserId()));
+                long deleted = appUserRepository.deleteByUserIdReturningCount(userDeletedEvent.getUserId());
+                if (deleted == 0) {
+                    throw new EntityNotFoundException("User not found by id " + userDeletedEvent.getUserId());
+                }
 
-                viewRepository.findById(userDeletedEvent.getUserId())
-                        .ifPresent(userView -> viewRepository.deleteById(
-                                userDeletedEvent.getUserId()));
+                long deletedView = viewRepository.deleteByUserIdReturningCount(userDeletedEvent.getUserId());
+                if (deletedView == 0) {
+                    throw new EntityNotFoundException("UserView not found by id " + userDeletedEvent.getUserId());
+                }
             }
 
-            default -> log.warn("Unexpected event type {} ", event);
+            default -> log.warn("Unexpected event type {} ", event.getClass().getSimpleName());
         }
     }
 }

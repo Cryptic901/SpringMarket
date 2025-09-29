@@ -92,7 +92,7 @@ class UserQueryControllerTest {
     }
 
     @Test
-    void getUserById_withReturnedUser_shouldReturnUser() throws Exception {
+    void getUserById_withAuthorizedUser_shouldReturnUser() throws Exception {
         //Arrange
         UUID userId = UUID.randomUUID();
         AppUserView appUserView = AppUserView.builder()
@@ -113,16 +113,41 @@ class UserQueryControllerTest {
     }
 
     @Test
-    void getUserById_withRandomUser_shouldReturnForbidden() throws Exception {
+    void getUserById_withNotAuthorizedUser_shouldReturnUnauthorized() throws Exception {
         //Arrange
         //Act
-        mockMvc.perform(get("/api/v1/users/" + UUID.randomUUID())
-                        .with(jwt().jwt(jwt -> {
-                                    jwt.claim("sub", UUID.randomUUID());
-                                    jwt.claim("realm_access.roles", "ROLE_USER");
-                                }
-                        )))
+        mockMvc.perform(get("/api/v1/users/" + UUID.randomUUID()))
                 //Assert
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getYourselfUser_withAuthorizedUser_shouldReturnUser() throws Exception {
+        //Arrange
+        UUID userId = UUID.randomUUID();
+        AppUserView appUserView = AppUserView.builder()
+                .userId(userId)
+                .username("testUser")
+                .phoneNumber("+375453451956")
+                .build();
+        UserDTO userDTO = UserMapper.toDto(appUserView);
+        Mockito.when(userGetByIdQueryHandler.handle(userId)).thenReturn(userDTO);
+        //Act
+        mockMvc.perform(get("/api/v1/users/me")
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", userId))))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(userDTO)));
+        //Assert
+        Mockito.verify(userGetByIdQueryHandler, times(1)).handle(userId);
+        Mockito.verifyNoMoreInteractions(userGetByIdQueryHandler);
+    }
+
+    @Test
+    void getYourselfUser_withNotAuthorizedUser_shouldReturnUnauthorized() throws Exception {
+        //Arrange
+        //Act
+        mockMvc.perform(get("/api/v1/users/me" + UUID.randomUUID()))
+                //Assert
+                .andExpect(status().isUnauthorized());
     }
 }

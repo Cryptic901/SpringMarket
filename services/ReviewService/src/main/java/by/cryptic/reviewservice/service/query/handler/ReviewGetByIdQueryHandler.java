@@ -4,6 +4,7 @@ import by.cryptic.reviewservice.mapper.ReviewMapper;
 import by.cryptic.reviewservice.model.read.ReviewView;
 import by.cryptic.reviewservice.model.write.Review;
 import by.cryptic.reviewservice.repository.read.ReviewViewRepository;
+import by.cryptic.reviewservice.service.query.ReviewGetByIdQuery;
 import by.cryptic.utils.DTO.ReviewDTO;
 import by.cryptic.utils.handler.QueryHandler;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,14 +21,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @CacheConfig(cacheNames = {"reviews"})
-public class ReviewGetByIdQueryHandler implements QueryHandler<UUID, ReviewDTO> {
+public class ReviewGetByIdQueryHandler implements QueryHandler<ReviewGetByIdQuery, ReviewDTO> {
 
     private final ReviewViewRepository reviewRepository;
     private final CacheManager cacheManager;
 
     @Override
-    public ReviewDTO handle(UUID id) {
-        return findInCacheOrDB(id);
+    public ReviewDTO handle(ReviewGetByIdQuery query) {
+        return findInCacheOrDB(query.productId());
     }
 
     public ReviewDTO findInCacheOrDB(UUID id) {

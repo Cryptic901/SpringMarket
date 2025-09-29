@@ -34,7 +34,7 @@ public class InventoryReserveProductCommandHandler implements CommandHandler<Inv
 
     private void reserveInventory(InventoryReserveProductCommand command, Integer quantityToReserve) {
         Inventory availableInventory = inventoryRepository.findAvailableByProductId(command.productId(), quantityToReserve)
-                .orElseThrow(() -> new OutOfStockException("There are no %s in our stock".formatted(command.productId())));
+                .orElseThrow(() -> new OutOfStockException("There are not enough %s in our stock".formatted(command.productId())));
         log.info("SAGA available inventory = {}", availableInventory);
         availableInventory.reserve(quantityToReserve);
         log.info("SAGA inventory after reserve = {}", availableInventory);

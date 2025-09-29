@@ -1,9 +1,13 @@
 package by.cryptic.gateway.security;
 
 import by.cryptic.gateway.filter.AuthLoggingFilter;
+import by.cryptic.gateway.handler.GatewayAccessDeniedHandler;
+import by.cryptic.gateway.handler.GatewayAuthenticationEntryPoint;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -22,14 +26,23 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Slf4j
 @Configuration
+@Order(-2)
+@RequiredArgsConstructor
 @EnableWebFluxSecurity
 public class GatewayFilterChain {
 
+    private final GatewayAccessDeniedHandler customAccessDeniedHandler;
+    private final GatewayAuthenticationEntryPoint customAuthenticationEntryPoint;
+
     @Bean
-    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http, AuthLoggingFilter authLoggingFilter) {
+    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,
+                                                      AuthLoggingFilter authLoggingFilter) {
         return http
                 .authorizeExchange(auth ->
-                        auth.pathMatchers("/login/**", "/oauth2/**", "/actuator/**").permitAll()
+                        auth.pathMatchers("/login/**", "/oauth2/**", "/actuator/**",
+                                        "/v3/api-docs/**", "/swagger-ui.html","/swagger-ui/**",
+                                        "/webjars/**", "/*/v3/api-docs",                                     "/**-service/v3/api-docs",
+                                        "/v3/api-docs/swagger-config").permitAll()
                                 .pathMatchers(HttpMethod.DELETE, "/api/v1/categories/**").hasRole("ADMIN")
                                 .pathMatchers(HttpMethod.POST, "/api/v1/categories/**").hasRole("ADMIN")
                                 .pathMatchers(HttpMethod.PATCH, "/api/v1/categories/**").hasRole("ADMIN")
@@ -37,20 +50,24 @@ public class GatewayFilterChain {
                                 .pathMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                 .anyExchange().authenticated())
                 .oauth2ResourceServer(configurer ->
-                        configurer.jwt(
-                                jwt -> {
-                                    ReactiveJwtAuthenticationConverter converter =
-                                            new ReactiveJwtAuthenticationConverter();
-                                    converter.setPrincipalClaimName("preferred_username");
+                        configurer.authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .jwt(
+                                        jwt -> {
+                                            ReactiveJwtAuthenticationConverter converter =
+                                                    new ReactiveJwtAuthenticationConverter();
+                                            converter.setPrincipalClaimName("preferred_username");
 
-                                    ReactiveJwtGrantedAuthoritiesConverterAdapter grantedAuthoritiesConverter =
-                                            getReactiveJwtGrantedAuthoritiesConverterAdapter();
-                                    converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-                                    jwt.jwtAuthenticationConverter(converter);
-                                }
-                        ))
+                                            ReactiveJwtGrantedAuthoritiesConverterAdapter grantedAuthoritiesConverter =
+                                                    getReactiveJwtGrantedAuthoritiesConverterAdapter();
+                                            converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+                                            jwt.jwtAuthenticationConverter(converter);
+                                        }
+                                ))
                 .addFilterAfter(authLoggingFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .accessDeniedHandler(customAccessDeniedHandler))
                 .build();
     }
 

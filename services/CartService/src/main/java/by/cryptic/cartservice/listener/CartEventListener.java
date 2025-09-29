@@ -96,7 +96,7 @@ public class CartEventListener {
                         .build();
                 cartViewRepository.save(cartView);
             }
-            default -> throw new IllegalStateException("Unexpected event type: " + event);
+            default -> log.warn("Ignoring event: {}", event.getClass().getSimpleName());
         }
     }
 
@@ -122,7 +122,7 @@ public class CartEventListener {
                     cartEventPublisher.cartClearedFailedEventPublisher(cartClearedEvent);
                 }
             }
-            default -> log.warn("Ignoring event {}", event);
+            default -> log.warn("Ignoring event: {}", event.getClass().getSimpleName());
         }
     }
 }

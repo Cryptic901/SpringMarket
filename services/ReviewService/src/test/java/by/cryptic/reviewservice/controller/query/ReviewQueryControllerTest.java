@@ -2,6 +2,7 @@ package by.cryptic.reviewservice.controller.query;
 
 import by.cryptic.reviewservice.mapper.ReviewMapper;
 import by.cryptic.reviewservice.model.read.ReviewView;
+import by.cryptic.reviewservice.service.query.ReviewGetByIdQuery;
 import by.cryptic.reviewservice.service.query.handler.ReviewGetAllQueryHandler;
 import by.cryptic.reviewservice.service.query.handler.ReviewGetByIdQueryHandler;
 import by.cryptic.utils.DTO.ReviewDTO;
@@ -134,13 +135,13 @@ class ReviewQueryControllerTest {
                 .title("reviewTitle")
                 .build();
         ReviewDTO reviewDTO = ReviewMapper.toDto(reviewView);
-        Mockito.when(reviewGetByIdQueryHandler.handle(reviewId)).thenReturn(reviewDTO);
+        Mockito.when(reviewGetByIdQueryHandler.handle(new ReviewGetByIdQuery(reviewId))).thenReturn(reviewDTO);
         //Act
         mockMvc.perform(get("/api/v1/reviews/" + reviewId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(reviewDTO)));
         //Assert
-        Mockito.verify(reviewGetByIdQueryHandler, times(1)).handle(reviewId);
+        Mockito.verify(reviewGetByIdQueryHandler, times(1)).handle(new ReviewGetByIdQuery(reviewId));
         Mockito.verifyNoMoreInteractions(reviewGetByIdQueryHandler);
     }
 
@@ -155,7 +156,7 @@ class ReviewQueryControllerTest {
                 .title("reviewTitle")
                 .build();
         ReviewDTO reviewDTO = ReviewMapper.toDto(reviewView);
-        Mockito.when(reviewGetByIdQueryHandler.handle(reviewId)).thenReturn(reviewDTO);
+        Mockito.when(reviewGetByIdQueryHandler.handle(new ReviewGetByIdQuery(reviewId))).thenReturn(reviewDTO);
         //Act
         mockMvc.perform(get("/api/v1/reviews/" + reviewId)
                         .with(jwt().jwt(jwt -> {
@@ -165,7 +166,7 @@ class ReviewQueryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(reviewDTO)));
         //Assert
-        Mockito.verify(reviewGetByIdQueryHandler, times(1)).handle(reviewId);
+        Mockito.verify(reviewGetByIdQueryHandler, times(1)).handle(new ReviewGetByIdQuery(reviewId));
         Mockito.verifyNoMoreInteractions(reviewGetByIdQueryHandler);
     }
 

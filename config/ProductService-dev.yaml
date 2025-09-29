@@ -1,9 +1,11 @@
 server:
   port: 8081
+
 eureka:
   instance:
     hostname: product-service
     prefer-ip-address: false
+
 spring:
   kafka:
     bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
@@ -54,3 +56,9 @@ spring:
           batch_size: 50
         order_updates: true
         order_inserts: true
+
+springdoc:
+  api-docs:
+    path: /product-service/v3/api-docs
+  swagger-ui:
+    path: /product-service/swagger-ui.html

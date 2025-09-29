@@ -9,6 +9,9 @@ import by.cryptic.productservice.service.command.handler.ProductCreateCommandHan
 import by.cryptic.productservice.service.command.handler.ProductDeleteCommandHandler;
 import by.cryptic.productservice.service.command.handler.ProductUpdateCommandHandler;
 import by.cryptic.security.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,12 @@ public class ProductCommandController {
     private final ProductDeleteCommandHandler productDeleteCommandHandler;
 
     @PostMapping
+    @Operation(summary = "Create product", description = "creating product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Product created"),
+            @ApiResponse(responseCode = "400", description = "Request parameters are incorrect"),
+            @ApiResponse(responseCode = "503", description = "The creation failed because the server is down")
+    })
     public ResponseEntity<Void> createProduct(@RequestBody @Valid ProductCreateDTO product,
                                               @AuthenticationPrincipal Jwt jwt) {
         productCreateCommandHandler.handle(new ProductCreateCommand(
@@ -44,6 +53,12 @@ public class ProductCommandController {
     }
 
     @PatchMapping("/{productId}")
+    @Operation(summary = "Update product", description = "updating product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Product updated"),
+            @ApiResponse(responseCode = "404", description = "Product to update not found"),
+            @ApiResponse(responseCode = "503", description = "The updating failed because the server is down")
+    })
     public ResponseEntity<Void> updateProduct(@RequestBody ProductUpdateDTO product,
                                               @PathVariable UUID productId,
                                               @AuthenticationPrincipal Jwt jwt) {
@@ -63,6 +78,12 @@ public class ProductCommandController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete product", description = "deleting product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Product deleted"),
+            @ApiResponse(responseCode = "404", description = "Product to delete not found"),
+            @ApiResponse(responseCode = "503", description = "The deleting failed because the server is down")
+    })
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id,
                                               @AuthenticationPrincipal Jwt jwt) {
         productDeleteCommandHandler.handle(new ProductDeleteCommand(id, JwtUtil.extractUserId(jwt)));

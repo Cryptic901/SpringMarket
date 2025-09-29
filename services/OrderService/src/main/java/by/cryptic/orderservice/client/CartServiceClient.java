@@ -14,7 +14,7 @@ import java.util.UUID;
 @FeignClient(name = "CartService", path = "/api/v1/carts", configuration = FeignClientConfig.class)
 public interface CartServiceClient {
 
-    @DeleteMapping("/clear/{userId}")
+    @DeleteMapping("/internal/clear/{userId}")
     ResponseEntity<Void> removeAllItemsFromCartByUserId(@PathVariable UUID userId);
 
     @GetMapping("/internal/user/{userId}")

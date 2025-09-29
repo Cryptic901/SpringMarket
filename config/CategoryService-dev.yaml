@@ -1,9 +1,11 @@
 server:
   port: 8091
+
 eureka:
   instance:
     hostname: category-service
     prefer-ip-address: false
+
 spring:
   kafka:
     bootstrap-servers: kafka-1:9090,kafka-2:9090,kafka-3:9090
@@ -47,3 +49,9 @@ spring:
   flyway:
     schemas: category_schema
     default-schema: category_schema
+
+springdoc:
+  api-docs:
+    path: /category-service/v3/api-docs
+  swagger-ui:
+    path: /category-service/swagger-ui.html

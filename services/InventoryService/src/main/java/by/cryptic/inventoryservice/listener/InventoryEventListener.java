@@ -19,6 +19,8 @@ import by.cryptic.utils.event.order.FinalizeOrderEvent;
 import by.cryptic.utils.event.order.OrderFailedEvent;
 import by.cryptic.utils.event.product.ProductCreatedEvent;
 import by.cryptic.utils.event.product.ProductDeletedEvent;
+import by.cryptic.utils.event.product.ProductUpdatedEvent;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -46,10 +48,18 @@ public class InventoryEventListener {
                     .productId(productCreatedEvent.getProductId())
                     .build());
 
+            case ProductUpdatedEvent productUpdatedEvent -> {
+                Inventory inventory = inventoryRepository.findByProductId(productUpdatedEvent
+                        .getProductId()).orElseThrow(() -> new EntityNotFoundException(
+                        "Inventory not found with productId: " + productUpdatedEvent.getProductId()));
+                inventory.setAvailableQuantity(productUpdatedEvent.getQuantity());
+                inventoryRepository.save(inventory);
+            }
+
             case ProductDeletedEvent productDeletedEvent ->
                     inventoryRepository.deleteByProductId(productDeletedEvent.getProductId());
 
-            default -> throw new IllegalStateException("Unexpected event type: " + event);
+            default -> log.warn("Unexpected event type: {}", event);
         }
     }
 

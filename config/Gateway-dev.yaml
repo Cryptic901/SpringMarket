@@ -4,6 +4,34 @@ eureka:
   instance:
     hostname: gateway
     prefer-ip-address: false
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    urls:
+      - name: UserService
+        url: /user-service/v3/api-docs
+
+      - name: ReviewService
+        url: /review-service/v3/api-docs
+
+      - name: ProductService
+        url: /product-service/v3/api-docs
+
+      - name: PaymentService
+        url: /payment-service/v3/api-docs
+
+      - name: OrderService
+        url: /order-service/v3/api-docs
+
+      - name: CategoryService
+        url: /category-service/v3/api-docs
+
+      - name: CartService
+        url: /cart-service/v3/api-docs
+
+      - name: AnalyticService
+        url: /analytic-service/v3/api-docs
 spring:
   security:
     oauth2:
@@ -34,6 +62,13 @@ spring:
           filters:
             - TokenRelay
 
+        - id: product-docs
+          uri: lb://PRODUCTSERVICE
+          predicates:
+            - Path=/product-service/v3/api-docs
+#          filters:
+#            - StripPrefix=1
+
         - id: category-routes
           uri: lb://CATEGORYSERVICE
           predicates:
@@ -41,12 +76,26 @@ spring:
           filters:
             - TokenRelay
 
+        - id: category-docs
+          uri: lb://CATEGORYSERVICE
+          predicates:
+            - Path=/category-service/v3/api-docs
+#          filters:
+#            - StripPrefix=1
+
         - id: order-routes
           uri: lb://ORDERSERVICE
           predicates:
             - Path=/api/v1/orders/**
           filters:
             - TokenRelay
+
+        - id: order-docs
+          uri: lb://ORDERSERVICE
+          predicates:
+            - Path=/order-service/v3/api-docs
+#          filters:
+#            - StripPrefix=1
 
         - id: inventory-routes
           uri: lb://INVENTORYSERVICE
@@ -62,6 +111,13 @@ spring:
           filters:
             - TokenRelay
 
+        - id: review-docs
+          uri: lb://REVIEWSERVICE
+          predicates:
+            - Path=/review-service/v3/api-docs
+#          filters:
+#            - StripPrefix=1
+
         - id: user-routes
           uri: lb://USERSERVICE
           predicates:
@@ -69,12 +125,26 @@ spring:
           filters:
             - TokenRelay
 
+        - id: user-docs
+          uri: lb://USERSERVICE
+          predicates:
+            - Path=/user-service/v3/api-docs
+#          filters:
+#            - StripPrefix=1
+
         - id: payment-routes
           uri: lb://PAYMENTSERVICE
           predicates:
             - Path=/api/v1/payments/**
           filters:
             - TokenRelay
+
+        - id: payment-docs
+          uri: lb://PAYMENTSERVICE
+          predicates:
+            - Path=/payment-service/v3/api-docs
+#          filters:
+#            - StripPrefix=1
 
         - id: notification-routes
           uri: lb://NOTIFICATIONSERVICE
@@ -90,6 +160,13 @@ spring:
           filters:
             - TokenRelay
 
+        - id: analytic-docs
+          uri: lb://ANALYTICSERVICE
+          predicates:
+            - Path=/analytic-service/v3/api-docs
+#          filters:
+#            - StripPrefix=1
+
         - id: cart-routes
           uri: lb://CARTSERVICE
           predicates:
@@ -97,10 +174,12 @@ spring:
           filters:
             - TokenRelay
 
-        - id: keycloak-routes
-          uri: http://keycloak:8080
+        - id: cart-docs
+          uri: lb://CARTSERVICE
           predicates:
-            - Path=/realms/**
+            - Path=/cart-service/v3/api-docs
+#          filters:
+#            - StripPrefix=1
 
       discovery:
         locator:
