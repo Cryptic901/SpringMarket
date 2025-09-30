@@ -1,6 +1,7 @@
 package by.cryptic.orderservice.service.command;
 
 import by.cryptic.exceptions.EmptyCartException;
+import by.cryptic.exceptions.NotEnoughProductsException;
 import by.cryptic.orderservice.client.CartServiceClient;
 import by.cryptic.orderservice.client.ProductServiceClient;
 import by.cryptic.orderservice.model.write.CustomerOrder;
@@ -111,7 +112,7 @@ class OrderCreateCommandHandlerTest {
                         "image/url", UUID.randomUUID())));
         //Act
         //Assert
-        Assert.assertThrows(IllegalStateException.class,() -> orderCreateCommandHandler.handle(orderCreateCommand));
+        Assert.assertThrows(NotEnoughProductsException.class,() -> orderCreateCommandHandler.handle(orderCreateCommand));
     }
 
     @Test

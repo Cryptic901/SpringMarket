@@ -72,12 +72,12 @@ public class ReviewCreateCommandHandler implements CommandHandler<ReviewCreateCo
         return productServiceClient.getProductById(productId).getBody();
     }
 
-    public void reviewRetryFallback(ReviewCreateCommand dto, Throwable t) {
+    public Review reviewRetryFallback(ReviewCreateCommand dto, Throwable t) {
         log.error("Failed to create {} after all retry attempts. Cause: {}", dto.title(), t.getMessage(), t);
         throw new CreatingException("Failed to create review:" + dto.title(), t);
     }
 
-    public void productClientCircuitBreakerFallback(UUID productId, Throwable t) {
+    public ProductDTO productClientCircuitBreakerFallback(UUID productId, Throwable t) {
         log.error("Failed to create review {} after all retry attempts. Cause: {}", productId, t.getMessage(), t);
         throw new CreatingException("Failed to create review with productId:" + productId, t);
     }

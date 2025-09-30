@@ -125,7 +125,7 @@ public class PaymentEventListener {
         }
     }
 
-    public void paymentCreateRateLimiterFallback(PaymentCreatedEvent paymentCreatedEvent, Throwable t) {
+    public Payment paymentCreateRateLimiterFallback(PaymentCreatedEvent paymentCreatedEvent, Throwable t) {
         log.error("Failed to create {} because request exceed rate limiter to external API. Cause: {}", paymentCreatedEvent.toString(), t.getMessage(), t);
         throw new CreatingException("Failed to create order:" + paymentCreatedEvent, t);
     }

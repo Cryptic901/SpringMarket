@@ -6,7 +6,6 @@ import by.cryptic.reviewservice.model.write.RatingOnlyReview;
 import by.cryptic.reviewservice.publisher.ReviewEventPublisher;
 import by.cryptic.reviewservice.repository.write.RatingOnlyReviewRepository;
 import by.cryptic.reviewservice.service.command.RatingOnlyReviewUpdateCommand;
-import by.cryptic.reviewservice.service.command.ReviewUpdateCommand;
 import by.cryptic.utils.handler.CommandHandler;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
@@ -64,8 +63,8 @@ public class RatingOnlyReviewUpdateCommandHandler implements CommandHandler<Rati
         ratingOnlyReviewRepository.save(review);
     }
 
-    public void reviewRetryUpdateFallback(RatingOnlyReview review, ReviewUpdateCommand dto, Throwable t) {
-        log.error("Failed to update {} after all retry attempts. Cause: {}", dto.title(), t.getMessage(), t);
-        throw new UpdatingException("Failed to update review:" + dto.title(), t);
+    public void reviewRetryUpdateFallback(RatingOnlyReview review, RatingOnlyReviewUpdateCommand dto, Throwable t) {
+        log.error("Failed to update {} after all retry attempts. Cause: {}", dto.reviewId(), t.getMessage(), t);
+        throw new UpdatingException("Failed to update review:" + dto.reviewId(), t);
     }
 }

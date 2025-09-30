@@ -5,11 +5,11 @@
 - **OAuth2 аутентификация** через Keycloak
 - **Микросервисная архитектура** с Event-Driven подходом
 - **Система заказов** с оркестрацией через Saga Pattern
-- **Аналитика** в реальном времени
+- **Аналитика** при помощи Prometheus и Grafana
 - **Уведомления** по электронной почте
 - **Отзывы и рейтинги** товаров
 - **Корзина покупок** с персистентностью
-- **Система платежей** с обработкой транзакций
+- **Outbox Pattern** - для гарантированной доставки сообщений
 
 ## 🏗️ Архитектура
 
@@ -23,7 +23,7 @@
 | **Product Service**      | Управление каталогом товаров      | PostgreSQL/MongoDB | 8081 |
 | **User Service**         | Управление пользователями         | PostgreSQL/MongoDB | 8086 |
 | **Cart Service**         | Корзина покупок                   | PostgreSQL/MongoDB | 8084 |
-| **Category Service**     | Корзина покупок                   | PostgreSQL/MongoDB | 8091 |
+| **Category Service**     | Категории продуктов               | PostgreSQL/MongoDB | 8091 |
 | **Order Service**        | Обработка заказов                 | PostgreSQL/MongoDB | 8082 |
 | **Payment Service**      | Обработка платежей                | PostgreSQL/MongoDB | 8088 |
 | **Inventory Service**    | Остатки, резервирование, списание | PostgreSQL/MongoDB | 8087 |
@@ -44,6 +44,8 @@ graph TB
    subgraph Business_Layer
       direction LR
       US[User:8082]
+      CS[Category:8091]
+      IS[Inventory:8087]
       PS[Product:8081]
       CAS[Cart:8083]
       OS[Order:8084]
@@ -118,6 +120,7 @@ graph TB
 ### Messaging & Events
 - **Apache Kafka** - Event Streaming
 - **Kafka-Keycloak Library** - Интеграция с Keycloak events
+- **Kafka connect** - Интеграция с Debezium
 
 ### Databases & Cache
 - **PostgreSQL** - Основная реляционная БД
@@ -129,11 +132,12 @@ graph TB
 - **Event-Driven Architecture**
 - **Saga Pattern** - Распределенные транзакции
 - **Circuit Breaker** + **Retry** (Resilience4j)
+- **Outbox Pattern** - Гарантированная доставка сообщений
 
 ### DevOps & Tools
 - **Docker** + **Docker Compose** - Контейнеризация
 - **Flyway** - Миграции БД
-- **Lombok** - Упрощение кода
+- **Lombok** - сокращение boilerplate кода
 - **OpenFeign** - HTTP клиент
 
 ### Testing
@@ -202,6 +206,8 @@ graph TB
     ├── ProductService/           # Сервис товаров
     ├── UserService/              # Сервис пользователей
     ├── CartService/              # Сервис корзины
+    ├── CategoryService/          # Сервис категорий
+    ├── InventoryService/         # Сервис инвентаря
     ├── OrderService/             # Сервис заказов
     ├── PaymentService/           # Сервис платежей
     ├── ReviewService/            # Сервис отзывов
@@ -240,11 +246,36 @@ sequenceDiagram
     participant OS as Order Service
     participant SS as Saga Service
     participant PS as Payment Service
+    participant IS as Inventory Service
+    participant CS as Cart Service
     participant NS as Notification Service
     participant Kafka
 
     Client->>OS: Create Order
     OS->>SS: Start Order Saga
+    
+    SS->>CS: Process Cart Clearing
+    
+    alt Cart Clear Success
+        CS->>Kafka: Cart Clear Success Event
+        Kafka->>SS: Sent Cart Clear Success Event
+    else Payment Failed
+        CS->>Kafka: Payment Failed Event
+        SS->>OS: Cancel Order
+        SS->>NS: Send Failure Email
+    end
+
+    SS->>IS: Process Inventory Reservation
+
+    alt Inventory Reservation Success
+        IS->>Kafka: Inventory Reserved Success Event
+        Kafka->>SS: Sent Inventory Reserved Success Event
+    else Inventory Reservation Failed
+        IS->>Kafka: Inventory Reservation Failed Event
+        SS->>OS: Cancel Order
+        SS->>NS: Send Failure Email
+    end
+    
     SS->>PS: Process Payment
     
     alt Payment Success
@@ -263,9 +294,7 @@ sequenceDiagram
 
 После запуска сервисов, Swagger UI доступен по адресам:
 
-- API Gateway: `http://localhost:8080/swagger-ui.html`
-- Product Service: `http://localhost:8081/swagger-ui.html`
-- Order Service: `http://localhost:8084/swagger-ui.html`
+- `http://localhost:8080/swagger-ui.html`
 
 ## 🧪 Тестирование
 
@@ -279,12 +308,6 @@ sequenceDiagram
   mvn verify -P integration-tests
 ```
 
-### Тестирование конкретного сервиса
-```bash
-  cd product-service
-  mvn test
-```
-
 ## 🔒 Безопасность
 
 - **OAuth2** + **Keycloak** для аутентификации
@@ -296,9 +319,11 @@ sequenceDiagram
 ## 📈 Мониторинг и Observability
 
 - **Spring Boot Actuator** - health checks и метрики
-- **Micrometer** - метрики приложений
-- **Circuit Breaker** - отказоустойчивость
-- **Distributed Tracing** готов к интеграции
+- **Prometheus** - сбор метрик и данных
+- **Grafana** - визуализация метрик и данных
+- **Grafana Alloy** - сбор метрик, логов, трассировок в единую систему
+- **Grafana Loki** - сбор и визуализация логов
+- **Grafana Tempo** - сбор и визуализация трассировок
 
 ## 👨‍💻 Автор
 

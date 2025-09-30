@@ -4,6 +4,9 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.config.KafkaListenerContainerFactory;
+
+import static org.mockito.Mockito.mock;
 
 @Configuration
 public class TestBeans {
