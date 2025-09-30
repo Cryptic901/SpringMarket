@@ -1,4 +1,4 @@
-CREATE TABLE review_db.review_schema.rating_only_review
+CREATE TABLE review_schema.rating_only_review
 (
     id         uuid not null unique primary key,
     product_id uuid not null,

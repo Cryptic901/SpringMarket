@@ -91,7 +91,7 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
     }
 
     @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartCreatingCircuitBreakerFallback")
-    private Cart getOrCreateCart(CartAddCommand command) {
+    public Cart getOrCreateCart(CartAddCommand command) {
         return cartRepository.findByUserIdWithItems(command.userId())
                 .orElseGet(() -> {
                     Cart newCart = Cart.builder()
@@ -103,12 +103,12 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                 });
     }
 
-    public void productClientCircuitBreakerFallback(CartAddCommand command, Throwable t) {
+    public ProductDTO productClientCircuitBreakerFallback(CartAddCommand command, Throwable t) {
         log.error("Failed to add {} after all attempts to cart. Cause: {}", command.productId(), t.getMessage(), t);
         throw new CreatingException("Failed to add product:" + command.productId(), t);
     }
 
-    public void cartCreatingCircuitBreakerFallback(CartAddCommand command, Throwable t) {
+    public Cart cartCreatingCircuitBreakerFallback(CartAddCommand command, Throwable t) {
         log.error("Failed to create or find cart of user {} after all attempts. Cause: {}", command.userId(), t.getMessage(), t);
         throw new CreatingException("Failed to create cart:" + command.productId(), t);
     }

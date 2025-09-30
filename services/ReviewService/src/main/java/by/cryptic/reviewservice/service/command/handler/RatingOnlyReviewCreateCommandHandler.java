@@ -69,12 +69,12 @@ public class RatingOnlyReviewCreateCommandHandler implements CommandHandler<Rati
         return productServiceClient.getProductById(productId).getBody();
     }
 
-    public void reviewRetryFallback(RatingOnlyReviewCreateCommand dto, Throwable t) {
+    public RatingOnlyReview reviewRetryFallback(RatingOnlyReviewCreateCommand dto, Throwable t) {
         log.error("Failed to create review for {} after all retry attempts. Cause: {}", dto.productId(), t.getMessage(), t);
         throw new CreatingException("Failed to create review for product:" + dto.productId(), t);
     }
 
-    public void productClientCircuitBreakerFallback(UUID productId, Throwable t) {
+    public ProductDTO productClientCircuitBreakerFallback(UUID productId, Throwable t) {
         log.error("Failed to create review {} after all retry attempts. Cause: {}", productId, t.getMessage(), t);
         throw new CreatingException("Failed to create review with productId:" + productId, t);
     }

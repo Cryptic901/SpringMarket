@@ -41,7 +41,7 @@ class ProductGetByIdQueryHandlerTest {
     private ProductGetByIdQueryHandler productGetByIdQueryHandler;
 
     @Test
-    void getCategoryById_withValidUUID_shouldReturnCategory() {
+    void getProductById_withValidUUID_shouldReturnProduct() {
         //Arrange
         UUID productId = UUID.randomUUID();
         String cacheKey = "product:" + productId;
@@ -79,7 +79,7 @@ class ProductGetByIdQueryHandlerTest {
     }
 
     @Test
-    void getCategoryById_withInvalidUUID_shouldThrowEntityNotFoundException() {
+    void getProductById_withInvalidUUID_shouldThrowEntityNotFoundException() {
         //Arrange
         UUID productId = UUID.randomUUID();
         Mockito.when(productRepository.findById(productId)).thenReturn(Optional.empty());

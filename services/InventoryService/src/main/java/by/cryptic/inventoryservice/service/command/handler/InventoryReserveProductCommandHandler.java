@@ -27,7 +27,6 @@ public class InventoryReserveProductCommandHandler implements CommandHandler<Inv
     @Transactional
     public void handle(InventoryReserveProductCommand command) {
         Integer quantityToReserve = command.quantity();
-        log.info(" <<<< InventoryReserveProductCommand quantityToReserve = {}", quantityToReserve);
         reserveInventory(command, quantityToReserve);
         addReservation(command, quantityToReserve);
     }
@@ -35,14 +34,11 @@ public class InventoryReserveProductCommandHandler implements CommandHandler<Inv
     private void reserveInventory(InventoryReserveProductCommand command, Integer quantityToReserve) {
         Inventory availableInventory = inventoryRepository.findAvailableByProductId(command.productId(), quantityToReserve)
                 .orElseThrow(() -> new OutOfStockException("There are not enough %s in our stock".formatted(command.productId())));
-        log.info("SAGA available inventory = {}", availableInventory);
         availableInventory.reserve(quantityToReserve);
-        log.info("SAGA inventory after reserve = {}", availableInventory);
         inventoryRepository.save(availableInventory);
     }
 
     private void addReservation(InventoryReserveProductCommand command, Integer quantityToReserve) {
-        log.info("quantityToReserve when adding reservation = {}", quantityToReserve);
         Reservation reservation = reservationRepository
                 .findByReservedByProductId(command.orderId(), command.productId())
                 .orElse(Reservation.builder()
@@ -52,9 +48,7 @@ public class InventoryReserveProductCommandHandler implements CommandHandler<Inv
                         .orderId(command.orderId())
                         .build());
 
-        log.info("SAGA reservation = {}", reservation);
         reservation.addQuantity(quantityToReserve);
-        log.info("SAGA reservation after adding quantity = {}", reservation);
         reservationRepository.save(reservation);
     }
 }

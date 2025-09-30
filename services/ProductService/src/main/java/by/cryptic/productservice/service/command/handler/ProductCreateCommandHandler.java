@@ -59,7 +59,7 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
         return product;
     }
 
-    public void productCreateRetryFallback(ProductCreateCommand productCreateCommand, Throwable t) {
+    public Product productCreateRetryFallback(ProductCreateCommand productCreateCommand, Throwable t) {
         log.error("Failed to create {} after all retry attempts. Cause: {}", productCreateCommand.name(), t.getMessage(), t);
         throw new CreatingException("Failed to create review:" + productCreateCommand.name(), t);
     }

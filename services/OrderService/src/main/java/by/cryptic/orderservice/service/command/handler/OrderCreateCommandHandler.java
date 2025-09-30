@@ -63,7 +63,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
             log.info("-- Products to order : {}", productsToOrder);
             log.info("-- Products to update : {}", productsToUpdate);
 
-        } catch (EmptyCartException | EntityNotFoundException e) {
+        } catch (EmptyCartException | EntityNotFoundException | NotEnoughProductsException e) {
             log.error("Error while creating order", e);
             orderEventPublisher.sentOrderFailedEventWithException(order, productsToUpdate, e);
             throw e;
@@ -159,7 +159,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
         throw new CreatingException("Failed to create order:" + orderCreateCommand, t);
     }
 
-    public void cartClientGetListOfCartProductsCircuitBreakerFallback(Throwable t) {
+    public List<CartProductDTO> cartClientGetListOfCartProductsCircuitBreakerFallback(Throwable t) {
         log.error("Failed to create order after all retry attempts. Cause: {}", t.getMessage(), t);
         throw new CreatingException("Failed to create order", t);
     }
@@ -169,7 +169,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
         throw new CreatingException("Failed to create order:" + orderCreateCommand, t);
     }
 
-    public void productClientCircuitBreakerFallback(UUID productId, Throwable t) {
+    public ProductDTO productClientCircuitBreakerFallback(UUID productId, Throwable t) {
         log.error("Failed to create order with product id {} after all retry attempts. Cause: {}", productId, t.getMessage(), t);
         throw new CreatingException("Failed to create order with productId:" + productId, t);
     }

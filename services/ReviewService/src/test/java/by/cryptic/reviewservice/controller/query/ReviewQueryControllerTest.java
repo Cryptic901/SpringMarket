@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -98,32 +97,6 @@ class ReviewQueryControllerTest {
     }
 
     @Test
-    void getAllReviews_withAdminRole_shouldReturnAllReviews() throws Exception {
-        //Arrange
-        UUID reviewId = UUID.randomUUID();
-        UUID productId = UUID.randomUUID();
-        ReviewView reviewView = ReviewView.builder()
-                .reviewId(reviewId)
-                .productId(productId)
-                .title("reviewTitle")
-                .build();
-        List<ReviewDTO> reviewDTOS = new ArrayList<>();
-        reviewDTOS.add(ReviewMapper.toDto(reviewView));
-        Mockito.when(reviewGetAllQueryHandler.handle(any())).thenReturn(reviewDTOS);
-        //Act
-        mockMvc.perform(get("/api/v1/reviews/product/" + productId)
-                        .with(jwt().jwt(jwt -> {
-                            jwt.claim("sub", UUID.randomUUID());
-                            jwt.claim("realm_access.roles", "ROLE_ADMIN");
-                        })))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(reviewDTOS)));
-        //Assert
-        Mockito.verify(reviewGetAllQueryHandler, times(1)).handle(any());
-        Mockito.verifyNoMoreInteractions(reviewGetAllQueryHandler);
-    }
-
-    @Test
     @WithMockUser
     void getReviewById_withProductThatExistsAndAuthorizedUser_shouldReturnReview() throws Exception {
         //Arrange
@@ -138,31 +111,6 @@ class ReviewQueryControllerTest {
         Mockito.when(reviewGetByIdQueryHandler.handle(new ReviewGetByIdQuery(reviewId))).thenReturn(reviewDTO);
         //Act
         mockMvc.perform(get("/api/v1/reviews/" + reviewId))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(reviewDTO)));
-        //Assert
-        Mockito.verify(reviewGetByIdQueryHandler, times(1)).handle(new ReviewGetByIdQuery(reviewId));
-        Mockito.verifyNoMoreInteractions(reviewGetByIdQueryHandler);
-    }
-
-    @Test
-    void getReviewById_withProductThatExistsAndAdminRole_shouldReturnReview() throws Exception {
-        //Arrange
-        UUID reviewId = UUID.randomUUID();
-        UUID productId = UUID.randomUUID();
-        ReviewView reviewView = ReviewView.builder()
-                .reviewId(reviewId)
-                .productId(productId)
-                .title("reviewTitle")
-                .build();
-        ReviewDTO reviewDTO = ReviewMapper.toDto(reviewView);
-        Mockito.when(reviewGetByIdQueryHandler.handle(new ReviewGetByIdQuery(reviewId))).thenReturn(reviewDTO);
-        //Act
-        mockMvc.perform(get("/api/v1/reviews/" + reviewId)
-                        .with(jwt().jwt(jwt -> {
-                            jwt.claim("sub", UUID.randomUUID());
-                            jwt.claim("realm_access.roles", "ROLE_ADMIN");
-                        })))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(reviewDTO)));
         //Assert

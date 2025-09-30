@@ -1,73 +1,70 @@
-//package by.cryptic.cartservice.service.query;
-//
-//import by.cryptic.categoryservice.dto.CategoryDTO;
-//import by.cryptic.categoryservice.model.read.CategoryView;
-//import by.cryptic.categoryservice.model.write.Category;
-//import by.cryptic.categoryservice.repository.read.CategoryViewRepository;
-//import by.cryptic.categoryservice.service.query.handler.CategoryGetByIdQueryHandler;
-//import jakarta.persistence.EntityNotFoundException;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.Mockito;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.cache.Cache;
-//import org.springframework.cache.CacheManager;
-//import org.springframework.transaction.annotation.Transactional;
-//
-//import java.util.Optional;
-//import java.util.UUID;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertThrows;
-//
-//@ExtendWith(MockitoExtension.class)
-//@Transactional
-//class CartGetByIdQueryHandlerTest {
-//
-//    @Mock
-//    private CategoryViewRepository categoryViewRepository;
-//
-//    @Mock
-//    private CacheManager cacheManager;
-//
-//    @Mock
-//    private Cache cache;
-//
-//    @InjectMocks
-//    private CategoryGetByIdQueryHandler categoryGetByIdQueryHandler;
-//
-//    @Test
-//    void getCategoryById_withValidUUID_shouldReturnCategory() {
-//        //Arrange
-//        UUID categoryId = UUID.randomUUID();
-//        Category category = Category.builder()
-//                .id(categoryId)
-//                .name("testProduct")
-//                .description("testDesc")
-//                .build();
-//        CategoryView categoryView = new CategoryView(categoryId, category.getName(), category.getDescription());
-//        CategoryDTO categoryDTO = new CategoryDTO(category.getName(), category.getDescription());
-//        Mockito.when(categoryViewRepository.findById(categoryId)).thenReturn(Optional.of(categoryView));
-//        Mockito.when(cacheManager.getCache("categories")).thenReturn(cache);
-//        //Act
-//        CategoryDTO result = categoryGetByIdQueryHandler.handle(categoryId);
-//        //Assert
-//        assertEquals(categoryDTO, result);
-//        Mockito.verify(categoryViewRepository, Mockito.times(1)).findById(categoryId);
-//        Mockito.verifyNoMoreInteractions(categoryViewRepository);
-//    }
-//
-//    @Test
-//    void getCategoryById_withInvalidUUID_shouldThrowEntityNotFoundException() {
-//        //Arrange
-//        UUID categoryId = UUID.randomUUID();
-//        Mockito.when(categoryViewRepository.findById(categoryId)).thenReturn(Optional.empty());
-//        //Act
-//        //Assert
-//        assertThrows(EntityNotFoundException.class, () -> categoryGetByIdQueryHandler.handle(categoryId));
-//        Mockito.verify(categoryViewRepository, Mockito.times(1)).findById(categoryId);
-//        Mockito.verifyNoMoreInteractions(categoryViewRepository);
-//    }
-//}
+package by.cryptic.cartservice.service.query;
+
+import by.cryptic.cartservice.model.read.CartProductView;
+import by.cryptic.cartservice.model.read.CartView;
+import by.cryptic.cartservice.repository.read.CartViewRepository;
+import by.cryptic.cartservice.service.query.handler.CartGetByIdQueryHandler;
+import by.cryptic.utils.DTO.CartProductDTO;
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.Profile;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(MockitoExtension.class)
+@Transactional
+@Profile("mongo")
+class CartGetByIdQueryHandlerTest {
+
+    @Mock
+    private CartViewRepository cartViewRepository;
+
+    @InjectMocks
+    private CartGetByIdQueryHandler cartGetByIdQueryHandler;
+
+    @Test
+    void getCartById_withValidUUID_shouldReturnCart() {
+        //Arrange
+        UUID userId = UUID.randomUUID();
+        UUID cartId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+        CartView cartView = new CartView(cartId, userId, BigDecimal.ONE,
+                List.of(new CartProductView(productId, 42, BigDecimal.ONE)));
+        CartProductDTO cartProductDTO = CartProductDTO.builder()
+                .quantity(42)
+                .productId(productId)
+                .pricePerUnit(BigDecimal.ONE)
+                .build();
+        Mockito.when(cartViewRepository.findCartViewByUserId(userId)).thenReturn(Optional.of(cartView));
+        //Act
+        CartProductDTO result = cartGetByIdQueryHandler.handle(new CartGetByIdQuery(userId, productId));
+        //Assert
+        Assertions.assertEquals(result, cartProductDTO);
+        Mockito.verify(cartViewRepository, Mockito.times(1)).findCartViewByUserId(userId);
+        Mockito.verifyNoMoreInteractions(cartViewRepository);
+    }
+
+    @Test
+    void getCartById_withInvalidUUID_shouldThrowEntityNotFoundException() {
+        //Arrange
+        UUID userId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+        //Act
+        //Assert
+        assertThrows(EntityNotFoundException.class, () -> cartGetByIdQueryHandler.handle(new CartGetByIdQuery(userId, productId)));
+        Mockito.verify(cartViewRepository, Mockito.times(1)).findCartViewByUserId(userId);
+        Mockito.verifyNoMoreInteractions(cartViewRepository);
+    }
+}

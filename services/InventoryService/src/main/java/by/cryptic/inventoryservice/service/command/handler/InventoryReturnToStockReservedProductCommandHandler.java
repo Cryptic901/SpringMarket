@@ -25,7 +25,6 @@ public class InventoryReturnToStockReservedProductCommandHandler implements Comm
     @Override
     @Transactional
     public void handle(InventoryReturnToStockReservedProductCommand command) {
-        log.info("SAGA INVENTORY RETURN TO STOCK RESERVED PRODUCT: {}", command);
         List<Reservation> reservations = reservationRepository
                 .findAllByOrderId(command.orderId());
 
@@ -34,7 +33,6 @@ public class InventoryReturnToStockReservedProductCommandHandler implements Comm
             return;
         }
 
-        log.info("SAGA VALIDATE AND GET RESERVATIONS {}", reservations);
         List<Inventory> inventories = new ArrayList<>();
 
         for (Reservation reservation : reservations) {
@@ -44,7 +42,6 @@ public class InventoryReturnToStockReservedProductCommandHandler implements Comm
 
             inventory.returnToStock(reservation.getQuantityToReserve());
             inventories.add(inventory);
-            log.info("SAGA INVENTORY {}", inventory);
         }
         reservationRepository.deleteAllById(reservations.stream()
                 .map(Reservation::getId)
