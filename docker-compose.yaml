@@ -30,8 +30,9 @@ services:
       timeout: 60s
       retries: 5
       start_period: 60s
+    user: "0:0"
     volumes:
-      - kafka-1_data:/bitnami/kafka
+      - kafka-1_data:/bitnami/kafka:rw
 
   kafka-2:
     image: bitnami/kafka:latest
@@ -60,8 +61,9 @@ services:
       timeout: 60s
       retries: 5
       start_period: 60s
+    user: "0:0"
     volumes:
-      - kafka-2_data:/bitnami/kafka
+      - kafka-2_data:/bitnami/kafka:rw
 
   kafka-3:
     image: bitnami/kafka:latest
@@ -90,8 +92,9 @@ services:
       timeout: 60s
       retries: 5
       start_period: 60s
+    user: "0:0"
     volumes:
-      - kafka-3_data:/bitnami/kafka
+      - kafka-3_data:/bitnami/kafka:rw
 
   debezium:
     image: debezium/connect:2.7.3.Final
@@ -270,6 +273,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    user: "0:0"
 
   grafana:
     image: grafana/grafana:latest
@@ -290,51 +294,61 @@ services:
     depends_on:
       prometheus:
         condition: service_healthy
+    user: "0:0"
 
-#  grafana-loki:
-#    image: grafana/loki:latest
-#    container_name: grafana-loki
-#    ports:
-#      - "3100:3100"
-#    restart: on-failure:3
-#    networks:
-#      - spring-market
-#    volumes:
-#      - grafana_data:/var/lib/grafana
-#    healthcheck:
-#      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
-#      start_period: 15s
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#    depends_on:
-#      prometheus:
-#        condition: service_healthy
-#      grafana:
-#        condition: service_healthy
-#
-#  grafana-alloy:
-#    image: grafana/alloy:latest
-#    container_name: grafana-alloy
-#    ports:
-#      - "12345:12345"
-#    restart: on-failure:3
-#    networks:
-#      - spring-market
-#    volumes:
-#      - grafana_data:/var/lib/grafana
-#    healthcheck:
-#      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9080/ready || exit 1" ]
-#      start_period: 15s
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#    depends_on:
-#      prometheus:
-#        condition: service_healthy
-#      grafana:
-#        condition: service_healthy
-#
+  grafana-loki:
+    image: grafana/loki:latest
+    container_name: grafana-loki
+    ports:
+      - "3100:3100"
+    restart: on-failure:3
+    networks:
+      - spring-market
+    volumes:
+      - loki_data:/var/lib/loki
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
+      start_period: 15s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    user: "0:0"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
+
+  grafana-alloy:
+    image: grafana/alloy:latest
+    container_name: grafana-alloy
+    ports:
+      - "12345:12345"
+    restart: on-failure:3
+    networks:
+      - spring-market
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - /etc/alloy/config.alloy
+    user: "0:0"
+    healthcheck:
+      test: [ "CMD", "pgrep", "alloy" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      grafana-loki:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
+
 #  grafana-tempo:
 #    image: grafana/tempo:latest
 #    container_name: grafana-tempo
@@ -378,7 +392,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - /home/cryptic/IdeaProjects/SpringMarket/config:/config
+      - ./config:/config
 
   eureka-server:
     build:
@@ -856,4 +870,7 @@ volumes:
   kafka-3_data:
   debezium_data:
   prometheus_data:
+    driver: local
   grafana_data:
+  loki_data:
+  alloy_data:
