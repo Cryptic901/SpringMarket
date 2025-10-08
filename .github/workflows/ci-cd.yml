@@ -150,11 +150,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and Test ${{matrix.include.name}}
+      - name: Build and Test ${{matrix.name}}
         if: >
-          contains(needs.detect-changes.outputs.services, matrix.include.name) ||
+          contains(needs.detect-changes.outputs.services, matrix.name) ||
           contains(needs.detect-changes.outputs.services, 'all')
-        working-directory: ${{ matrix.include.context }}
+        working-directory: ${{ matrix.context }}
         run: |
           mvn clean test
           mvn package -DskipTests
@@ -162,8 +162,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.include.name }}-jar
-          path: ${{ matrix.include.context }}/target/*.jar
+          name: ${{ matrix.name }}-jar
+          path: ${{ matrix.context }}/target/*.jar
           retention-days: 1
 
   build-and-push-images:
@@ -229,8 +229,8 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.include.name }}-jar
-          path: ${{ matrix.include.context }}/target
+          name: ${{ matrix.name }}-jar
+          path: ${{ matrix.context }}/target
 
       - name: Log in to Github Container Registry
         uses: docker/login-action@v3
@@ -243,7 +243,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.include.name }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.name }}
           tags: |
             type=sha,prefix={{branch}}-
             type=raw,value=latest
@@ -252,12 +252,12 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.include.context }}
+          context: ${{ matrix.context }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.include.name }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.include.name }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.name }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.name }}:buildcache,mode=max
 
 
 
