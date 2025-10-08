@@ -152,7 +152,7 @@ jobs:
 
       - name: Install parent POM
         working-directory: .
-        run: mvn clean package -DskipTests -pl pom.xml -N
+        run: mvn clean install -DskipTests -pl pom.xml -N
 
       - name: Build libraries
         run: |
