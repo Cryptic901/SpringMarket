@@ -27,7 +27,7 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
 
     @Override
     @Transactional
-//    @Retry(name = "productRetry", fallbackMethod = "productCreateRetryFallback")
+    @Retry(name = "productRetry", fallbackMethod = "productCreateRetryFallback") //TODO переделать везде Resilience4J над сигнатурами методов
     public void handle(ProductCreateCommand productDTO) {
         Product product = saveProduct(productDTO);
 

@@ -73,7 +73,7 @@ class ProductCreateCommandHandlerRetryTest {
                 .when(productRepository).save(any());
 
         //Act
-        assertThrows(CreatingException.class, () -> productCreateCommandHandler.saveProduct(productCreateCommand));
+        assertThrows(CreatingException.class, () -> productCreateCommandHandler.handle(productCreateCommand));
         //Assert
         verify(productCreateCommandHandler, atLeast(1))
                 .productCreateRetryFallback(eq(productCreateCommand), any(Throwable.class));
