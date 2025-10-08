@@ -497,20 +497,6 @@ services:
       keycloak:
         condition: service_healthy
 
-  #  vault:
-  #    container_name: vault
-  #    image: vault:1.13.3
-  #    restart: always
-  #    ports:
-  #      - "8200:8200"
-  #    environment:
-  #      VAULT_DEV_ROOT_TOKEN_ID: root
-  #      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
-  #    cap_add:
-  #      - IPC_LOCK
-  #    networks:
-  #      - spring-market
-
   analytic-service:
     build:
       context: ./services/AnalyticService

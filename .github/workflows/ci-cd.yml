@@ -1,4 +1,263 @@
-name: ci-cd.yml
+name: SpringMarket CI/CD
 on:
+  push:
+    branches: [ci-test]
+  pull_request:
+    branches: [ci-test]
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{github.repository}}
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{steps.filter.outputs.changes}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            analytic-service:
+              - 'services/AnalyticService/**'
+              - 'config/AnalyticService-**.yaml'
+            cart-service:
+              - 'services/CartService/**'
+              - 'config/CartService-**.yaml'
+            category-service:
+              - 'services/CategoryService/**'
+              - 'config/CategoryService-**.yaml'
+            config-server:
+              - 'services/ConfigServer/**'
+              - 'config/ConfigServer-**.yaml'
+            eureka-server:
+              - 'services/EurekaServer/**'
+              - 'config/EurekaServer-**.yaml'
+            gateway:
+              - 'services/Gateway/**'
+              - 'config/Gateway-**.yaml'
+            inventory-service:
+              - 'services/InventoryService/**'
+              - 'config/InventoryService-**.yaml'
+            notification-service:
+              - 'services/NotificationService/**'
+              - 'config/NotificationService-**.yaml'
+            order-service:
+              - 'services/OrderService/**'
+              - 'config/OrderService-**.yaml'
+            payment-service:
+              - 'services/PaymentService/**'
+              - 'config/PaymentService-**.yaml'
+            product-service:
+              - 'services/ProductService/**'
+              - 'config/ProductService-**.yaml'
+            review-server:
+              - 'services/ReviewService/**'
+              - 'config/ReviewService-**.yaml'
+            saga-service:
+              - 'services/SagaService/**'
+              - 'config/SagaService-**.yaml'
+            user-service:
+              - 'services/UserService/**'
+              - 'config/UserService-**.yaml'
+            common-exception:
+              - 'libraries/common-exception/**'
+            common-security:
+              - 'libraries/common-security/**'
+            common-utils:
+              - 'libraries/common-utils/**'
+            kafka-keycloak-spi:
+              - 'libraries/kafka-keycloak-spi/**'
+            all:
+              - '.github/workflows/**'
+              - 'pom.xml'
+              - 'config/application-**.yaml'
+            
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.services != '[]'
+
+    strategy:
+      matrix:
+        include:
+          - name: analytic-service
+            port: 8085
+            context: ./services/AnalyticService
+
+          - name: cart-service
+            port: 8084
+            context: ./services/CartService
+
+          - name: category-service
+            port: 8091
+            context: ./services/CategoryService
+
+          - name: config-server
+            port: 8888
+            context: ./services/ConfigServer
+
+          - name: eureka-server
+            port: 8761
+            context: ./services/EurekaServer
+
+          - name: gateway
+            port: 8080
+            context: ./services/Gateway
+
+          - name: inventory-service
+            port: 8087
+            context: ./services/InventoryService
+
+          - name: notification-service
+            port: 8089
+            context: ./services/NotificationService
+
+          - name: order-service
+            port: 8091
+            context: ./services/OrderService
+
+          - name: payment-service
+            port: 8088
+            context: ./services/PaymentService
+
+          - name: product-service
+            port: 8081
+            context: ./services/ProductService
+
+          - name: review-service
+            port: 8083
+            context: ./services/ReviewService
+
+          - name: saga-service
+            port: 8090
+            context: ./services/SagaService
+
+          - name: user-service
+            port: 8086
+            context: ./services/UserService
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and Test ${{matrix.include.name}}
+        if: >
+          contains(needs.detect-changes.outputs.services, matrix.include.name) ||
+          contains(needs.detect-changes.outputs.services, 'all')
+        working-directory: ${{ matrix.include.context }}
+        run: |
+          mvn clean test
+          mvn package -DskipTests
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.include.name }}-jar
+          path: ${{ matrix.include.context }}/target/*.jar
+          retention-days: 1
+
+  build-and-push-images:
+    runs-on: ubuntu-latest
+    needs:
+      - detect-changes
+      - build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/head/ci-test'
+
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        include:
+          - name: analytic-service
+            context: ./services/AnalyticService
+
+          - name: cart-service
+            context: ./services/CartService
+
+          - name: category-service
+            context: ./services/CategoryService
+
+          - name: config-server
+            context: ./services/ConfigServer
+
+          - name: eureka-server
+            context: ./services/EurekaServer
+
+          - name: gateway
+            context: ./services/Gateway
+
+          - name: inventory-service
+            context: ./services/InventoryService
+
+          - name: notification-service
+            context: ./services/NotificationService
+
+          - name: order-service
+            context: ./services/OrderService
+
+          - name: payment-service
+            context: ./services/PaymentService
+
+          - name: product-service
+            context: ./services/ProductService
+
+          - name: review-service
+            context: ./services/ReviewService
+
+          - name: saga-service
+            context: ./services/SagaService
+
+          - name: user-service
+            context: ./services/UserService
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.include.name }}-jar
+          path: ${{ matrix.include.context }}/target
+
+      - name: Log in to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.include.name }}
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest
+            type=semver,pattern={{version}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.include.context }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.include.name }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.include.name }}:buildcache,mode=max
+
+
+

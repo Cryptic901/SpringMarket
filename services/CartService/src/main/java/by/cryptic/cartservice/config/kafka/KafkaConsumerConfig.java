@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Objects;
 
 @Configuration
-@Profile("kafka")
 @EnableKafka
+@Profile("kafka")
 @Slf4j
 public class KafkaConsumerConfig {
 

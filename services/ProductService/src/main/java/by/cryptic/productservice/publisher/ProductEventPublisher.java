@@ -23,8 +23,8 @@ public class ProductEventPublisher {
 
     private final OutboxRepository outboxRepository;
 
-    @Retry(name = "productRetry", fallbackMethod = "productCreateRetryFallback")
     public void saveProductView(Product product) {
+        log.info("Saving productView {}", product);
         OutboxEntity outboxEntity = OutboxEntity.builder()
                 .aggregateId(product.getId())
                 .aggregateType("product")
@@ -41,6 +41,7 @@ public class ProductEventPublisher {
                         .productStatus(product.getProductStatus())
                         .build())
                 .build();
+        log.info("Saving Outbox {}", outboxEntity);
         outboxRepository.save(outboxEntity);
     }
 
@@ -77,17 +78,13 @@ public class ProductEventPublisher {
         outboxRepository.save(outboxEntity);
     }
 
-    public void productCreateRetryFallback(Product product, Throwable t) {
-        log.error("Failed to create {} after all retry attempts. Cause: {}", product.getName(), t.getMessage(), t);
-        throw new CreatingException("Failed to create review:" + product.getName(), t);
-    }
 
     public void productDeleteRetryFallback(Product product, Throwable t) {
         log.error("Failed to delete {} after all retry attempts. Cause: {}", product.getName(), t.getMessage(), t);
         throw new DeletingException("Failed to delete review:" + product.getName(), t);
     }
 
-    public void productUpdateRetryFallback(Product product,ProductUpdateCommand productUpdateCommand, Throwable t) {
+    public void productUpdateRetryFallback(Product product, ProductUpdateCommand productUpdateCommand, Throwable t) {
         log.error("Failed to update {} after all retry attempts. Cause: {}", productUpdateCommand.name(), t.getMessage(), t);
         throw new UpdatingException("Failed to update review:" + productUpdateCommand.name(), t);
     }

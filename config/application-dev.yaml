@@ -64,12 +64,20 @@ resilience4j:
         baseConfig: default
 
 management:
-  zipkin:
-    tracing:
-      endpoint: http://grafana-tempo:9411/api/v2/spans
   tracing:
     sampling:
       probability: 1.0
+    propagation:
+      type: w3c
+  otel:
+    traces:
+      exporter: otlp
+    exporter:
+      otlp:
+        endpoint: http://grafana-tempo:4317
+  otlp:
+    tracing:
+      endpoint: http://grafana-tempo:4318/v1/traces
   endpoints:
     web:
       exposure:

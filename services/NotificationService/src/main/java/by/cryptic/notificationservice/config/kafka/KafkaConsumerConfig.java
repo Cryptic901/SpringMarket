@@ -18,8 +18,8 @@ import java.util.Objects;
 
 @Configuration
 @EnableKafka
-@Slf4j
 @Profile("kafka")
+@Slf4j
 public class KafkaConsumerConfig {
 
     @Bean

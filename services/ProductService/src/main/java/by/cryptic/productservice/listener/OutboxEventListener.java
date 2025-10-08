@@ -22,7 +22,8 @@ public class OutboxEventListener {
     @KafkaListener(topics = "outbox-event.product",
             groupId = "outbox-consumer-group",
             containerFactory = "stringKafkaListenerFactory")
-    public void listenCategoryOutbox(String json) throws JsonProcessingException {
+    public void listenProductOutbox(String json) throws JsonProcessingException {
+        log.info("listenProductOutbox {}", json);
         JsonNode jsonNode = objectMapper.readTree(json);
         if (jsonNode.isTextual()) {
             jsonNode = objectMapper.readTree(jsonNode.asText());

@@ -1,7 +1,6 @@
 package by.cryptic.cartservice.service.command.handler;
 
 import by.cryptic.cartservice.client.ProductServiceClient;
-import by.cryptic.exceptions.NotEnoughProductsException;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.model.write.CartProduct;
 import by.cryptic.cartservice.publisher.CartEventPublisher;
@@ -9,8 +8,9 @@ import by.cryptic.cartservice.repository.write.CartRepository;
 import by.cryptic.cartservice.service.command.CartAddCommand;
 import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.exceptions.CreatingException;
-import by.cryptic.utils.handler.CommandHandler;
+import by.cryptic.exceptions.NotEnoughProductsException;
 import by.cryptic.utils.DTO.ProductDTO;
+import by.cryptic.utils.handler.CommandHandler;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -34,16 +34,19 @@ public class ProductEventListener {
     public void listenProducts(DomainEvent event) {
         log.debug("Received event: {}", event.getClass().getSimpleName());
         switch (event) {
-            case ProductCreatedEvent productCreatedEvent -> productViewRepository.save(ProductView.builder()
-                    .productId(productCreatedEvent.getProductId())
-                    .name(productCreatedEvent.getName())
-                    .price(productCreatedEvent.getPrice())
-                    .quantity(productCreatedEvent.getQuantity())
-                    .description(productCreatedEvent.getDescription())
-                    .image(productCreatedEvent.getImage())
-                    .createdBy(productCreatedEvent.getCreatedBy())
-                    .categoryId(productCreatedEvent.getCategoryId())
-                    .build());
+            case ProductCreatedEvent productCreatedEvent -> {
+                log.info("Received ProductCreatedEvent: {}", productCreatedEvent.getClass().getSimpleName());
+                productViewRepository.save(ProductView.builder()
+                        .productId(productCreatedEvent.getProductId())
+                        .name(productCreatedEvent.getName())
+                        .price(productCreatedEvent.getPrice())
+                        .quantity(productCreatedEvent.getQuantity())
+                        .description(productCreatedEvent.getDescription())
+                        .image(productCreatedEvent.getImage())
+                        .createdBy(productCreatedEvent.getCreatedBy())
+                        .categoryId(productCreatedEvent.getCategoryId())
+                        .build());
+            }
 
             case ProductUpdatedEvent productUpdatedEvent ->
                     productViewRepository.findById(productUpdatedEvent.getProductId())
@@ -80,9 +83,6 @@ public class ProductEventListener {
 
     @KafkaListener(topics = "inventory-topic")
     public void listenDebezium(DomainEvent event) {
-        log.info("-------------------------------------------");
-        log.info("SAGA LISTENING IN PRODUCT EVENT LISTENER");
-        log.info("!!!!!Event class: {}", event.getClass().getSimpleName());
         switch (event) {
             case ProductUpdatedQuantityFromStockEvent productUpdatedQuantityFromStockEvent -> {
                 Product product = productRepository.findById
@@ -92,18 +92,12 @@ public class ProductEventListener {
                 ProductView productView = productViewRepository.findById
                                 (productUpdatedQuantityFromStockEvent.getProductId())
                         .orElseThrow(() -> new IllegalStateException("There are no products to update quantity"));
-                log.info("product updated quantity from saga: {}", productUpdatedQuantityFromStockEvent.getQuantity());
-                log.info("product quantity : {}", product.getQuantity());
                 product.setQuantity(productUpdatedQuantityFromStockEvent.getQuantity());
-
-                log.info("product updated quantity : {}", product.getQuantity());
 
                 productView.setQuantity(productUpdatedQuantityFromStockEvent.getQuantity());
 
                 productRepository.save(product);
-                log.info("SAGA PRODUCT UPDATED PRODUCT QUANTITY: {}", product);
                 productViewRepository.save(productView);
-                log.info("SAGA PRODUCT VIEW UPDATED PRODUCT QUANTITY: {}", productView);
             }
             default -> log.warn("Unexpected event type: {}", event.getClass().getSimpleName());
         }
