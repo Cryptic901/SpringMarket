@@ -88,16 +88,16 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Build common-utils
+        working-directory: ./libraries/common-utils
+        run: mvn clean install -DskipTests
+
       - name: Build common-exception
         working-directory: ./libraries/common-exception
         run: mvn clean install -DskipTests
 
-      - name: Build common-utils
-        working-directory: ./libraries/common-exception
-        run: mvn clean install -DskipTests
-
-      - name: Build common-utils
-        working-directory: ./libraries/common-utils
+      - name: Build common-security
+        working-directory: ./libraries/common-security
         run: mvn clean install -DskipTests
 
       - name: Build kafka-keycloak-spi
