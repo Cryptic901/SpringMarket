@@ -55,21 +55,29 @@ resilience4j:
   ratelimiter:
     configs:
       default:
-        limit-for-period: 100
+        limit-for-period: 10
         limit-refresh-period: 1s
-        timeout-duration: 10s
+        timeout-duration: 0s
         register-health-indicator: true
     instances:
       paymentRatelimiter:
         baseConfig: default
 
 management:
-  zipkin:
-    tracing:
-      endpoint: http://grafana-tempo:9411/api/v2/spans
   tracing:
     sampling:
       probability: 1.0
+    propagation:
+      type: w3c
+  otel:
+    traces:
+      exporter: otlp
+    exporter:
+      otlp:
+        endpoint: http://grafana-tempo:4317
+  otlp:
+    tracing:
+      endpoint: http://grafana-tempo:4318/v1/traces
   endpoints:
     web:
       exposure:

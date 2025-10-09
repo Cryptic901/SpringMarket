@@ -1,5 +1,6 @@
 server:
   port: 8089
+  shutdown: graceful
 eureka:
   instance:
     hostname: notification-service

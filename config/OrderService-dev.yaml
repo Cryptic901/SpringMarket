@@ -1,6 +1,6 @@
 server:
   port: 8082
-
+  shutdown: graceful
 eureka:
   instance:
     hostname: order-service

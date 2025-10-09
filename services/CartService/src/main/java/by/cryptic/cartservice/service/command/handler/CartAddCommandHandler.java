@@ -12,6 +12,7 @@ import by.cryptic.exceptions.CreatingException;
 import by.cryptic.utils.handler.CommandHandler;
 import by.cryptic.utils.DTO.ProductDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
 
     @Override
     @Transactional
+    @Retry(name = "cartRetry", fallbackMethod = "cartCreatingRetryFallback")
     public void handle(CartAddCommand command) {
         Cart cart = getOrCreateCart(command);
 
@@ -90,7 +92,6 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
         return productServiceClient.getProductById(command.productId()).getBody();
     }
 
-    @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartCreatingCircuitBreakerFallback")
     public Cart getOrCreateCart(CartAddCommand command) {
         return cartRepository.findByUserIdWithItems(command.userId())
                 .orElseGet(() -> {
@@ -108,7 +109,7 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
         throw new CreatingException("Failed to add product:" + command.productId(), t);
     }
 
-    public Cart cartCreatingCircuitBreakerFallback(CartAddCommand command, Throwable t) {
+    public void cartCreatingRetryFallback(CartAddCommand command, Throwable t) {
         log.error("Failed to create or find cart of user {} after all attempts. Cause: {}", command.userId(), t.getMessage(), t);
         throw new CreatingException("Failed to create cart:" + command.productId(), t);
     }

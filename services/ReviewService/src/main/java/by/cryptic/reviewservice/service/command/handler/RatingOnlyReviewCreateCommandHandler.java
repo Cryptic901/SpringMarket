@@ -33,6 +33,7 @@ public class RatingOnlyReviewCreateCommandHandler implements CommandHandler<Rati
 
     @Override
     @Transactional
+    @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryFallback")
     public void handle(RatingOnlyReviewCreateCommand dto) {
         log.info("Trying to create rating only review: {}", dto);
         RatingOnlyReview ratingOnlyReview = saveReview(dto);
@@ -51,7 +52,6 @@ public class RatingOnlyReviewCreateCommandHandler implements CommandHandler<Rati
         }
     }
 
-    @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryFallback")
     public RatingOnlyReview saveReview(RatingOnlyReviewCreateCommand dto) {
         if (getProductByFeignClient(dto.productId()) == null) {
             throw new EntityNotFoundException("Product not found with id");
@@ -69,7 +69,7 @@ public class RatingOnlyReviewCreateCommandHandler implements CommandHandler<Rati
         return productServiceClient.getProductById(productId).getBody();
     }
 
-    public RatingOnlyReview reviewRetryFallback(RatingOnlyReviewCreateCommand dto, Throwable t) {
+    public void reviewRetryFallback(RatingOnlyReviewCreateCommand dto, Throwable t) {
         log.error("Failed to create review for {} after all retry attempts. Cause: {}", dto.productId(), t.getMessage(), t);
         throw new CreatingException("Failed to create review for product:" + dto.productId(), t);
     }

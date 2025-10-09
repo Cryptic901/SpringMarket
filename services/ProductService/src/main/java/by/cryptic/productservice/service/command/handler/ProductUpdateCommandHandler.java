@@ -28,6 +28,7 @@ public class ProductUpdateCommandHandler implements CommandHandler<ProductUpdate
 
     @Override
     @Transactional
+    @Retry(name = "productRetry", fallbackMethod = "productUpdateRetryFallback")
     public void handle(ProductUpdateCommand updateProductDTO) {
         Product product = getProductAndValidateAccess(updateProductDTO);
 
@@ -56,13 +57,12 @@ public class ProductUpdateCommandHandler implements CommandHandler<ProductUpdate
         return product;
     }
 
-    @Retry(name = "productRetry", fallbackMethod = "productUpdateRetryFallback")
     public void updateProduct(Product product, ProductUpdateCommand updateProductDTO) {
         ProductMapper.updateEntity(product, updateProductDTO);
         productRepository.save(product);
     }
 
-    public void productUpdateRetryFallback(Product product, ProductUpdateCommand productUpdateCommand, Throwable t) {
+    public void productUpdateRetryFallback(ProductUpdateCommand productUpdateCommand, Throwable t) {
         log.error("Failed to update {} after all retry attempts. Cause: {}", productUpdateCommand.name(), t.getMessage(), t);
         throw new UpdatingException("Failed to update review:" + productUpdateCommand.name(), t);
     }

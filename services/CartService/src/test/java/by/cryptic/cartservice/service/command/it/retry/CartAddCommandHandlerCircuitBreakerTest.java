@@ -89,7 +89,7 @@ class CartAddCommandHandlerCircuitBreakerTest {
         assertThrows(CreatingException.class, () -> cartAddCommandHandler.getOrCreateCart(cartAddCommand));
         //Assert
         verify(cartAddCommandHandler, atLeast(1))
-                .cartCreatingCircuitBreakerFallback(eq(cartAddCommand), any(Throwable.class));
+                .cartCreatingRetryFallback(eq(cartAddCommand), any(Throwable.class));
         verify(cartRepository, times(1)).save(any());
     }
 }

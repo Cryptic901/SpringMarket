@@ -94,7 +94,7 @@ class ReviewUpdateCommandHandlerRetryTest {
         assertThrows(UpdatingException.class, () -> reviewUpdateCommandHandler.updateReview(review, reviewUpdateCommand));
         //Assert
         verify(reviewUpdateCommandHandler, atLeast(1))
-                .reviewRetryUpdateFallback(any(Review.class), eq(reviewUpdateCommand), any(Throwable.class));
+                .reviewRetryUpdateFallback(eq(reviewUpdateCommand), any(Throwable.class));
         verify(reviewRepository, times(3)).save(any());
     }
 }

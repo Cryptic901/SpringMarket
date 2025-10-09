@@ -41,6 +41,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(PaymentTooManyRequestException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentTooManyRequestException(NullPointerException e, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(),
+                HttpStatus.TOO_MANY_REQUESTS.value(), request.getRequestURI());
+        return new ResponseEntity<>(errorResponse, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
     @ExceptionHandler(EmptyCartException.class)
     public ResponseEntity<ErrorResponse> handleEmptyCartException(EmptyCartException e, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage(),

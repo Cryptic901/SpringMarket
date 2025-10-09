@@ -27,6 +27,7 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
 
     @Override
     @Transactional
+    @Retry(name = "productRetry", fallbackMethod = "productCreateRetryFallback")
     public void handle(ProductCreateCommand productDTO) {
         Product product = saveProduct(productDTO);
 
@@ -44,7 +45,6 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
         }
     }
 
-    @Retry(name = "productRetry", fallbackMethod = "productCreateRetryFallback")
     public Product saveProduct(ProductCreateCommand productDTO) {
         Product product = Product.builder()
                 .name(productDTO.name())
@@ -59,7 +59,7 @@ public class ProductCreateCommandHandler implements CommandHandler<ProductCreate
         return product;
     }
 
-    public Product productCreateRetryFallback(ProductCreateCommand productCreateCommand, Throwable t) {
+    public void productCreateRetryFallback(ProductCreateCommand productCreateCommand, Throwable t) {
         log.error("Failed to create {} after all retry attempts. Cause: {}", productCreateCommand.name(), t.getMessage(), t);
         throw new CreatingException("Failed to create review:" + productCreateCommand.name(), t);
     }

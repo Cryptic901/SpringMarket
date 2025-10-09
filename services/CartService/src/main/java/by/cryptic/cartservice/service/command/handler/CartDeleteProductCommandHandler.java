@@ -35,6 +35,7 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
 
     @Override
     @Transactional
+    @Retry(name = "cartRetry", fallbackMethod = "cartDeleteProductRetryFallback")
     public void handle(CartDeleteProductCommand command) {
         Cart cart = cartRepository.findByUserIdWithItems(command.userId())
                 .orElseThrow(() -> new EntityNotFoundException("You don't have any products in your cart"));
@@ -58,7 +59,6 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
         }
     }
 
-    @Retry(name = "cartRetry", fallbackMethod = "cartDeleteProductRetryFallback")
     public void decreasingProducts(List<CartProduct> cartProducts,
                                    CartDeleteProductCommand command) {
         if (cartProducts.isEmpty()) {
@@ -82,7 +82,7 @@ public class CartDeleteProductCommandHandler implements CommandHandler<CartDelet
         }
     }
 
-    public void cartDeleteProductRetryFallback(List<CartProduct> cartProducts, CartDeleteProductCommand command, Throwable t) {
+    public void cartDeleteProductRetryFallback(CartDeleteProductCommand command, Throwable t) {
         log.error("Failed to delete {} from cart after all retry attempts. Cause: {}", command.productId(), t.getMessage(), t);
         throw new DeletingException("Failed to delete from cart:" + command.productId(), t);
     }

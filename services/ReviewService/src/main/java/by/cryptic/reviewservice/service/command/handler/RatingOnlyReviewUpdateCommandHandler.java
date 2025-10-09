@@ -28,7 +28,9 @@ public class RatingOnlyReviewUpdateCommandHandler implements CommandHandler<Rati
 
     @Override
     @Transactional
+    @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryUpdateFallback")
     public void handle(RatingOnlyReviewUpdateCommand dto) {
+
         RatingOnlyReview review = getReviewAndValidateAccess(dto);
 
         updateReview(review, dto);
@@ -57,13 +59,12 @@ public class RatingOnlyReviewUpdateCommandHandler implements CommandHandler<Rati
         }
     }
 
-    @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryUpdateFallback")
     public void updateReview(RatingOnlyReview review, RatingOnlyReviewUpdateCommand dto) {
         ReviewMapper.updateEntity(review, dto);
         ratingOnlyReviewRepository.save(review);
     }
 
-    public void reviewRetryUpdateFallback(RatingOnlyReview review, RatingOnlyReviewUpdateCommand dto, Throwable t) {
+    public void reviewRetryUpdateFallback(RatingOnlyReviewUpdateCommand dto, Throwable t) {
         log.error("Failed to update {} after all retry attempts. Cause: {}", dto.reviewId(), t.getMessage(), t);
         throw new UpdatingException("Failed to update review:" + dto.reviewId(), t);
     }

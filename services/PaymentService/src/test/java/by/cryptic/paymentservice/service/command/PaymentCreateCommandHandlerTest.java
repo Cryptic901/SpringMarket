@@ -57,7 +57,7 @@ class PaymentCreateCommandHandlerTest {
                         .orderId(orderId)
                         .userId(userId)
                         .price(BigDecimal.valueOf(148.8))
-                        .paymentStatus(PaymentStatus.PENDING)
+                        .paymentStatus(PaymentStatus.SUCCESS)
                         .build();
         Mockito.when(paymentViewRepository.save(any(PaymentView.class))).thenReturn(payment);
         //Act

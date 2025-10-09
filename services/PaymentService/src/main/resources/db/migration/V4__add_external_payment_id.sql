@@ -1,0 +1,1 @@
+ALTER TABLE payment_schema.payments ADD COLUMN external_payment_id VARCHAR(255);

@@ -1,5 +1,27 @@
 FROM eclipse-temurin:21-jdk-alpine
+
+LABEL org.opencontainers.image.source="https://github.com/Cryptic901/SpringMarket"
+LABEL org.opencontainers.image.description="Product Service - Spring Market"
+LABEL org.opencontainers.image.version="1.0.0"
+
+RUN addgroup -S spring && adduser -S spring -G spring
+
 WORKDIR /app
-COPY target/ProductService-1.0-SNAPSHOT.jar ProductService.jar
+
+ADD --chown=spring:spring \
+ https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar \
+  /app/opentelemetry-javaagent.jar
+
+COPY --chown=spring:spring target/ProductService-1.0-SNAPSHOT.jar /app/ProductService.jar
+
+USER spring:spring
+
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+    -XX:MaxRAMPercentage=75.0 \
+    -XX:+UseG1GC \
+    -XX:+UseStringDeduplication \
+    -Djava.security.egd=file:/dev/./urandom"
+
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "ProductService.jar"]
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar ProductService.jar"]

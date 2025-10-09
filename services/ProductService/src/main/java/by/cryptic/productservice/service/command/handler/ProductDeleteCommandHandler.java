@@ -25,6 +25,7 @@ public class ProductDeleteCommandHandler implements CommandHandler<ProductDelete
     @Override
     @Transactional
     @CacheEvict(cacheNames = "products", key = "'product:' + #command.productId()")
+    @Retry(name = "productRetry", fallbackMethod = "productDeleteRetryFallback")
     public void handle(ProductDeleteCommand command) {
         Product product = validateProductAndAccess(command);
         deleteProduct(command);
@@ -41,7 +42,6 @@ public class ProductDeleteCommandHandler implements CommandHandler<ProductDelete
         return product;
     }
 
-    @Retry(name = "productRetry", fallbackMethod = "productDeleteRetryFallback")
     public void deleteProduct(ProductDeleteCommand command) {
         productRepository.deleteById(command.productId());
     }

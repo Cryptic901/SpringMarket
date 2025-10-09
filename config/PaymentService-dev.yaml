@@ -1,5 +1,6 @@
 server:
   port: 8088
+  shutdown: graceful
 
 eureka:
   instance:
@@ -35,6 +36,10 @@ spring:
         partitions: 3
         replicas: 3
         minInsyncReplicas: 1
+
+stripe:
+  secret:
+    key: ${STRIPE_SECRET_KEY}
 
   datasource:
     url: jdbc:postgresql://postgres:5432/payment_db

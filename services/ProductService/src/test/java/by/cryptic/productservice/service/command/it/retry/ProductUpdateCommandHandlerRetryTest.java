@@ -25,7 +25,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -86,6 +85,6 @@ class ProductUpdateCommandHandlerRetryTest {
         assertThrows(UpdatingException.class, () -> productUpdateCommandHandler.updateProduct(product, productUpdateCommand));
         //Assert
         verify(productUpdateCommandHandler, atLeast(1))
-                .productUpdateRetryFallback(eq(product), eq(productUpdateCommand), any(Throwable.class));
+                .productUpdateRetryFallback(eq(productUpdateCommand), any(Throwable.class));
     }
 }

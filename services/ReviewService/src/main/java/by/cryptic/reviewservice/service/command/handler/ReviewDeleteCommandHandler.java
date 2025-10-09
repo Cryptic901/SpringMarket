@@ -25,6 +25,7 @@ public class ReviewDeleteCommandHandler implements CommandHandler<ReviewDeleteCo
     @Override
     @Transactional
     @CacheEvict(cacheNames = "reviews", key = "'review:' + #command.reviewId()")
+    @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryDeleteFallback")
     public void handle(ReviewDeleteCommand command) {
         getReviewAndValidateAccess(command);
 
@@ -42,7 +43,6 @@ public class ReviewDeleteCommandHandler implements CommandHandler<ReviewDeleteCo
         }
     }
 
-    @Retry(name = "reviewRetry", fallbackMethod = "reviewRetryDeleteFallback")
     public void deleteReview(ReviewDeleteCommand command) {
         reviewRepository.deleteById(command.reviewId());
     }

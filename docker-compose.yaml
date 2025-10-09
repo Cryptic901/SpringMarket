@@ -1,10 +1,12 @@
+version: '3.8'
+
 networks:
   spring-market:
     driver: bridge
 
 services:
   kafka-1:
-    image: bitnami/kafka:latest
+    image: apache/kafka:latest
     container_name: kafka-1
     hostname: kafka-1
     ports:
@@ -12,30 +14,29 @@ services:
     stop_grace_period: 30s
     environment:
       KAFKA_NODE_ID: 1
-      KAFKA_CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_PROCESS_ROLES: controller,broker
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-
       KAFKA_LISTENERS: PLAINTEXT://:9090,CONTROLLER://:9091
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9090
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
     networks:
       - spring-market
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1" ]
+      test: ["CMD-SHELL", "opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
       interval: 15s
       timeout: 60s
       retries: 5
       start_period: 60s
-    user: "0:0"
     volumes:
-      - kafka-1_data:/bitnami/kafka:rw
+      - kafka-1_data:/var/lib/kafka/data
 
   kafka-2:
-    image: bitnami/kafka:latest
+    image: apache/kafka:latest
     container_name: kafka-2
     hostname: kafka-2
     ports:
@@ -43,30 +44,32 @@ services:
     stop_grace_period: 30s
     environment:
       KAFKA_NODE_ID: 2
-      KAFKA_CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_PROCESS_ROLES: controller,broker
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-
       KAFKA_LISTENERS: PLAINTEXT://:9090,CONTROLLER://:9091
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9090
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
     networks:
       - spring-market
     restart: unless-stopped
+    depends_on:
+      kafka-1:
+        condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1" ]
+      test: ["CMD-SHELL", "opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
       interval: 15s
       timeout: 60s
       retries: 5
       start_period: 60s
-    user: "0:0"
     volumes:
-      - kafka-2_data:/bitnami/kafka:rw
+      - kafka-2_data:/var/lib/kafka/data
 
   kafka-3:
-    image: bitnami/kafka:latest
+    image: apache/kafka:latest
     container_name: kafka-3
     hostname: kafka-3
     ports:
@@ -74,27 +77,31 @@ services:
     stop_grace_period: 30s
     environment:
       KAFKA_NODE_ID: 3
-      KAFKA_CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_PROCESS_ROLES: controller,broker
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9091,2@kafka-2:9091,3@kafka-3:9091
-
       KAFKA_LISTENERS: PLAINTEXT://:9090,CONTROLLER://:9091
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9090
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
     networks:
       - spring-market
     restart: unless-stopped
+    depends_on:
+      kafka-1:
+        condition: service_started
+      kafka-2:
+        condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1" ]
+      test: ["CMD-SHELL", "opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
       interval: 15s
       timeout: 60s
       retries: 5
       start_period: 60s
-    user: "0:0"
     volumes:
-      - kafka-3_data:/bitnami/kafka:rw
+      - kafka-3_data:/var/lib/kafka/data
 
   debezium:
     image: debezium/connect:2.7.3.Final
@@ -127,7 +134,7 @@ services:
       - debezium_data:/debezium
       - ./connectors:/docker-entrypoint-init.d/
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8083/connectors || exit 1" ]
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/connectors || exit 1"]
       start_period: 60s
       interval: 10s
       timeout: 5s
@@ -140,7 +147,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -157,12 +164,7 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    command: [
-      "postgres",
-      "-c", "wal_level=logical",
-      "-c", "max_replication_slots=10",
-      "-c", "max_wal_senders=10"
-    ]
+    command: ["postgres", "-c", "wal_level=logical", "-c", "max_replication_slots=20", "-c", "max_wal_senders=20", "-c", "max_connections=200"]
     ports:
       - "5434:5432"
     volumes:
@@ -171,7 +173,7 @@ services:
     networks:
       - spring-market
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -187,7 +189,7 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -207,7 +209,7 @@ services:
     networks:
       - spring-market
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d keycloak" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d keycloak"]
       start_period: 20s
       interval: 10s
       timeout: 5s
@@ -216,34 +218,30 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
-    entrypoint: [ "/bin/bash", "-c" ]
+    entrypoint: ["/bin/bash", "-c"]
     command: >
-      "/opt/keycloak/bin/kc.sh build 
-      --metrics-enabled=true &&
-       /opt/keycloak/bin/kc.sh start-dev
-      --proxy-headers=xforwarded
-      --http-enabled=true 
-      --hostname=localhost:8080 
-      --hostname-strict=false"
-      --hostname-backchannel-dynamic=true
+      "/opt/keycloak/bin/kc.sh build --metrics-enabled=true && /opt/keycloak/bin/kc.sh start-dev --proxy-headers=xforwarded --http-enabled=true --hostname=localhost:8080 --hostname-strict=false --hostname-backchannel-dynamic=true"
     environment:
       KC_PROXY: edge
       KC_HOSTNAME_PORT: 8080
       KC_HOSTNAME_STRICT_HTTPS: false
-
       KC_DB_PASSWORD: postgres
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
       KC_DB_USERNAME: postgres
       KC_DB: postgres
-
       KC_METRICS_ENABLED: true
-
-      BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090 #connection to kafka for spi
+      BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090
     ports:
       - "9000:8080"
     volumes:
       - ./providers:/opt/keycloak/providers
     restart: on-failure:3
+    healthcheck:
+      test: ["CMD-SHELL", "cat < /dev/null > /dev/tcp/localhost/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 190s
     depends_on:
       keycloak-db:
         condition: service_healthy
@@ -257,6 +255,7 @@ services:
       - spring-market
 
   prometheus:
+    user: "0:0"
     image: prom/prometheus:latest
     container_name: prometheus
     ports:
@@ -268,14 +267,14 @@ services:
       - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/var/lib/prometheus
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
       start_period: 5s
       interval: 10s
       timeout: 5s
       retries: 5
-    user: "0:0"
 
   grafana:
+    user: "0:0"
     image: grafana/grafana:latest
     container_name: grafana
     ports:
@@ -286,7 +285,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
       start_period: 15s
       interval: 10s
       timeout: 5s
@@ -294,9 +293,9 @@ services:
     depends_on:
       prometheus:
         condition: service_healthy
-    user: "0:0"
 
   grafana-loki:
+    user: "0:0"
     image: grafana/loki:latest
     container_name: grafana-loki
     ports:
@@ -308,12 +307,11 @@ services:
       - loki_data:/var/lib/loki
       - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
       start_period: 15s
       interval: 10s
       timeout: 5s
       retries: 5
-    user: "0:0"
     depends_on:
       prometheus:
         condition: service_healthy
@@ -321,6 +319,7 @@ services:
         condition: service_healthy
 
   grafana-alloy:
+    user: "0:0"
     image: grafana/alloy:latest
     container_name: grafana-alloy
     ports:
@@ -335,9 +334,8 @@ services:
       - run
       - --server.http.listen-addr=0.0.0.0:12345
       - /etc/alloy/config.alloy
-    user: "0:0"
     healthcheck:
-      test: [ "CMD", "pgrep", "alloy" ]
+      test: ["CMD", "pgrep", "alloy"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -349,29 +347,32 @@ services:
       grafana:
         condition: service_healthy
 
-#  grafana-tempo:
-#    image: grafana/tempo:latest
-#    container_name: grafana-tempo
-#    ports:
-#      - "9411:9411"
-#      - "3200:3200"
-#    restart: on-failure:3
-#    networks:
-#      - spring-market
-#    volumes:
-#      - grafana_data:/var/lib/grafana
-#      -
-#    healthcheck:
-#      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3200/ready || exit 1" ]
-#      start_period: 15s
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#    depends_on:
-#      prometheus:
-#        condition: service_healthy
-#      grafana:
-#        condition: service_healthy
+  grafana-tempo:
+    user: "0:0"
+    image: grafana/tempo:latest
+    container_name: grafana-tempo
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
+    restart: on-failure:3
+    networks:
+      - spring-market
+    volumes:
+      - tempo_data:/tmp/tempo
+      - ./tempo/tempo.yaml:/etc/tempo.yaml
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "3200"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: ["-config.file=/etc/tempo.yaml"]
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
 
   config-server:
     build:
@@ -385,8 +386,19 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: native
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: config-server
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8888/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8888/actuator/health || exit 1"]
       start_period: 60s
       interval: 10s
       timeout: 5s
@@ -406,9 +418,19 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: eureka-server
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1"]
       start_period: 60s
       interval: 10s
       timeout: 5s
@@ -429,10 +451,20 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: gateway
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
-      start_period: 90s
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      start_period: 180s
       interval: 15s
       timeout: 5s
       retries: 5
@@ -441,22 +473,8 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
-      analytic-service:
-        condition: service_healthy #заменить на healthcheck в keycloak
-
-  #  vault:
-  #    container_name: vault
-  #    image: vault:1.13.3
-  #    restart: always
-  #    ports:
-  #      - "8200:8200"
-  #    environment:
-  #      VAULT_DEV_ROOT_TOKEN_ID: root
-  #      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
-  #    cap_add:
-  #      - IPC_LOCK
-  #    networks:
-  #      - spring-market
+      keycloak:
+        condition: service_healthy
 
   analytic-service:
     build:
@@ -470,13 +488,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: analytic-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -503,13 +531,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: cart-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -540,13 +578,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: category-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8091/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8091/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -577,13 +625,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: inventory-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8087/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8087/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -614,13 +672,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: notification-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8089/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8089/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -649,13 +717,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: order-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -686,13 +764,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: payment-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8088/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8088/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -723,13 +811,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: product-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -760,13 +858,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: review-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -797,13 +905,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: saga-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8090/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8090/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -834,13 +952,23 @@ services:
       - spring-market
     environment:
       SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
-      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: user-service
+      OTEL_SERVICE_VERSION: 1.0.0
+      OTEL_TRACES_EXPORTER: otlp,logging
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-tempo:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_METRICS_EXPORTER: prometheus
+      OTEL_EXPORTER_PROMETHEUS_PORT: 9090
+      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_LOGS_EXPORTER: logging
+      OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS: /actuator/**
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1" ]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1"]
       interval: 10s
       timeout: 25s
       retries: 5
-      start_period: 90s
+      start_period: 120s
     depends_on:
       config-server:
         condition: service_healthy
@@ -874,3 +1002,4 @@ volumes:
   grafana_data:
   loki_data:
   alloy_data:
+  tempo_data:

@@ -1,8 +1,5 @@
 package by.cryptic.productservice.publisher;
 
-import by.cryptic.exceptions.CreatingException;
-import by.cryptic.exceptions.DeletingException;
-import by.cryptic.exceptions.UpdatingException;
 import by.cryptic.productservice.model.write.OutboxEntity;
 import by.cryptic.productservice.model.write.Product;
 import by.cryptic.productservice.repository.write.OutboxRepository;
@@ -11,7 +8,6 @@ import by.cryptic.utils.event.EventType;
 import by.cryptic.utils.event.product.ProductCreatedEvent;
 import by.cryptic.utils.event.product.ProductDeletedEvent;
 import by.cryptic.utils.event.product.ProductUpdatedEvent;
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +19,6 @@ public class ProductEventPublisher {
 
     private final OutboxRepository outboxRepository;
 
-    @Retry(name = "productRetry", fallbackMethod = "productCreateRetryFallback")
     public void saveProductView(Product product) {
         OutboxEntity outboxEntity = OutboxEntity.builder()
                 .aggregateId(product.getId())
@@ -44,7 +39,6 @@ public class ProductEventPublisher {
         outboxRepository.save(outboxEntity);
     }
 
-    @Retry(name = "productRetry", fallbackMethod = "productDeleteRetryFallback")
     public void deleteProductAndView(Product product) {
         OutboxEntity outboxEntity = OutboxEntity.builder()
                 .aggregateId(product.getId())
@@ -57,7 +51,6 @@ public class ProductEventPublisher {
         outboxRepository.save(outboxEntity);
     }
 
-    @Retry(name = "productRetry", fallbackMethod = "productUpdateRetryFallback")
     public void updateProductView(Product product, ProductUpdateCommand updateProductDTO) {
         OutboxEntity outboxEntity = OutboxEntity.builder()
                 .aggregateId(product.getId())
@@ -75,20 +68,5 @@ public class ProductEventPublisher {
                         .build())
                 .build();
         outboxRepository.save(outboxEntity);
-    }
-
-    public void productCreateRetryFallback(Product product, Throwable t) {
-        log.error("Failed to create {} after all retry attempts. Cause: {}", product.getName(), t.getMessage(), t);
-        throw new CreatingException("Failed to create review:" + product.getName(), t);
-    }
-
-    public void productDeleteRetryFallback(Product product, Throwable t) {
-        log.error("Failed to delete {} after all retry attempts. Cause: {}", product.getName(), t.getMessage(), t);
-        throw new DeletingException("Failed to delete review:" + product.getName(), t);
-    }
-
-    public void productUpdateRetryFallback(Product product,ProductUpdateCommand productUpdateCommand, Throwable t) {
-        log.error("Failed to update {} after all retry attempts. Cause: {}", productUpdateCommand.name(), t.getMessage(), t);
-        throw new UpdatingException("Failed to update review:" + productUpdateCommand.name(), t);
     }
 }

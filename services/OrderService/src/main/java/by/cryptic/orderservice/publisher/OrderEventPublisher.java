@@ -1,6 +1,5 @@
 package by.cryptic.orderservice.publisher;
 
-import by.cryptic.exceptions.DeletingException;
 import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.model.write.OutboxEntity;
@@ -16,7 +15,6 @@ import by.cryptic.utils.event.order.OrderCanceledEvent;
 import by.cryptic.utils.event.order.OrderCreatedEvent;
 import by.cryptic.utils.event.order.OrderFailedEvent;
 import by.cryptic.utils.event.order.OrderSuccessEvent;
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,6 @@ import java.util.UUID;
 public class OrderEventPublisher {
 
     private final OutboxRepository outboxRepository;
-
 
     private void saveToOutbox(UUID aggregateId, String aggregateType, EventType eventType, DomainEvent event) {
         OutboxEntity outbox = OutboxEntity.builder()
@@ -95,7 +92,6 @@ public class OrderEventPublisher {
                         .build());
     }
 
-    @Retry(name = "orderRetry", fallbackMethod = "orderCancelRetryFallback")
     public void cancelOrderWithRetry(CustomerOrder order, OrderCancelCommand command) {
         OutboxEntity outbox = OutboxEntity.builder()
                 .aggregateId(command.orderId())
@@ -113,10 +109,5 @@ public class OrderEventPublisher {
                 .build();
         outboxRepository.save(outbox);
         log.info("Order canceled successfully");
-    }
-
-    public void orderCancelRetryFallback(CustomerOrder order, OrderCancelCommand orderCancelCommand, Throwable t) {
-        log.error("Failed to cancel {} after all retry attempts. Cause: {}", orderCancelCommand.orderId(), t.getMessage(), t);
-        throw new DeletingException("Failed to delete order:" + orderCancelCommand.orderId(), t);
     }
 }

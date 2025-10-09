@@ -1,13 +1,12 @@
 package by.cryptic.orderservice.service.command.handler;
 
-import by.cryptic.exceptions.DeletingException;
 import by.cryptic.exceptions.UpdatingException;
 import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.publisher.OrderEventPublisher;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
 import by.cryptic.orderservice.service.command.OrderCancelCommand;
-import by.cryptic.utils.handler.CommandHandler;
 import by.cryptic.utils.enums.OrderStatus;
+import by.cryptic.utils.handler.CommandHandler;
 import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,7 @@ public class OrderCancelCommandHandler implements CommandHandler<OrderCancelComm
     @Override
     @Transactional
     @CacheEvict(cacheNames = "orders", key = "'order:' + #command.orderId()")
+    @Retry(name = "orderRetry", fallbackMethod = "orderSaveCancelRetryFallback")
     public void handle(OrderCancelCommand command) {
         log.info("Handling order cancel command {}", command);
 
@@ -53,7 +53,6 @@ public class OrderCancelCommandHandler implements CommandHandler<OrderCancelComm
         return order;
     }
 
-    @Retry(name = "orderRetry", fallbackMethod = "orderSaveCancelRetryFallback")
     public void saveOrder(CustomerOrder order) {
         orderRepository.save(order);
     }

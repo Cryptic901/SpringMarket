@@ -51,4 +51,7 @@ public class Payment {
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
+
+    @Column(name = "external_payment_id")
+    private String externalPaymentId;
 }
