@@ -242,6 +242,10 @@ jobs:
           name: ${{ matrix.name }}-jar
           path: ${{ matrix.context }}/target
 
+      - name: Image prefix to lowercase
+        id: prep
+        run: echo "IMAGE_PREFIX_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Log in to Github Container Registry
         uses: docker/login-action@v3
         with:
@@ -256,7 +260,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.name }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX_LOWER }}/${{ matrix.name }}
           tags: |
             type=sha,prefix={{branch}}-
             type=raw,value=latest
@@ -269,8 +273,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.name }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.name }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX_LOWER }}/${{ matrix.name }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX_LOWER }}/${{ matrix.name }}:buildcache,mode=max
 
 
 
