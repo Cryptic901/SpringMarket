@@ -3,6 +3,7 @@ package by.cryptic.utils.event.order;
 import by.cryptic.utils.enums.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
+import org.locationtech.jts.geom.Point;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -18,7 +19,7 @@ public class OrderCanceledEvent extends DomainEvent implements OrderEvent {
     private String userEmail;
     private UUID userId;
     private BigDecimal price;
-    private String location;
+    private Point location;
     @Builder.Default
     private OrderStatus orderStatus = OrderStatus.CANCELLED;
     private String cancelReason;

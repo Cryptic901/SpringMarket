@@ -1,6 +1,6 @@
 package by.cryptic.categoryservice.service.query;
 
-import by.cryptic.categoryservice.dto.CategoryDTO;
+import by.cryptic.utils.DTO.CategoryDTO;
 import by.cryptic.categoryservice.model.read.CategoryView;
 import by.cryptic.categoryservice.model.write.Category;
 import by.cryptic.categoryservice.repository.read.CategoryViewRepository;

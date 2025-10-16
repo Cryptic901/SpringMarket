@@ -5,7 +5,9 @@ import by.cryptic.utils.response.ErrorResponse;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.postgresql.util.PSQLException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +64,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(OutOfStockException.class)
+    @ExceptionHandler({OutOfStockException.class, InsufficientWarehouseCapacityException.class})
     public ResponseEntity<ErrorResponse> handleOutOfStockException(OutOfStockException e, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage(),
                 HttpStatus.CONFLICT.value(), request.getRequestURI());
@@ -71,22 +73,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CreatingException.class)
     public ResponseEntity<ErrorResponse> handleCreatingException(CreatingException e, HttpServletRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse("Creating failed after retrying attempts." +
-                "Try again later: " + e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE.value(), request.getRequestURI());
+        ErrorResponse errorResponse = new ErrorResponse("Creating failed after retrying attempts. " +
+                e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE.value(), request.getRequestURI());
         return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(UpdatingException.class)
     public ResponseEntity<ErrorResponse> handleUpdatingException(UpdatingException e, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse("Updating failed after retrying attempts." +
-                "Try again later: " + e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE.value(), request.getRequestURI());
+                e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE.value(), request.getRequestURI());
         return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(DeletingException.class)
     public ResponseEntity<ErrorResponse> handleDeletingException(DeletingException e, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse("Deleting failed after retrying attempts." +
-                "Try again later: " + e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE.value(), request.getRequestURI());
+                e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE.value(), request.getRequestURI());
         return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
@@ -104,7 +106,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class, DataIntegrityViolationException.class, PSQLException.class})
     public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(

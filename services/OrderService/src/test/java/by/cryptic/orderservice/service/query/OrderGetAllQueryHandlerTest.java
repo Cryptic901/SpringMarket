@@ -1,5 +1,6 @@
 package by.cryptic.orderservice.service.query;
 
+import by.cryptic.orderservice.config.TestBeans;
 import by.cryptic.orderservice.dto.OrderDTO;
 import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.read.CustomerOrderView;
@@ -9,10 +10,14 @@ import by.cryptic.utils.enums.OrderStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -24,9 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class OrderGetAllQueryHandlerTest {
-    
+
     @Mock
     private OrderViewRepository orderViewRepository;
+
+    private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @InjectMocks
     private OrderGetAllQueryHandler orderGetAllQueryHandler;
@@ -42,7 +49,7 @@ class OrderGetAllQueryHandlerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.PENDING)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint(new Coordinate(21.22, 21.42)))
                 .paymentId(paymentId)
                 .build();
         OrderDTO orderDTO = OrderMapper.toDto(orderView);

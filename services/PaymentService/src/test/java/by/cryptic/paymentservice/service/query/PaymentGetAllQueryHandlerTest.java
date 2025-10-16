@@ -39,7 +39,7 @@ class PaymentGetAllQueryHandlerTest {
         UUID userId = UUID.randomUUID();
         PaymentView paymentView = PaymentView.builder()
                 .paymentId(paymentId)
-                .paymentMethod(PaymentMethod.PAYPAL)
+                .paymentMethod(PaymentMethod.CARD)
                 .orderId(orderId)
                 .userId(userId)
                 .price(BigDecimal.valueOf(148.8))

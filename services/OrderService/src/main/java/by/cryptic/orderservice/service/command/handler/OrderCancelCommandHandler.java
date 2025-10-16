@@ -57,8 +57,8 @@ public class OrderCancelCommandHandler implements CommandHandler<OrderCancelComm
         orderRepository.save(order);
     }
 
-    public void orderSaveCancelRetryFallback(CustomerOrder order, Throwable t) {
-        log.error("Failed to save {} after all retry attempts. Cause: {}", order.getId(), t.getMessage(), t);
-        throw new UpdatingException("Failed to save cancelling:" + order.getId(), t);
+    public void orderSaveCancelRetryFallback(OrderCancelCommand order, Throwable t) {
+        log.error("Failed to save {} after all retry attempts. Cause: {}", order.orderId(), t.getMessage(), t);
+        throw new UpdatingException("Failed to save cancelling:" + order.orderId(), t);
     }
 }

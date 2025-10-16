@@ -43,4 +43,15 @@ public class AnalyticsStateService {
         redisTemplate.opsForValue().set(key + "revenue", todayRevenue.toString());
         redisTemplate.opsForValue().set(key + "orders", String.valueOf(todayOrders));
     }
+
+    public void incrementActiveUsers() {
+        redisTemplate.opsForValue().increment(PREFIX + "activeUsers");
+    }
+    public void decrementActiveUsers() {
+        redisTemplate.opsForValue().decrement(PREFIX + "activeUsers");
+    }
+    public void addRevenue(BigDecimal value) {
+        redisTemplate.opsForValue().increment(PREFIX + "todayRevenue", value.doubleValue());
+    }
+
 }

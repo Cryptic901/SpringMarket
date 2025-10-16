@@ -12,6 +12,7 @@ import by.cryptic.utils.event.payment.PaymentFailedEvent;
 import by.cryptic.utils.event.payment.PaymentSuccessEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -31,6 +32,9 @@ class SagaServiceTest {
     @Mock
     private KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
+    @Mock
+    private GeometryFactory geometryFactory;
+
     @InjectMocks
     private SagaService sagaService;
 
@@ -44,7 +48,7 @@ class SagaServiceTest {
                 .userEmail("user123@gmail.com")
                 .price(BigDecimal.valueOf(148.8))
                 .listOfProducts(new ArrayList<>())
-                .location("Gomel")
+                .location(geometryFactory.createPoint())
                 .createdBy(userId)
                 .build();
         Mockito.when(kafkaTemplate.send(any(), any(), any())).thenReturn(mock());
@@ -127,7 +131,7 @@ class SagaServiceTest {
         UUID paymentId = UUID.randomUUID();
         PaymentSuccessEvent paymentSuccessEvent = PaymentSuccessEvent.builder()
                 .paymentId(paymentId)
-                .paymentMethod(PaymentMethod.PAYPAL)
+                .paymentMethod(PaymentMethod.CARD)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .orderId(orderId)
                 .price(BigDecimal.valueOf(148.8))
@@ -149,7 +153,7 @@ class SagaServiceTest {
         UUID paymentId = UUID.randomUUID();
         PaymentFailedEvent paymentFailedEvent = PaymentFailedEvent.builder()
                 .paymentId(paymentId)
-                .paymentMethod(PaymentMethod.PAYPAL)
+                .paymentMethod(PaymentMethod.CARD)
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .orderId(orderId)
                 .price(BigDecimal.valueOf(148.8))

@@ -4,6 +4,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/certs
+          issuer-uri: http://localhost:9000/realms/springmarket
 resilience4j:
   retry:
     configs:
@@ -25,6 +26,13 @@ resilience4j:
           - java.lang.NullPointerException
           - org.springframework.dao.DataIntegrityViolationException
           - jakarta.persistence.EntityNotFoundException
+          - by.cryptic.exceptions.EmptyCartException
+          - jakarta.persistence.EntityNotFoundException
+          - java.lang.IllegalStateException
+          - by.cryptic.exceptions.InsufficientWarehouseCapacityException
+          - by.cryptic.exceptions.NotEnoughProductsException
+          - by.cryptic.exceptions.OutOfStockException
+          - by.cryptic.exceptions.PaymentTooManyRequestException
     instances:
       productRetry:
         baseConfig: default
@@ -39,17 +47,36 @@ resilience4j:
     configs:
       default:
         minimum-number-of-calls: 10
-        wait-duration-in-open-state: 10s
+        wait-duration-in-open-state: 5s
+        sliding-window-size: 3
+        failure-rate-threshold: 50
+        permitted-number-of-calls-in-half-open-state: 2
         ignore-exceptions:
+          - by.cryptic.exceptions.UpdatingException
+          - by.cryptic.exceptions.DeletingException
+          - by.cryptic.exceptions.CreatingException
+          - java.lang.IllegalArgumentException
+          - java.lang.IllegalStateException
+          - java.lang.NullPointerException
+          - org.springframework.dao.DataIntegrityViolationException
+          - jakarta.persistence.EntityNotFoundException
           - by.cryptic.exceptions.EmptyCartException
           - jakarta.persistence.EntityNotFoundException
           - java.lang.IllegalStateException
+          - by.cryptic.exceptions.InsufficientWarehouseCapacityException
+          - by.cryptic.exceptions.NotEnoughProductsException
+          - by.cryptic.exceptions.OutOfStockException
+          - by.cryptic.exceptions.PaymentTooManyRequestException
     instances:
       orderCircuitBreaker:
         baseConfig: default
       cartCircuitBreaker:
         baseConfig: default
       productCircuitBreaker:
+        baseConfig: default
+      categoryCircuitBreaker:
+        baseConfig: default
+      inventoryCircuitBreaker:
         baseConfig: default
 
   ratelimiter:

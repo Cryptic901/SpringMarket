@@ -40,13 +40,13 @@ public class GatewayFilterChain {
         return http
                 .authorizeExchange(auth ->
                         auth.pathMatchers("/login/**", "/oauth2/**", "/actuator/**",
-                                        "/v3/api-docs/**", "/swagger-ui.html","/swagger-ui/**",
-                                        "/webjars/**", "/*/v3/api-docs",                                     "/**-service/v3/api-docs",
+                                        "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**",
+                                        "/webjars/**", "/*/v3/api-docs", "/**-service/v3/api-docs",
                                         "/v3/api-docs/swagger-config").permitAll()
-                                .pathMatchers(HttpMethod.DELETE, "/api/v1/categories/**").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.POST, "/api/v1/categories/**").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.PATCH, "/api/v1/categories/**").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/api/v1/categories/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/api/v1/categories/**", "/api/v1/warehouses/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/api/v1/categories/**", "/api/v1/warehouses/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.PATCH, "/api/v1/categories/**", "/api/v1/warehouses/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/api/v1/categories/**", "/api/v1/warehouses/**").hasRole("ADMIN")
                                 .pathMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                 .anyExchange().authenticated())
                 .oauth2ResourceServer(configurer ->

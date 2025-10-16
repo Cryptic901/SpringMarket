@@ -21,6 +21,10 @@ public class CartClearedBySagaEvent extends DomainEvent implements CartEvent {
     private List<OrderedProductDTO> listOfProducts;
     private BigDecimal price;
     private String userEmail;
+    private double lat;
+    private double lon;
+    private Integer warehouseLimit;
+
     private static final String version = "1.0";
     @Builder.Default
     private String source = CartClearedBySagaEvent.class.getName();

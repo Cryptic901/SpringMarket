@@ -1,4 +1,4 @@
-package by.cryptic.categoryservice.dto;
+package by.cryptic.utils.DTO;
 
 import jakarta.validation.constraints.NotBlank;
 

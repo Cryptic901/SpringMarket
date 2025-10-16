@@ -4,5 +4,6 @@ public enum ProductStatus {
     ACTIVE,
     OUT_OF_STOCK,
     INACTIVE,
-    ARCHIVED
+    ARCHIVED,
+    PENDING,
 }

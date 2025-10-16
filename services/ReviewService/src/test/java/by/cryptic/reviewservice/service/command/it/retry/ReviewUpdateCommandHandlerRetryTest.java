@@ -91,7 +91,7 @@ class ReviewUpdateCommandHandlerRetryTest {
         Mockito.doThrow(new TransientDataAccessResourceException("DB down"))
                 .when(reviewRepository).save(review);
         //Act
-        assertThrows(UpdatingException.class, () -> reviewUpdateCommandHandler.updateReview(review, reviewUpdateCommand));
+        assertThrows(UpdatingException.class, () -> reviewUpdateCommandHandler.handle(reviewUpdateCommand));
         //Assert
         verify(reviewUpdateCommandHandler, atLeast(1))
                 .reviewRetryUpdateFallback(eq(reviewUpdateCommand), any(Throwable.class));

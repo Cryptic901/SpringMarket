@@ -10,23 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class OrderMapper {
 
-    public static OrderDTO toDto(CustomerOrder order) {
-        if (order == null) return null;
-
-        return OrderDTO.builder()
-                .location(order.getLocation())
-                .orderStatus(order.getOrderStatus())
-                .price(order.getPrice())
-                .createdBy(order.getCreatedBy())
-                .updatedBy(order.getUpdatedBy())
-                .build();
-    }
-
     public static OrderDTO toDto(CustomerOrderView order) {
         if (order == null) return null;
 
         return OrderDTO.builder()
-                .location(order.getLocation())
+                .lon(order.getLocation().getX())
+                .lat(order.getLocation().getY())
                 .orderStatus(order.getOrderStatus())
                 .price(order.getPrice())
                 .createdBy(order.getCreatedBy())

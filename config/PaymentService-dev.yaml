@@ -37,10 +37,6 @@ spring:
         replicas: 3
         minInsyncReplicas: 1
 
-stripe:
-  secret:
-    key: ${STRIPE_SECRET_KEY}
-
   datasource:
     url: jdbc:postgresql://postgres:5432/payment_db
     username: payment_service
@@ -57,4 +53,8 @@ springdoc:
     path: /payment-service/v3/api-docs
   swagger-ui:
     path: /payment-service/swagger-ui.html
+
+stripe:
+  secret:
+    key: ${STRIPE_SECRET_KEY}
 

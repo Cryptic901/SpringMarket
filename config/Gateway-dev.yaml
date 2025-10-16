@@ -33,6 +33,9 @@ springdoc:
 
       - name: AnalyticService
         url: /analytic-service/v3/api-docs
+
+      - name: InventoryService
+        url: /inventory-service/v3/api-docs
 spring:
   security:
     oauth2:
@@ -67,8 +70,6 @@ spring:
           uri: lb://PRODUCTSERVICE
           predicates:
             - Path=/product-service/v3/api-docs
-#          filters:
-#            - StripPrefix=1
 
         - id: category-routes
           uri: lb://CATEGORYSERVICE
@@ -81,8 +82,6 @@ spring:
           uri: lb://CATEGORYSERVICE
           predicates:
             - Path=/category-service/v3/api-docs
-#          filters:
-#            - StripPrefix=1
 
         - id: order-routes
           uri: lb://ORDERSERVICE
@@ -95,8 +94,6 @@ spring:
           uri: lb://ORDERSERVICE
           predicates:
             - Path=/order-service/v3/api-docs
-#          filters:
-#            - StripPrefix=1
 
         - id: inventory-routes
           uri: lb://INVENTORYSERVICE
@@ -104,6 +101,18 @@ spring:
             - Path=/api/v1/inventories/**
           filters:
             - TokenRelay
+
+        - id: warehouse-routes
+          uri: lb://INVENTORYSERVICE
+          predicates:
+            - Path=/api/v1/warehouses/**
+          filters:
+            - TokenRelay
+
+        - id: inventory-docs
+          uri: lb://INVENTORYSERVICE
+          predicates:
+            - Path=/inventory-service/v3/api-docs
 
         - id: review-routes
           uri: lb://REVIEWSERVICE
@@ -116,8 +125,6 @@ spring:
           uri: lb://REVIEWSERVICE
           predicates:
             - Path=/review-service/v3/api-docs
-#          filters:
-#            - StripPrefix=1
 
         - id: user-routes
           uri: lb://USERSERVICE
@@ -130,8 +137,6 @@ spring:
           uri: lb://USERSERVICE
           predicates:
             - Path=/user-service/v3/api-docs
-#          filters:
-#            - StripPrefix=1
 
         - id: payment-routes
           uri: lb://PAYMENTSERVICE
@@ -144,8 +149,6 @@ spring:
           uri: lb://PAYMENTSERVICE
           predicates:
             - Path=/payment-service/v3/api-docs
-#          filters:
-#            - StripPrefix=1
 
         - id: notification-routes
           uri: lb://NOTIFICATIONSERVICE
@@ -165,8 +168,6 @@ spring:
           uri: lb://ANALYTICSERVICE
           predicates:
             - Path=/analytic-service/v3/api-docs
-#          filters:
-#            - StripPrefix=1
 
         - id: cart-routes
           uri: lb://CARTSERVICE
@@ -179,8 +180,6 @@ spring:
           uri: lb://CARTSERVICE
           predicates:
             - Path=/cart-service/v3/api-docs
-#          filters:
-#            - StripPrefix=1
 
       discovery:
         locator:

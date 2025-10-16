@@ -1,7 +1,6 @@
 package by.cryptic.cartservice.service.command.handler;
 
-import by.cryptic.cartservice.client.ProductServiceClient;
-import by.cryptic.exceptions.NotEnoughProductsException;
+import by.cryptic.cartservice.client.ProductServiceAdapter;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.model.write.CartProduct;
 import by.cryptic.cartservice.publisher.CartEventPublisher;
@@ -9,11 +8,10 @@ import by.cryptic.cartservice.repository.write.CartRepository;
 import by.cryptic.cartservice.service.command.CartAddCommand;
 import by.cryptic.cartservice.util.CartUtil;
 import by.cryptic.exceptions.CreatingException;
-import by.cryptic.utils.handler.CommandHandler;
+import by.cryptic.exceptions.NotEnoughProductsException;
 import by.cryptic.utils.DTO.ProductDTO;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import by.cryptic.utils.handler.CommandHandler;
 import io.github.resilience4j.retry.annotation.Retry;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
@@ -33,21 +31,15 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
     private final CartRepository cartRepository;
     private final CartUtil cartUtil;
     private final CacheManager cacheManager;
-    private final ProductServiceClient productServiceClient;
+    private final ProductServiceAdapter productServiceAdapter;
     private final CartEventPublisher cartEventPublisher;
 
     @Override
     @Transactional
-    @Retry(name = "cartRetry", fallbackMethod = "cartCreatingRetryFallback")
     public void handle(CartAddCommand command) {
         Cart cart = getOrCreateCart(command);
 
-        ProductDTO product = getProductDTO(command);
-
-        if (product == null) {
-            throw new EntityNotFoundException("Product with id %s not found"
-                    .formatted(command.productId()));
-        }
+        ProductDTO product = productServiceAdapter.getProductDTO(command);
 
         List<CartProduct> products = createOrAddProduct(command, cart, product);
         cart.setTotal(cartUtil.getTotalPrice(products));
@@ -87,11 +79,6 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                 .put("cart:" + cart.getUserId(), cart);
     }
 
-    @CircuitBreaker(name = "productCircuitBreaker", fallbackMethod = "productClientCircuitBreakerFallback")
-    public ProductDTO getProductDTO(CartAddCommand command) {
-        return productServiceClient.getProductById(command.productId()).getBody();
-    }
-
     public Cart getOrCreateCart(CartAddCommand command) {
         return cartRepository.findByUserIdWithItems(command.userId())
                 .orElseGet(() -> {
@@ -102,15 +89,5 @@ public class CartAddCommandHandler implements CommandHandler<CartAddCommand> {
                             .build();
                     return cartRepository.save(newCart);
                 });
-    }
-
-    public ProductDTO productClientCircuitBreakerFallback(CartAddCommand command, Throwable t) {
-        log.error("Failed to add {} after all attempts to cart. Cause: {}", command.productId(), t.getMessage(), t);
-        throw new CreatingException("Failed to add product:" + command.productId(), t);
-    }
-
-    public void cartCreatingRetryFallback(CartAddCommand command, Throwable t) {
-        log.error("Failed to create or find cart of user {} after all attempts. Cause: {}", command.userId(), t.getMessage(), t);
-        throw new CreatingException("Failed to create cart:" + command.productId(), t);
     }
 }

@@ -1,0 +1,21 @@
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        minimum-number-of-calls: 1
+        wait-duration-in-open-state: 1s
+        sliding-window-size: 2
+        failure-rate-threshold: 50
+        permitted-number-of-calls-in-half-open-state: 1
+        ignore-exceptions:
+          - by.cryptic.exceptions.EmptyCartException
+          - jakarta.persistence.EntityNotFoundException
+          - java.lang.IllegalStateException
+    instances:
+      productCircuitBreaker:
+        baseConfig: default
+logging:
+  level:
+    io.github.resilience4j: DEBUG
+    org.springframework: DEBUG
+    by.cryptic.cartservice: DEBUG

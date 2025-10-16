@@ -2,6 +2,8 @@ package by.cryptic.productservice.service.command.it.retry;
 
 import by.cryptic.exceptions.UpdatingException;
 import by.cryptic.productservice.ProductServiceApplication;
+import by.cryptic.productservice.client.CategoryServiceClient;
+import by.cryptic.productservice.client.InventoryServiceClient;
 import by.cryptic.productservice.model.write.Product;
 import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.productservice.service.command.ProductUpdateCommand;
@@ -13,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -50,6 +53,12 @@ class ProductUpdateCommandHandlerRetryTest {
     private ProductUpdateCommandHandler productUpdateCommandHandler;
 
     @MockitoBean
+    private CategoryServiceClient categoryServiceClient;
+
+    @MockitoBean
+    private InventoryServiceClient inventoryServiceClient;
+
+    @MockitoBean
     private KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @DynamicPropertySource
@@ -82,7 +91,7 @@ class ProductUpdateCommandHandlerRetryTest {
         Mockito.doThrow(new TransientDataAccessResourceException("DB down"))
                 .when(productRepository).save(product);
         //Act
-        assertThrows(UpdatingException.class, () -> productUpdateCommandHandler.updateProduct(product, productUpdateCommand));
+        assertThrows(UpdatingException.class, () -> productUpdateCommandHandler.handle(productUpdateCommand));
         //Assert
         verify(productUpdateCommandHandler, atLeast(1))
                 .productUpdateRetryFallback(eq(productUpdateCommand), any(Throwable.class));

@@ -2,9 +2,11 @@ package by.cryptic.inventoryservice.service.command.handler;
 
 import by.cryptic.inventoryservice.model.Inventory;
 import by.cryptic.inventoryservice.model.Reservation;
+import by.cryptic.inventoryservice.model.Warehouse;
 import by.cryptic.inventoryservice.publisher.InventoryEventPublisher;
 import by.cryptic.inventoryservice.repository.InventoryRepository;
 import by.cryptic.inventoryservice.repository.ReservationRepository;
+import by.cryptic.inventoryservice.repository.WarehouseRepository;
 import by.cryptic.inventoryservice.service.command.InventoryConfirmFromReserveCommand;
 import by.cryptic.utils.handler.CommandHandler;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -23,6 +26,7 @@ public class InventoryConfirmFromReserveCommandHandler implements CommandHandler
 
     private final InventoryRepository inventoryRepository;
     private final ReservationRepository reservationRepository;
+    private final WarehouseRepository warehouseRepository;
     private final InventoryEventPublisher inventoryEventPublisher;
 
     @Override
@@ -30,6 +34,7 @@ public class InventoryConfirmFromReserveCommandHandler implements CommandHandler
     public void handle(InventoryConfirmFromReserveCommand command) {
         List<Reservation> reservations = getListOfReservationsAndCheckIsNotEmpty(command);
         log.info("Inventory Confirm From Reserve Command {}", reservations);
+        freeUpSpaceInTheWarehouse(reservations);
         List<Inventory> inventories = new ArrayList<>();
 
         for (Reservation reservation : reservations) {
@@ -57,5 +62,18 @@ public class InventoryConfirmFromReserveCommandHandler implements CommandHandler
         inventories.add(inventory);
         log.info("Inventories after confirmation {}", inventories);
         inventoryEventPublisher.updateProductQuantity(inventory);
+    }
+
+    private void freeUpSpaceInTheWarehouse(List<Reservation> reservations) {
+        UUID warehouseId = reservations.getFirst().getWarehouse().getId();
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new EntityNotFoundException("Not found warehouse with id " + warehouseId));
+        Long currentLoad = warehouse.getCurrentLoad();
+        Long reservationsLoad = 0L;
+        for (Reservation r : reservations) {
+            reservationsLoad += r.getQuantityToReserve();
+        }
+        warehouse.setCurrentLoad(currentLoad - reservationsLoad);
+        warehouseRepository.save(warehouse);
     }
 }

@@ -14,6 +14,8 @@ import by.cryptic.utils.enums.OrderStatus;
 import by.cryptic.utils.enums.PaymentMethod;
 import by.cryptic.utils.event.DomainEvent;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
@@ -29,6 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -53,8 +56,11 @@ class OrderCreateCommandHandlerCircuitBreakerTest {
     private CustomerOrderRepository orderRepository;
 
     @Container
-    static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15-alpine");
-
+    static PostgreSQLContainer<?> postgis =
+            new PostgreSQLContainer<>(
+                    DockerImageName.parse("postgis/postgis:latest")
+                            .asCompatibleSubstituteFor("postgres")
+            );
     @MockitoSpyBean
     private OrderCreateCommandHandler orderCreateCommandHandler;
 
@@ -64,15 +70,17 @@ class OrderCreateCommandHandlerCircuitBreakerTest {
     @MockitoBean
     private ProductServiceClient productServiceClient;
 
+    private final GeometryFactory geometryFactory = new GeometryFactory();
+
     @MockitoBean
     private KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @DynamicPropertySource
     static void propertySource(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-        registry.add("spring.datasource.driver-class-name", postgreSQLContainer::getDriverClassName);
+        registry.add("spring.datasource.url", postgis::getJdbcUrl);
+        registry.add("spring.datasource.username", postgis::getUsername);
+        registry.add("spring.datasource.password", postgis::getPassword);
+        registry.add("spring.datasource.driver-class-name", postgis::getDriverClassName);
     }
 
     @Test
@@ -86,13 +94,14 @@ class OrderCreateCommandHandlerCircuitBreakerTest {
                 .createdBy(userId)
                 .createdAt(LocalDateTime.now())
                 .price(BigDecimal.ONE)
-                .location("location")
+                .location(geometryFactory.createPoint(new Coordinate(21.22, 21.42)))
                 .orderStatus(OrderStatus.PENDING)
                 .paymentId(UUID.randomUUID())
                 .build();
 
-        OrderCreateCommand orderCreateCommand = new OrderCreateCommand(
-                "testTitle", PaymentMethod.APPLE_PAY, userId, "emaul@gmail.com");
+        OrderCreateCommand orderCreateCommand = new OrderCreateCommand(order.getLocation().getY(),
+                order.getLocation().getX(), PaymentMethod.CARD,
+                userId, "user123@gmail.com", 5);
 
         Mockito.when(cartServiceClient.getCartProductsByUserId(userId)).thenReturn(ResponseEntity.ok(List.of(
                 CartProductDTO.builder()
@@ -105,12 +114,11 @@ class OrderCreateCommandHandlerCircuitBreakerTest {
                 "img/url", UUID.randomUUID())));
         Mockito.doThrow(new TransientDataAccessResourceException("DB down"))
                 .when(orderRepository).save(any());
-
         //Act
-        assertThrows(CreatingException.class, () -> orderCreateCommandHandler.saveOrderWithCircuitBreaker(order, orderCreateCommand));
+        assertThrows(CreatingException.class, () -> orderCreateCommandHandler.handle(orderCreateCommand));
         //Assert
         verify(orderCreateCommandHandler, atLeast(1))
-                .orderCreateCircuitBreakerFallback(eq(order), eq(orderCreateCommand), any(Throwable.class));
+                .orderCreateCircuitBreakerFallback(eq(orderCreateCommand), any(Throwable.class));
         verify(orderRepository, atLeast(1)).save(any());
     }
 }

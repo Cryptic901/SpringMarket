@@ -1,5 +1,6 @@
 package by.cryptic.cartservice.service.command;
 
+import by.cryptic.cartservice.client.ProductServiceAdapter;
 import by.cryptic.cartservice.client.ProductServiceClient;
 import by.cryptic.cartservice.model.write.Cart;
 import by.cryptic.cartservice.publisher.CartEventPublisher;
@@ -15,7 +16,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -42,6 +42,9 @@ class CartAddCommandHandlerTest {
     private ProductServiceClient productServiceClient;
 
     @Mock
+    private ProductServiceAdapter productServiceAdapter;
+
+    @Mock
     private CartUtil cartUtil;
 
     @InjectMocks
@@ -62,8 +65,8 @@ class CartAddCommandHandlerTest {
                 42, "desc", "image/url", UUID.randomUUID());
         Mockito.when(cartRepository.save(any(Cart.class))).thenReturn(cart);
         Mockito.when(cacheManager.getCache("carts")).thenReturn(cache);
-        Mockito.when(productServiceClient.getProductById(productId))
-                .thenReturn(ResponseEntity.ok(productDTO));
+        Mockito.when(productServiceAdapter.getProductDTO(cartAddCommand))
+                .thenReturn(productDTO);
         Mockito.when(cartUtil.getTotalPrice(cart.getItems())).thenReturn(BigDecimal.ZERO);
         //Act
         cartCreateCommandHandler.handle(cartAddCommand);

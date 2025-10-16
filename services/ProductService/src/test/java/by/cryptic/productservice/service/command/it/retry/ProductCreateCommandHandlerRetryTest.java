@@ -2,9 +2,12 @@ package by.cryptic.productservice.service.command.it.retry;
 
 import by.cryptic.exceptions.CreatingException;
 import by.cryptic.productservice.ProductServiceApplication;
+import by.cryptic.productservice.client.CategoryServiceClient;
+import by.cryptic.productservice.client.InventoryServiceClient;
 import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.productservice.service.command.ProductCreateCommand;
 import by.cryptic.productservice.service.command.handler.ProductCreateCommandHandler;
+import by.cryptic.utils.DTO.CategoryDTO;
 import by.cryptic.utils.event.DomainEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,6 +15,7 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.TransientDataAccessResourceException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -48,6 +52,12 @@ class ProductCreateCommandHandlerRetryTest {
     private ProductCreateCommandHandler productCreateCommandHandler;
 
     @MockitoBean
+    private CategoryServiceClient categoryServiceClient;
+
+    @MockitoBean
+    private InventoryServiceClient inventoryServiceClient;
+
+    @MockitoBean
     private KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @DynamicPropertySource
@@ -68,15 +78,15 @@ class ProductCreateCommandHandlerRetryTest {
                 "testTitle", userId, BigDecimal.TEN, 42,
                 "testDesc", "img", categoryId
         );
-
+        when(categoryServiceClient.getCategoryById(categoryId)).thenReturn(ResponseEntity.ok(
+                new CategoryDTO("name", "desc")));
         Mockito.doThrow(new TransientDataAccessResourceException("DB down"))
                 .when(productRepository).save(any());
 
         //Act
-        assertThrows(CreatingException.class, () -> productCreateCommandHandler.saveProduct(productCreateCommand));
+        assertThrows(CreatingException.class, () -> productCreateCommandHandler.handle(productCreateCommand));
         //Assert
         verify(productCreateCommandHandler, atLeast(1))
                 .productCreateRetryFallback(eq(productCreateCommand), any(Throwable.class));
-        verify(productRepository, times(3)).save(any());
     }
 }

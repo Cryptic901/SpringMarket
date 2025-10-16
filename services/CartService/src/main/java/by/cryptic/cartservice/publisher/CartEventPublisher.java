@@ -72,6 +72,9 @@ public class CartEventPublisher {
                         .price(cartClearedEvent.getPrice())
                         .orderId(cartClearedEvent.getOrderId())
                         .userEmail(cartClearedEvent.getUserEmail())
+                        .lat(cartClearedEvent.getLat())
+                        .lon(cartClearedEvent.getLon())
+                        .warehouseLimit(cartClearedEvent.getWarehouseLimit())
                         .build())
                 .build();
         outboxRepository.save(outbox);

@@ -1,6 +1,6 @@
 package by.cryptic.categoryservice.controller.query;
 
-import by.cryptic.categoryservice.dto.CategoryDTO;
+import by.cryptic.utils.DTO.CategoryDTO;
 import by.cryptic.categoryservice.mapper.CategoryMapper;
 import by.cryptic.categoryservice.model.read.CategoryView;
 import by.cryptic.categoryservice.service.query.handler.CategoryGetAllQueryHandler;

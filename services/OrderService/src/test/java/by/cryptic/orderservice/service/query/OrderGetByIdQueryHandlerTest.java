@@ -1,7 +1,8 @@
 package by.cryptic.orderservice.service.query;
 
+import by.cryptic.orderservice.config.TestBeans;
 import by.cryptic.orderservice.dto.OrderDTO;
-import by.cryptic.orderservice.mapper.FullOrderMapper;
+import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.read.CustomerOrderView;
 import by.cryptic.orderservice.repository.read.OrderViewRepository;
 import by.cryptic.orderservice.service.query.handler.OrderGetByIdQueryHandler;
@@ -9,10 +10,14 @@ import by.cryptic.utils.enums.OrderStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -29,6 +34,8 @@ class OrderGetByIdQueryHandlerTest {
     @Mock
     private OrderViewRepository orderRepository;
 
+    private final GeometryFactory geometryFactory = new GeometryFactory();
+
     @InjectMocks
     private OrderGetByIdQueryHandler orderGetByIdQueryHandler;
 
@@ -43,10 +50,10 @@ class OrderGetByIdQueryHandlerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.PENDING)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint(new Coordinate(21.22, 21.42)))
                 .paymentId(paymentId)
                 .build();
-        OrderDTO orderDTO = FullOrderMapper.toDto(orderView);
+        OrderDTO orderDTO = OrderMapper.toDto(orderView);
         Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderView));
         //Act
         OrderDTO result = orderGetByIdQueryHandler.handle(new OrderGetByIdQuery(orderId, userId));

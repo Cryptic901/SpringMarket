@@ -21,6 +21,9 @@ public class StockCreatedEvent extends DomainEvent implements StockEvent {
     private PaymentMethod paymentMethod;
     private List<OrderedProductDTO> listOfProducts;
     private UUID createdBy;
+    private double lon;
+    private double lat;
+    private Integer warehouseLimit;
     private static final String version = "1.0";
     @Builder.Default
     private String source = StockCreatedEvent.class.getName();

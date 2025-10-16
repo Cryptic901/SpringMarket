@@ -1,5 +1,6 @@
 package by.cryptic.inventoryservice.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -35,8 +36,11 @@ public class Reservation {
     @Column(name = "order_id")
     private UUID orderId;
 
-    @Column(name = "warehouse_id")
-    private UUID warehouseId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
+    @ToString.Exclude
+    @JsonBackReference
+    private Warehouse warehouse;
 
 
     public void addQuantity(Integer quantityToAdd) {
@@ -47,11 +51,11 @@ public class Reservation {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Reservation that = (Reservation) o;
-        return Objects.equals(id, that.id) && Objects.equals(productId, that.productId) && Objects.equals(orderId, that.orderId) && Objects.equals(warehouseId, that.warehouseId);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, productId, orderId, warehouseId);
+        return Objects.hashCode(id);
     }
 }

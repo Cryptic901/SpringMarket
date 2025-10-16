@@ -46,6 +46,9 @@ spring:
   flyway:
     schemas: order_schema
     default-schema: order_schema
+  jpa:
+    hibernate:
+      dialect: org.hibernate.spatial.dialect.postgis.PostgisPG17Dialect
 
 springdoc:
   api-docs:

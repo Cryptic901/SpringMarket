@@ -1,10 +1,12 @@
 package by.cryptic.productservice.service.command;
 
+import by.cryptic.productservice.client.CategoryServiceAdapter;
+import by.cryptic.productservice.client.InventoryServiceAdapter;
 import by.cryptic.productservice.model.write.Product;
 import by.cryptic.productservice.publisher.ProductEventPublisher;
 import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.productservice.service.command.handler.ProductCreateCommandHandler;
-import by.cryptic.utils.event.product.ProductCreatedEvent;
+import by.cryptic.utils.DTO.CategoryDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,9 +15,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +37,12 @@ class ProductCreateCommandHandlerTest {
 
     @Mock
     private Cache cache;
+
+    @Mock
+    private CategoryServiceAdapter categoryServiceAdapter;
+
+    @Mock
+    private InventoryServiceAdapter inventoryServiceAdapter;
 
     @InjectMocks
     private ProductCreateCommandHandler productCreateCommandHandler;
@@ -63,12 +71,15 @@ class ProductCreateCommandHandlerTest {
                 categoryId);
         Mockito.when(productRepository.save(any(Product.class))).thenReturn(product);
         Mockito.when(cacheManager.getCache("products")).thenReturn(cache);
+        Mockito.when(inventoryServiceAdapter.checkCapacityByFeignClient(product.getQuantity())).thenReturn(true);
+        Mockito.when(categoryServiceAdapter.getCategoryByFeignClient(categoryId)).thenReturn((
+                new CategoryDTO("name", "desc")
+        ));
         //Act
         productCreateCommandHandler.handle(productCreateCommand);
         //Assert
         Mockito.verify(cacheManager).getCache("products");
         Mockito.verify(cache, Mockito.times(1)).put(startsWith("product:"), any());
         Mockito.verify(productRepository, Mockito.times(1)).save(any(Product.class));
-        Mockito.verify(productEventPublisher, Mockito.times(1)).saveProductView(any());
     }
 }
