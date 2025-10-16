@@ -53,6 +53,9 @@ public class SagaService {
                                     .userEmail(cartClearedSuccessEvent.getUserEmail())
                                     .price(cartClearedSuccessEvent.getPrice())
                                     .createdBy(cartClearedSuccessEvent.getUserId())
+                                    .lat(cartClearedSuccessEvent.getLat())
+                                    .lon(cartClearedSuccessEvent.getLon())
+                                    .warehouseLimit(cartClearedSuccessEvent.getWarehouseLimit())
                                     .build());
 
             case CartClearedFailedEvent cartClearedFailedEvent ->

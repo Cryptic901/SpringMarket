@@ -1,6 +1,6 @@
 package by.cryptic.categoryservice.controller.command;
 
-import by.cryptic.categoryservice.dto.CategoryDTO;
+import by.cryptic.utils.DTO.CategoryDTO;
 import by.cryptic.categoryservice.model.write.Category;
 import by.cryptic.categoryservice.service.command.CategoryCreateCommand;
 import by.cryptic.categoryservice.service.command.handler.CategoryCreateCommandHandler;

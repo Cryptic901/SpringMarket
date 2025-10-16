@@ -39,10 +39,12 @@ public class OrderCommandController {
     public ResponseEntity<Void> createOrder(
             @RequestBody @Valid OrderCreateDTO order, @AuthenticationPrincipal Jwt jwt) {
         orderCreateCommandHandler.handle(new OrderCreateCommand(
-                order.location(),
+                order.lat(),
+                order.lon(),
                 order.paymentMethod(),
                 JwtUtil.extractUserId(jwt),
-                JwtUtil.extractEmail(jwt)
+                JwtUtil.extractEmail(jwt),
+                order.limit()
         ));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

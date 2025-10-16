@@ -8,6 +8,8 @@ import by.cryptic.utils.enums.OrderStatus;
 import by.cryptic.utils.enums.PaymentMethod;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -40,6 +42,8 @@ class OrderCommandControllerTest {
     @MockitoBean
     private OrderCancelCommandHandler orderCancelCommandHandler;
 
+    private final GeometryFactory geometryFactory = new GeometryFactory();
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -56,11 +60,12 @@ class OrderCommandControllerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.COMPLETED)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint(new Coordinate(20.22, 21.42)))
                 .paymentId(paymentId)
                 .build();
-        OrderCreateDTO orderCreateDTO = new OrderCreateDTO(order.getLocation(),
-                PaymentMethod.APPLE_PAY);
+        OrderCreateDTO orderCreateDTO = new OrderCreateDTO(order.getLocation().getX(),
+                order.getLocation().getY(),
+                PaymentMethod.CARD, 5);
         String json = objectMapper.writeValueAsString(orderCreateDTO);
         //Act
         mockMvc.perform(post("/api/v1/orders")
@@ -85,11 +90,12 @@ class OrderCommandControllerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.COMPLETED)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint(new Coordinate(20.22, 21.42)))
                 .paymentId(paymentId)
                 .build();
-        OrderCreateDTO orderCreateDTO = new OrderCreateDTO(order.getLocation(),
-                PaymentMethod.APPLE_PAY);
+        OrderCreateDTO orderCreateDTO = new OrderCreateDTO(order.getLocation().getX(),
+                order.getLocation().getY(),
+                PaymentMethod.CARD, 5);
         String json = objectMapper.writeValueAsString(orderCreateDTO);
         //Act
         mockMvc.perform(post("/api/v1/orders")

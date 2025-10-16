@@ -62,6 +62,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA category_schema GRANT ALL ON SEQUENCES TO cat
 ALTER DEFAULT PRIVILEGES IN SCHEMA category_schema GRANT ALL ON FUNCTIONS TO category_service;
 
 \c order_db;
+CREATE EXTENSION postgis;
 CREATE SCHEMA order_schema;
 GRANT ALL ON SCHEMA public TO order_service;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO order_service;
@@ -98,6 +99,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA payment_schema GRANT ALL ON SEQUENCES TO paym
 ALTER DEFAULT PRIVILEGES IN SCHEMA payment_schema GRANT ALL ON FUNCTIONS TO payment_service;
 
 \c inventory_db;
+CREATE EXTENSION postgis;
 CREATE SCHEMA inventory_schema;
 GRANT ALL ON SCHEMA public TO inventory_service;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO inventory_service;

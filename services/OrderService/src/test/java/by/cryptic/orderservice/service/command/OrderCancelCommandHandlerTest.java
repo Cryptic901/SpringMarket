@@ -8,6 +8,7 @@ import by.cryptic.utils.enums.OrderStatus;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -26,6 +27,9 @@ class OrderCancelCommandHandlerTest {
     @Mock
     private OrderEventPublisher orderEventPublisher;
 
+    @Mock
+    private GeometryFactory geometryFactory;
+
     @InjectMocks
     private OrderCancelCommandHandler orderCancelCommandHandler;
 
@@ -41,7 +45,7 @@ class OrderCancelCommandHandlerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.COMPLETED)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint())
                 .paymentId(paymentId)
                 .build();
         OrderCancelCommand orderCancelCommand =
@@ -68,7 +72,7 @@ class OrderCancelCommandHandlerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.PENDING)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint())
                 .paymentId(paymentId)
                 .build();
         OrderCancelCommand orderCancelCommand =

@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -47,8 +48,8 @@ public class CustomerOrder {
     @JsonManagedReference
     private List<OrderProduct> products = new ArrayList<>();
 
-    @Column(nullable = false)
-    private String location;
+    @Column(nullable = false, columnDefinition = "GEOGRAPHY(Point, 4326)")
+    private Point location;
 
     @Column(name = "user_id")
     private UUID userId;

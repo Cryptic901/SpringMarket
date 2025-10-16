@@ -91,7 +91,7 @@ class ReviewDeleteCommandHandlerRetryTest {
                 .when(reviewRepository).deleteById(reviewId);
 
         //Act
-        assertThrows(DeletingException.class, () -> reviewDeleteCommandHandler.deleteReview(reviewDeleteCommand));
+        assertThrows(DeletingException.class, () -> reviewDeleteCommandHandler.handle(reviewDeleteCommand));
         //Assert
         verify(reviewDeleteCommandHandler, atLeast(1))
                 .reviewRetryDeleteFallback(eq(reviewDeleteCommand), any(Throwable.class));

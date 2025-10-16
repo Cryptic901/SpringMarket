@@ -49,14 +49,14 @@ public class OutboxEntity {
     private LocalDateTime createdAt;
 
     @Override
-    public boolean equals(Object object) {
-        if (object == null || getClass() != object.getClass()) return false;
-        OutboxEntity outbox = (OutboxEntity) object;
-        return Objects.equals(id, outbox.id) && Objects.equals(aggregateType, outbox.aggregateType) && Objects.equals(aggregateId, outbox.aggregateId) && Objects.equals(eventType, outbox.eventType);
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        OutboxEntity that = (OutboxEntity) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, aggregateType, aggregateId, eventType);
+        return Objects.hashCode(id);
     }
 }

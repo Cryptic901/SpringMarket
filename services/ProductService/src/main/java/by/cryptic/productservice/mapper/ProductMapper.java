@@ -67,17 +67,6 @@ public class ProductMapper {
         }
     }
 
-    public static void updateEntity(Product product, OrderedProductDTO orderedProductDTO) {
-        if (product == null || orderedProductDTO == null) return;
-
-        if (orderedProductDTO.productId() != null) {
-            product.setId(orderedProductDTO.productId());
-        }
-        if (orderedProductDTO.quantity() != null) {
-            product.setQuantity(orderedProductDTO.quantity());
-        }
-    }
-
     public static void updateView(ProductView product, ProductUpdatedEvent updateProductDTO) {
         if (product == null || updateProductDTO == null) return;
 

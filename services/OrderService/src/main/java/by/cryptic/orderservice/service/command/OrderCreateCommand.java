@@ -4,6 +4,7 @@ import by.cryptic.utils.enums.PaymentMethod;
 
 import java.util.UUID;
 
-public record OrderCreateCommand(String location, PaymentMethod paymentMethod,
-                                 UUID userId, String userEmail) {
+public record OrderCreateCommand(Double lat, Double lon, PaymentMethod paymentMethod,
+                                 UUID userId, String userEmail,
+                                 Integer warehouseLimit) {
 }

@@ -1,7 +1,7 @@
 package by.cryptic.orderservice.service.query.handler;
 
 import by.cryptic.orderservice.dto.OrderDTO;
-import by.cryptic.orderservice.mapper.FullOrderMapper;
+import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.read.CustomerOrderView;
 import by.cryptic.orderservice.repository.read.OrderViewRepository;
 import by.cryptic.orderservice.service.query.OrderGetByIdQuery;
@@ -30,6 +30,6 @@ public class OrderGetByIdQueryHandler implements QueryHandler<OrderGetByIdQuery,
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException
                         ("Order not found with id: " + query.orderId()));
-        return FullOrderMapper.toDto(customerOrder);
+        return OrderMapper.toDto(customerOrder);
     }
 }

@@ -1,5 +1,6 @@
 package by.cryptic.orderservice.controller.query;
 
+import by.cryptic.orderservice.config.TestBeans;
 import by.cryptic.orderservice.dto.OrderDTO;
 import by.cryptic.orderservice.mapper.OrderMapper;
 import by.cryptic.orderservice.model.read.CustomerOrderView;
@@ -10,6 +11,8 @@ import by.cryptic.utils.enums.OrderStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,7 +39,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
 @WebMvcTest(OrderQueryController.class)
 @ActiveProfiles("mongo")
-@Import(OrderMapper.class)
+@Import({OrderMapper.class, TestBeans.class})
+
 class OrderQueryControllerTest {
 
     @Autowired
@@ -47,6 +51,9 @@ class OrderQueryControllerTest {
 
     @MockitoBean
     private OrderGetByIdQueryHandler orderGetByIdQueryHandler;
+
+    @Autowired
+    private GeometryFactory geometryFactory;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -64,7 +71,7 @@ class OrderQueryControllerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.COMPLETED)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint(new Coordinate(21.22, 21.42)))
                 .paymentId(paymentId)
                 .build();
         List<OrderDTO> orderDTOS = new ArrayList<>();
@@ -96,7 +103,7 @@ class OrderQueryControllerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.COMPLETED)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint(new Coordinate(21.22, 21.42)))
                 .paymentId(paymentId)
                 .build();
         List<OrderDTO> orderDTOS = new ArrayList<>();
@@ -121,7 +128,7 @@ class OrderQueryControllerTest {
                 .price(BigDecimal.valueOf(148.8))
                 .orderStatus(OrderStatus.COMPLETED)
                 .createdBy(userId)
-                .location("locationtest")
+                .location(geometryFactory.createPoint(new Coordinate(21.22, 21.42)))
                 .paymentId(paymentId)
                 .build();
         OrderDTO orderDTO = OrderMapper.toDto(order);
@@ -129,7 +136,7 @@ class OrderQueryControllerTest {
         Mockito.when(orderGetByIdQueryHandler.handle(new OrderGetByIdQuery(orderId, userId))).thenReturn(orderDTO);
         //Act
         mockMvc.perform(get("/api/v1/orders/{orderId}", orderId)
-                .with(jwt().jwt(jwt -> jwt.claim("sub", userId))))
+                        .with(jwt().jwt(jwt -> jwt.claim("sub", userId))))
                 .andExpect(status().isOk())
                 .andExpect(content().json(json));
         //Assert

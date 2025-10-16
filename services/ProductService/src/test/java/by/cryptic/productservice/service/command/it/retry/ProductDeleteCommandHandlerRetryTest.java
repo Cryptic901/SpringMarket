@@ -2,6 +2,8 @@ package by.cryptic.productservice.service.command.it.retry;
 
 import by.cryptic.exceptions.DeletingException;
 import by.cryptic.productservice.ProductServiceApplication;
+import by.cryptic.productservice.client.CategoryServiceClient;
+import by.cryptic.productservice.client.InventoryServiceClient;
 import by.cryptic.productservice.repository.write.ProductRepository;
 import by.cryptic.productservice.service.command.ProductDeleteCommand;
 import by.cryptic.productservice.service.command.handler.ProductDeleteCommandHandler;
@@ -47,6 +49,12 @@ class ProductDeleteCommandHandlerRetryTest {
     private ProductDeleteCommandHandler productDeleteCommandHandler;
 
     @MockitoBean
+    private CategoryServiceClient categoryServiceClient;
+
+    @MockitoBean
+    private InventoryServiceClient inventoryServiceClient;
+
+    @MockitoBean
     private KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @DynamicPropertySource
@@ -65,12 +73,12 @@ class ProductDeleteCommandHandlerRetryTest {
         ProductDeleteCommand productDeleteCommand = new ProductDeleteCommand(productId, userId);
 
         Mockito.doThrow(new TransientDataAccessResourceException("DB down"))
-                .when(productRepository).deleteById(productId);
+                .when(productRepository).findById(productId);
         //Act
-        assertThrows(DeletingException.class, () -> productDeleteCommandHandler.deleteProduct(productDeleteCommand));
+        assertThrows(DeletingException.class, () -> productDeleteCommandHandler.handle(productDeleteCommand));
         //Assert
         verify(productDeleteCommandHandler, atLeast(1))
                 .productDeleteRetryFallback(eq(productDeleteCommand), any(Throwable.class));
-        verify(productRepository, times(3)).deleteById(any());
+        verify(productRepository, times(3)).findById(any());
     }
 }

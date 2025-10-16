@@ -3,8 +3,8 @@ package by.cryptic.orderservice.service.command.handler;
 import by.cryptic.exceptions.CreatingException;
 import by.cryptic.exceptions.EmptyCartException;
 import by.cryptic.exceptions.NotEnoughProductsException;
-import by.cryptic.orderservice.client.CartServiceClient;
-import by.cryptic.orderservice.client.ProductServiceClient;
+import by.cryptic.orderservice.client.CartServiceAdapter;
+import by.cryptic.orderservice.client.ProductServiceAdapter;
 import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.model.write.OrderProduct;
 import by.cryptic.orderservice.publisher.OrderEventPublisher;
@@ -20,6 +20,10 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +32,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -36,26 +39,28 @@ import java.util.UUID;
 public class OrderCreateCommandHandler implements CommandHandler<OrderCreateCommand> {
 
     private final CustomerOrderRepository orderRepository;
-    private final CartServiceClient cartServiceClient;
+    private final CartServiceAdapter cartServiceAdapter;
     private final CacheManager cacheManager;
-    private final ProductServiceClient productServiceClient;
+    private final ProductServiceAdapter productServiceAdapter;
     private final OrderEventPublisher orderEventPublisher;
+    private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     @Override
     @Transactional
+    @CircuitBreaker(name = "orderCircuitBreaker", fallbackMethod = "orderCreateCircuitBreakerFallback")
     public void handle(OrderCreateCommand command) {
         log.info("Creating order : {}", command);
         List<OrderedProductDTO> productsToUpdate = new ArrayList<>();
         CustomerOrder order = new CustomerOrder();
         try {
-            List<CartProductDTO> productsToOrder = getListOfCartProductsByFeignClient(command.userId());
+            List<CartProductDTO> productsToOrder = cartServiceAdapter.getListOfCartProductsByFeignClient(command.userId());
             if (productsToOrder == null || productsToOrder.isEmpty()) {
                 throw new EmptyCartException("Your cart is empty");
             }
 
             order = createOrderAndValidate(command, productsToUpdate, productsToOrder);
 
-            saveOrderWithCircuitBreaker(order, command);
+            saveOrder(order, command);
 
             orderEventPublisher.sentOrderCreatedEvent(order, command, productsToUpdate);
 
@@ -77,9 +82,10 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
     private CustomerOrder createOrderAndValidate(OrderCreateCommand command,
                                                  List<OrderedProductDTO> productsToUpdate,
                                                  List<CartProductDTO> productsToOrder) {
+        Point point = geometryFactory.createPoint(new Coordinate(command.lon(), command.lat()));
         CustomerOrder order = CustomerOrder.builder()
                 .orderStatus(OrderStatus.PENDING)
-                .location(command.location())
+                .location(point)
                 .userId(command.userId())
                 .userEmail(command.userEmail())
                 .products(new ArrayList<>())
@@ -93,7 +99,7 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
                     .quantity(cartProduct.getQuantity())
                     .build();
 
-            ProductDTO productFromCart = getProductByFeignClient(cartProduct.getProductId());
+            ProductDTO productFromCart = productServiceAdapter.getProductByFeignClient(cartProduct.getProductId());
 
             if (productFromCart == null) {
                 throw new EntityNotFoundException("Product with id %s not found".formatted(cartProduct.getProductId()));
@@ -116,33 +122,22 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
         return order;
     }
 
-    @CircuitBreaker(name = "orderCircuitBreaker", fallbackMethod = "orderCreateCircuitBreakerFallback")
-    public void saveOrderWithCircuitBreaker(CustomerOrder order, OrderCreateCommand command) {
+    public void saveOrder(CustomerOrder order, OrderCreateCommand command) {
         orderRepository.save(order);
 
-        removeAllItemsFromCartByFeignClient(command.userId(), CartClearedBySagaEvent.builder()
+        cartServiceAdapter.removeAllItemsFromCartByFeignClient(command.userId());
+
+        orderEventPublisher.sentCartClearedEvent(CartClearedBySagaEvent.builder()
                 .userId(order.getUserId())
                 .orderId(order.getId())
                 .userEmail(order.getUserEmail())
+                .price(order.getPrice())
+                .lat(command.lat())
+                .lon(command.lon())
+                .warehouseLimit(command.warehouseLimit())
                 .build());
 
         updateCache(order);
-    }
-
-    @CircuitBreaker(name = "productCircuitBreaker", fallbackMethod = "productClientCircuitBreakerFallback")
-    public ProductDTO getProductByFeignClient(UUID productId) {
-        return productServiceClient.getProductById(productId).getBody();
-    }
-
-    @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartClientGetListOfCartProductsCircuitBreakerFallback")
-    public List<CartProductDTO> getListOfCartProductsByFeignClient(UUID userId) {
-        return cartServiceClient.getCartProductsByUserId(userId).getBody();
-    }
-
-    @CircuitBreaker(name = "cartCircuitBreaker", fallbackMethod = "cartClientRemoveAllItemsFromCartCircuitBreakerFallback")
-    public void removeAllItemsFromCartByFeignClient(UUID userId, CartClearedBySagaEvent event) {
-        cartServiceClient.removeAllItemsFromCartByUserId(userId);
-        orderEventPublisher.sentCartClearedEvent(event);
     }
 
     private void updateCache(CustomerOrder order) {
@@ -154,23 +149,8 @@ public class OrderCreateCommandHandler implements CommandHandler<OrderCreateComm
         }
     }
 
-    public void orderCreateCircuitBreakerFallback(CustomerOrder order, OrderCreateCommand orderCreateCommand, Throwable t) {
+    public void orderCreateCircuitBreakerFallback(OrderCreateCommand orderCreateCommand, Throwable t) {
         log.error("Failed to create {} after all retry attempts. Cause: {}", orderCreateCommand.toString(), t.getMessage(), t);
         throw new CreatingException("Failed to create order:" + orderCreateCommand, t);
-    }
-
-    public List<CartProductDTO> cartClientGetListOfCartProductsCircuitBreakerFallback(Throwable t) {
-        log.error("Failed to create order after all retry attempts. Cause: {}", t.getMessage(), t);
-        throw new CreatingException("Failed to create order", t);
-    }
-
-    public void cartClientRemoveAllItemsFromCartCircuitBreakerFallback(OrderCreateCommand orderCreateCommand, CartClearedBySagaEvent cartClearedBySagaEvent, Throwable t) {
-        log.error("Failed to create {} after all retry attempts. Cause: {}", orderCreateCommand.toString(), t.getMessage(), t);
-        throw new CreatingException("Failed to create order:" + orderCreateCommand, t);
-    }
-
-    public ProductDTO productClientCircuitBreakerFallback(UUID productId, Throwable t) {
-        log.error("Failed to create order with product id {} after all retry attempts. Cause: {}", productId, t.getMessage(), t);
-        throw new CreatingException("Failed to create order with productId:" + productId, t);
     }
 }

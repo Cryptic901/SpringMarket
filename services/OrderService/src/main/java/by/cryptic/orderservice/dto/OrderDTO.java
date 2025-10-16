@@ -16,8 +16,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class OrderDTO {
-    @NotBlank(message = "Location should be not blank")
-    private String location;
+    @NotBlank(message = "Longitude should be not blank")
+    private double lon;
+    @NotBlank(message = "Latitude should be not blank")
+    private double lat;
     @NotNull(message = "Order status should be not null")
     private OrderStatus orderStatus;
     @NotNull(message = "Price should be not null")

@@ -45,7 +45,7 @@ class PaymentCreateCommandHandlerTest {
         UUID userId = UUID.randomUUID();
         PaymentView payment = PaymentView.builder()
                 .paymentId(paymentId)
-                .paymentMethod(PaymentMethod.PAYPAL)
+                .paymentMethod(PaymentMethod.CARD)
                 .orderId(orderId)
                 .userId(userId)
                 .price(BigDecimal.valueOf(148.8))
@@ -53,7 +53,7 @@ class PaymentCreateCommandHandlerTest {
         PaymentSuccessEvent paymentCreateCommand =
                 PaymentSuccessEvent.builder()
                         .paymentId(paymentId)
-                        .paymentMethod(PaymentMethod.PAYPAL)
+                        .paymentMethod(PaymentMethod.CARD)
                         .orderId(orderId)
                         .userId(userId)
                         .price(BigDecimal.valueOf(148.8))
@@ -75,7 +75,7 @@ class PaymentCreateCommandHandlerTest {
         PaymentFailedEvent paymentCreateCommand =
                 PaymentFailedEvent.builder()
                         .paymentId(paymentId)
-                        .paymentMethod(PaymentMethod.PAYPAL)
+                        .paymentMethod(PaymentMethod.CARD)
                         .orderId(orderId)
                         .userId(userId)
                         .price(BigDecimal.valueOf(148.8))

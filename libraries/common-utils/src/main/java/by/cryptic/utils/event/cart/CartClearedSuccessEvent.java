@@ -21,6 +21,9 @@ public class CartClearedSuccessEvent extends DomainEvent implements CartEvent {
     private PaymentMethod paymentMethod;
     private List<OrderedProductDTO> listOfProducts;
     private BigDecimal price;
+    private double lon;
+    private double lat;
+    private Integer warehouseLimit;
     private static final String version = "1.0";
     @Builder.Default
     private String source = CartClearedByUserEvent.class.getName();

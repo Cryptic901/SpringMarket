@@ -2,6 +2,7 @@ package by.cryptic.orderservice.model.read;
 
 import by.cryptic.utils.enums.OrderStatus;
 import lombok.*;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -26,7 +27,7 @@ public class CustomerOrderView {
 
     private UUID paymentId;
 
-    private String location;
+    private Point location;
 
     private BigDecimal price;
 

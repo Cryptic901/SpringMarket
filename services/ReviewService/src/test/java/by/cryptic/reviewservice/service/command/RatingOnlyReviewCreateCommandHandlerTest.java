@@ -1,5 +1,6 @@
 package by.cryptic.reviewservice.service.command;
 
+import by.cryptic.reviewservice.client.ProductServiceAdapter;
 import by.cryptic.reviewservice.client.ProductServiceClient;
 import by.cryptic.reviewservice.mapper.ReviewMapper;
 import by.cryptic.reviewservice.model.write.RatingOnlyReview;
@@ -16,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,6 +34,9 @@ class RatingOnlyReviewCreateCommandHandlerTest {
 
     @Mock
     private ReviewEventPublisher reviewEventPublisher;
+
+    @Mock
+    private ProductServiceAdapter productServiceAdapter;
 
     @Mock
     private ProductServiceClient productServiceClient;
@@ -68,7 +71,7 @@ class RatingOnlyReviewCreateCommandHandlerTest {
                 "img/url", UUID.randomUUID());
         Mockito.when(reviewRepository.save(any(RatingOnlyReview.class))).thenReturn(review);
         Mockito.when(cacheManager.getCache("reviews")).thenReturn(cache);
-        Mockito.when(productServiceClient.getProductById(productId)).thenReturn(ResponseEntity.ok(productDTO));
+        Mockito.when(productServiceAdapter.getProductByFeignClient(productId)).thenReturn(productDTO);
         //Act
         reviewCreateCommandHandler.handle(reviewCreateCommand);
         //Assert

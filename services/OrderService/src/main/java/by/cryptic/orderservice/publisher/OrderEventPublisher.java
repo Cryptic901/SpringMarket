@@ -86,6 +86,7 @@ public class OrderEventPublisher {
                         .orderStatus(order.getOrderStatus())
                         .orderId(order.getId())
                         .createdBy(order.getCreatedBy())
+                        .price(order.getPrice())
                         .listOfProducts(order.getProducts().stream().map(OrderMapper::toOrderedDto).toList())
                         .location(order.getLocation())
                         .userEmail(order.getUserEmail())

@@ -1,6 +1,7 @@
 package by.cryptic.inventoryservice.model;
 
 import by.cryptic.exceptions.OutOfStockException;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -32,8 +33,11 @@ public class Inventory {
     @Column(name = "product_id")
     private UUID productId;
 
-    @Column(name = "warehouse_id")
-    private UUID warehouseId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
+    @ToString.Exclude
+    @JsonBackReference
+    private Warehouse warehouse;
 
     @Column(name = "available_quantity")
     private Integer availableQuantity;

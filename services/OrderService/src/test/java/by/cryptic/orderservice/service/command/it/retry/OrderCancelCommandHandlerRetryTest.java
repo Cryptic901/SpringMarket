@@ -4,18 +4,24 @@ import by.cryptic.exceptions.UpdatingException;
 import by.cryptic.orderservice.OrderServiceApplication;
 import by.cryptic.orderservice.client.CartServiceClient;
 import by.cryptic.orderservice.client.ProductServiceClient;
+import by.cryptic.orderservice.config.TestBeans;
 import by.cryptic.orderservice.model.write.CustomerOrder;
 import by.cryptic.orderservice.repository.write.CustomerOrderRepository;
+import by.cryptic.orderservice.service.command.OrderCancelCommand;
 import by.cryptic.orderservice.service.command.handler.OrderCancelCommandHandler;
 import by.cryptic.utils.DTO.CartProductDTO;
 import by.cryptic.utils.DTO.ProductDTO;
 import by.cryptic.utils.enums.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -27,6 +33,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -45,6 +52,7 @@ import static org.mockito.Mockito.*;
 )
 @ImportAutoConfiguration(exclude = KafkaAutoConfiguration.class)
 @ActiveProfiles(value = {"test", "jpa"})
+@Import(TestBeans.class)
 @Testcontainers
 class OrderCancelCommandHandlerRetryTest {
 
@@ -52,7 +60,11 @@ class OrderCancelCommandHandlerRetryTest {
     private CustomerOrderRepository orderRepository;
 
     @Container
-    static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15-alpine");
+    static PostgreSQLContainer<?> postgis =
+            new PostgreSQLContainer<>(
+                    DockerImageName.parse("postgis/postgis:latest")
+                            .asCompatibleSubstituteFor("postgres")
+            );
 
     @MockitoSpyBean
     private OrderCancelCommandHandler orderCancelCommandHandler;
@@ -63,15 +75,18 @@ class OrderCancelCommandHandlerRetryTest {
     @MockitoBean
     private ProductServiceClient productServiceClient;
 
+    @Autowired
+    private GeometryFactory geometryFactory;
+
     @MockitoBean
     private KafkaTemplate<String, DomainEvent> kafkaTemplate;
 
     @DynamicPropertySource
     static void propertySource(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-        registry.add("spring.datasource.driver-class-name", postgreSQLContainer::getDriverClassName);
+        registry.add("spring.datasource.url", postgis::getJdbcUrl);
+        registry.add("spring.datasource.username", postgis::getUsername);
+        registry.add("spring.datasource.password", postgis::getPassword);
+        registry.add("spring.datasource.driver-class-name", postgis::getDriverClassName);
     }
 
     @Test
@@ -87,13 +102,14 @@ class OrderCancelCommandHandlerRetryTest {
                 .createdBy(userId)
                 .createdAt(LocalDateTime.now())
                 .price(BigDecimal.ONE)
-                .location("location")
+                .location(geometryFactory.createPoint(new Coordinate(21.22, 21.42)))
                 .orderStatus(OrderStatus.COMPLETED)
                 .paymentId(UUID.randomUUID())
                 .build();
 
         Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        Mockito.when(cartServiceClient.getCartProductsByUserId(userId)).thenReturn(ResponseEntity.ok(List.of(
+        Mockito.when(cartServiceClient.getCartProductsByUserId(userId))
+                .thenReturn(ResponseEntity.ok(List.of(
                 CartProductDTO.builder()
                         .productId(UUID.randomUUID())
                         .pricePerUnit(BigDecimal.ONE)
@@ -102,13 +118,16 @@ class OrderCancelCommandHandlerRetryTest {
         Mockito.when(productServiceClient.getProductById(any())).thenReturn(ResponseEntity.ok(new ProductDTO("name",
                 BigDecimal.ONE, 42, "desc",
                 "img/url", UUID.randomUUID())));
-        Mockito.doThrow(new TransientDataAccessResourceException("DB down"))
-                .when(orderRepository).save(any());
+        Mockito.doAnswer(invocation -> {
+            throw new TransientDataAccessResourceException("DB down");
+        }).when(orderRepository).findById(any());
+
         //Act
-        assertThrows(UpdatingException.class, () -> orderCancelCommandHandler.saveOrder(order));
+        assertThrows(UpdatingException.class, () -> orderCancelCommandHandler
+                .handle(new OrderCancelCommand(orderId, userId, "asda@gmail.com")));
         //Assert
         verify(orderCancelCommandHandler, atLeast(1))
                 .orderSaveCancelRetryFallback(any(), any(Throwable.class));
-        verify(orderRepository, times(3)).save(any());
+        verify(orderRepository, times(3)).findById(any());
     }
 }

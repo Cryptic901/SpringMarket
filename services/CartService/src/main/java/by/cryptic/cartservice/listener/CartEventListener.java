@@ -102,9 +102,7 @@ public class CartEventListener {
 
     @KafkaListener(topics = "saga-topic")
     public void listenSaga(DomainEvent event) {
-        log.info("-------------------------------------------");
-        log.info("SAGA LISTENING IN CART EVENT LISTENER");
-        log.info("!!!!!Event class: {}", event.getClass().getSimpleName());
+        log.info("Event class: {}", event.getClass().getSimpleName());
         switch (event) {
             case CartClearedBySagaEvent cartClearedEvent -> {
                 try {

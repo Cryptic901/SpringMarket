@@ -74,14 +74,9 @@ public class OrderEventListener {
     @KafkaListener(topics = "saga-topic")
     @Transactional
     public void listenSaga(DomainEvent event) {
-        log.info("-------------------------------------------");
-        log.info("SAGA LISTENING IN ORDER EVENT LISTENER");
-        log.info("!!!!!Event class: {}", event.getClass().getSimpleName());
+        log.info("Event class: {}", event.getClass().getSimpleName());
         switch (event) {
             case OrderFailedEvent orderFailedEvent -> {
-                log.info("SAGA ORDER FAILED! {}. REASON: {}," +
-                                " from class: by.cryptic.orderservice.listener",
-                        orderFailedEvent.getClass().getSimpleName(), orderFailedEvent.getFailureReason());
                 CustomerOrder order = orderRepository.findById(orderFailedEvent.getOrderId())
                         .orElseThrow(() -> new EntityNotFoundException(
                                 ("Order with id %s not found"

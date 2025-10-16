@@ -81,7 +81,7 @@ class ReviewCreateCommandHandlerRetryTest {
                 .when(reviewRepository).save(any());
 
         //Act
-        assertThrows(CreatingException.class, () -> reviewCreateCommandHandler.saveReview(reviewCreateCommand));
+        assertThrows(CreatingException.class, () -> reviewCreateCommandHandler.handle(reviewCreateCommand));
         //Assert
         verify(reviewCreateCommandHandler, atLeast(1))
                 .reviewRetryFallback(eq(reviewCreateCommand), any(Throwable.class));

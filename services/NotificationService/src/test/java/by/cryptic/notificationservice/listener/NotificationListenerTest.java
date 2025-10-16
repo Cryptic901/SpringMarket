@@ -4,10 +4,10 @@ import by.cryptic.notificationservice.service.EmailContentBuilder;
 import by.cryptic.notificationservice.service.EmailService;
 import by.cryptic.utils.event.order.OrderCanceledEvent;
 import by.cryptic.utils.event.order.OrderSuccessEvent;
-import by.cryptic.utils.event.user.UserLogoutEvent;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +27,9 @@ class NotificationListenerTest {
 
     @Mock
     private EmailContentBuilder emailContentBuilder;
+
+    @Mock
+    private GeometryFactory geometryFactory;
 
     @InjectMocks
     private NotificationListener notificationListener;
@@ -42,7 +44,7 @@ class NotificationListenerTest {
                 .userEmail("user123@gmail.com")
                 .price(BigDecimal.valueOf(148.8))
                 .listOfProducts(new ArrayList<>())
-                .location("Gomel")
+                .location(geometryFactory.createPoint())
                 .createdBy(userId)
                 .build();
         Mockito.when(emailContentBuilder.buildOrderEmailContent(orderId,

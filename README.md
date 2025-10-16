@@ -179,7 +179,7 @@ graph TB
   http://localhost:8080/actuator/health
 
   # Keycloak Admin Console
-  http://localhost:9090/admin
+  http://localhost:9000/admin
 ```
 
 ### Конфигурация профилей
@@ -222,19 +222,6 @@ graph TB
 └── pom.xml                    # BOM родительский POM
 ```
 
-## 🔧 Конфигурация
-
-### Environment Variables
-
-| Переменная                | Описание          | По умолчанию                               |
-|---------------------------|-------------------|--------------------------------------------|
-| `CONFIG_SERVER_URL`       | URL Config Server | http://localhost:8888                      |
-| `EUREKA_SERVER_URL`       | URL Eureka Server | http://localhost:8761                      |
-| `KEYCLOAK_SERVER_URL`     | URL Keycloak      | http://localhost:9090                      |
-| `KAFKA_BOOTSTRAP_SERVERS` | Kafka brokers     | localhost:9092                             |
-| `DATABASE_URL`            | PostgreSQL URL    | jdbc:postgresql://localhost:5432/ecommerce |
-| `REDIS_URL`               | Redis URL         | redis://localhost:6379                     |
-| `MONGODB_URI`             | MongoDB URI       | mongodb://localhost:27017/ecommerce        |
 
 ## 🔄 Saga Pattern Flow
 
@@ -292,7 +279,7 @@ sequenceDiagram
 
 ## 📊 API Документация
 
-После запуска сервисов, Swagger UI доступен по адресам:
+После запуска сервисов, Swagger UI доступен по адресу:
 
 - `http://localhost:8080/swagger-ui.html`
 
@@ -303,17 +290,11 @@ sequenceDiagram
   mvn test
 ```
 
-### Интеграционные тесты (с Testcontainers)
-```bash
-  mvn verify -P integration-tests
-```
-
 ## 🔒 Безопасность
 
 - **OAuth2** + **Keycloak** для аутентификации
 - **JWT** токены для авторизации
 - **Spring Security** для защиты endpoints
-- **Rate Limiting** через API Gateway
 - **Input Validation** во всех сервисах
 
 ## 📈 Мониторинг и Observability
@@ -325,6 +306,9 @@ sequenceDiagram
 - **Grafana Loki** - сбор и визуализация логов
 - **Grafana Tempo** - сбор и визуализация трассировок
 
+## Дашборды в Grafana
+![img.png](img/tempo.png) ![img.png](img/jvm_grafana.png)
+
 ## 👨‍💻 Автор
 
-Создано с ❤️ для изучения современных архитектурных паттернов и технологий Spring ecosystem.
+Создал Cryptic901 для изучения современных архитектурных паттернов и технологий Spring.

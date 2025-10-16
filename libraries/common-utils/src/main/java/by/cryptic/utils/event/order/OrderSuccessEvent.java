@@ -4,6 +4,7 @@ import by.cryptic.utils.DTO.OrderedProductDTO;
 import by.cryptic.utils.enums.OrderStatus;
 import by.cryptic.utils.event.DomainEvent;
 import lombok.*;
+import org.locationtech.jts.geom.Point;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +22,7 @@ public class OrderSuccessEvent extends DomainEvent implements OrderEvent {
     @Builder.Default
     private OrderStatus orderStatus = OrderStatus.IN_PROGRESS_OF_DELIVERY;
     private List<OrderedProductDTO> listOfProducts;
-    private String location;
+    private Point location;
     private UUID createdBy;
     private static final String version = "1.0";
     @Builder.Default

@@ -45,3 +45,12 @@ spring:
   flyway:
     schemas: inventory_schema
     default-schema: inventory_schema
+  jpa:
+    hibernate:
+      dialect: org.hibernate.spatial.dialect.postgis.PostgisPG17Dialect
+
+springdoc:
+  api-docs:
+    path: /inventory-service/v3/api-docs
+  swagger-ui:
+    path: /inventory-service/swagger-ui.html

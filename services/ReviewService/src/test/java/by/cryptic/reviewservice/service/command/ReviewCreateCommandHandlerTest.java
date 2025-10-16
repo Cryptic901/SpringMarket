@@ -1,5 +1,6 @@
 package by.cryptic.reviewservice.service.command;
 
+import by.cryptic.reviewservice.client.ProductServiceAdapter;
 import by.cryptic.reviewservice.client.ProductServiceClient;
 import by.cryptic.reviewservice.mapper.ReviewMapper;
 import by.cryptic.reviewservice.model.write.Review;
@@ -38,12 +39,13 @@ class ReviewCreateCommandHandlerTest {
     private ProductServiceClient productServiceClient;
 
     @Mock
+    private ProductServiceAdapter productServiceAdapter;
+
+    @Mock
     private CacheManager cacheManager;
 
     @Mock
     private Cache cache;
-
-    //TODO написать тесты под рейтинг онли отзывы и протестить все остальные тесты после добавление доков а также переделать it тесты
 
     @InjectMocks
     private ReviewCreateCommandHandler reviewCreateCommandHandler;
@@ -72,7 +74,7 @@ class ReviewCreateCommandHandlerTest {
                 "img/url", UUID.randomUUID());
         Mockito.when(reviewRepository.save(any(Review.class))).thenReturn(review);
         Mockito.when(cacheManager.getCache("reviews")).thenReturn(cache);
-        Mockito.when(productServiceClient.getProductById(productId)).thenReturn(ResponseEntity.ok(productDTO));
+        Mockito.when(productServiceAdapter.getProductByFeignClient(productId)).thenReturn(productDTO);
         //Act
         reviewCreateCommandHandler.handle(reviewCreateCommand);
         //Assert

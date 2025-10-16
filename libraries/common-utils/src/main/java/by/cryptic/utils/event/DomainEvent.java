@@ -4,6 +4,7 @@ import by.cryptic.utils.event.cart.*;
 import by.cryptic.utils.event.category.CategoryCreatedEvent;
 import by.cryptic.utils.event.category.CategoryDeletedEvent;
 import by.cryptic.utils.event.category.CategoryUpdatedEvent;
+import by.cryptic.utils.event.inventory.InventoryCreateSuccessEvent;
 import by.cryptic.utils.event.inventory.StockCreatedEvent;
 import by.cryptic.utils.event.inventory.StockReservationFailedEvent;
 import by.cryptic.utils.event.inventory.StockReservedEvent;
@@ -73,6 +74,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = StockCreatedEvent.class, name = "StockCreatedEvent"),
         @JsonSubTypes.Type(value = StockReservationFailedEvent.class, name = "StockReservationFailedEvent"),
         @JsonSubTypes.Type(value = StockReservedEvent.class, name = "StockReservedEvent"),
+        @JsonSubTypes.Type(value = InventoryCreateSuccessEvent.class, name = "InventoryCreateSuccessEvent")
 })
 @Data
 public abstract class DomainEvent {

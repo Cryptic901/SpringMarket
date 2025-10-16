@@ -6,6 +6,8 @@ import by.cryptic.utils.event.order.OrderCreatedEvent;
 import by.cryptic.utils.event.user.UserDeletedEvent;
 import by.cryptic.utils.event.user.UserLoginedEvent;
 import by.cryptic.utils.event.user.UserLogoutEvent;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -28,9 +30,17 @@ public class AnalyticListener implements SmartLifecycle {
     public static final AtomicInteger activeUsers = new AtomicInteger(0);
     public static final AtomicReference<BigDecimal> todayRevenue = new AtomicReference<>(BigDecimal.ZERO);
     public static final AtomicInteger todayOrders = new AtomicInteger(0);
+
+    private final MeterRegistry meterRegistry;
     private final AnalyticsStateService analyticsStateService;
     private volatile boolean running = false;
 
+    @PostConstruct
+    public void registerMetrics() {
+        meterRegistry.gauge("analytics_active_users", activeUsers);
+        meterRegistry.gauge("analytics_today_revenue", todayRevenue, ref -> ref.get().doubleValue());
+        meterRegistry.gauge("analytics_today_orders", todayOrders);
+    }
 
     @EventListener(ApplicationReadyEvent.class)
     public void restoreState() {

@@ -1,5 +1,5 @@
 package by.cryptic.categoryservice.service.query.handler;
-import by.cryptic.categoryservice.dto.CategoryDTO;
+import by.cryptic.utils.DTO.CategoryDTO;
 import by.cryptic.categoryservice.mapper.CategoryMapper;
 import by.cryptic.categoryservice.repository.read.CategoryViewRepository;
 import by.cryptic.categoryservice.service.query.CategoryGetAllQuery;

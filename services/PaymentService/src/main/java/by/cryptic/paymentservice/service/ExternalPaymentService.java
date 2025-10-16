@@ -1,9 +1,10 @@
 package by.cryptic.paymentservice.service;
 
 import by.cryptic.exceptions.CreatingException;
-import by.cryptic.exceptions.handler.PaymentTooManyRequestException;
+import by.cryptic.exceptions.PaymentTooManyRequestException;
 import by.cryptic.paymentservice.model.write.Payment;
 import by.cryptic.paymentservice.repository.write.PaymentRepository;
+import by.cryptic.utils.enums.PaymentMethod;
 import by.cryptic.utils.enums.PaymentStatus;
 import by.cryptic.utils.event.payment.PaymentCreatedEvent;
 import com.stripe.StripeClient;
@@ -75,9 +76,11 @@ public class ExternalPaymentService {
                 .setDescription("Order #" + command.getOrderId())
                 .putMetadata("orderId", command.getOrderId().toString())
                 .putMetadata("userId", command.getUserId().toString())
-                .setConfirm(true)
+                .setPaymentMethod(mapStripePaymentMethods(command.getPaymentMethod())) // <-- delete when integrate with frontend
+                .setConfirm(true) // <-- set to false when integrate with frontend
                 .setAutomaticPaymentMethods(PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
                         .setEnabled(true)
+                        .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
                         .build())
                 .build();
         RequestOptions requestOptions = RequestOptions.builder()
@@ -92,6 +95,15 @@ public class ExternalPaymentService {
             case "canceled" -> PaymentStatus.CANCELED;
             case "requires_payment_method" -> PaymentStatus.FAILED;
             default -> PaymentStatus.PENDING;
+        };
+    }
+
+    public String mapStripePaymentMethods(PaymentMethod paymentMethod) {
+        return switch (paymentMethod) {
+            case CARD -> "pm_card_visa"; // тестовая карта
+            case SEPA -> "sepa_debit";
+            case BANK_TRANSFER -> "us_bank_account";
+            default -> null; // остальные (PayPal, Apple Pay, Google Pay) через AutomaticPaymentMethods
         };
     }
 
