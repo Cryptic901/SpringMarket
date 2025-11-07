@@ -369,7 +369,8 @@ jobs:
       - name: Rename JAR
         run: |
           cd keycloak
-          mv kafka-keycloak-spi-*.jar kafka-keycloak-spi.jar
+          cp kafka-keycloak-spi-1.0-SNAPSHOT.jar kafka-keycloak-spi.jar
+          ls -la
 
       - name: Image prefix to lowercase
         id: prep
