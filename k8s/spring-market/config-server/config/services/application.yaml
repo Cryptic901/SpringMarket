@@ -1,0 +1,320 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: application-configmap
+  namespace: spring-market
+data:
+  application-dev.yaml: |-
+    spring:
+      lifecycle:
+        timeout-per-shutdown-phase: 30s
+      security:
+        oauth2:
+          resourceserver:
+            jwt:
+              jwk-set-uri: http://keycloak.keycloak.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/certs
+              issuer-uri: http://localhost:9000/realms/springmarket
+    resilience4j:
+      retry:
+        configs:
+          default:
+            max-attempts: 3
+            wait-duration: 500ms
+            retry-exceptions:
+              - java.sql.SQLException
+              - java.net.ConnectException
+              - jakarta.ws.rs.ProcessingException
+              - org.springframework.web.client.HttpClientErrorException
+              - org.springframework.dao.TransientDataAccessResourceException
+            ignore-exceptions:
+              - by.cryptic.exceptions.UpdatingException
+              - by.cryptic.exceptions.DeletingException
+              - by.cryptic.exceptions.CreatingException
+              - java.lang.IllegalArgumentException
+              - java.lang.IllegalStateException
+              - java.lang.NullPointerException
+              - org.springframework.dao.DataIntegrityViolationException
+              - jakarta.persistence.EntityNotFoundException
+              - by.cryptic.exceptions.EmptyCartException
+              - jakarta.persistence.EntityNotFoundException
+              - java.lang.IllegalStateException
+              - by.cryptic.exceptions.InsufficientWarehouseCapacityException
+              - by.cryptic.exceptions.NotEnoughProductsException
+              - by.cryptic.exceptions.OutOfStockException
+              - by.cryptic.exceptions.PaymentTooManyRequestException
+        instances:
+          productRetry:
+            baseConfig: default
+          reviewRetry:
+            baseConfig: default
+          orderRetry:
+            baseConfig: default
+          cartRetry:
+            baseConfig: default
+
+      circuitbreaker:
+        configs:
+          default:
+            minimum-number-of-calls: 10
+            wait-duration-in-open-state: 5s
+            sliding-window-size: 3
+            failure-rate-threshold: 50
+            permitted-number-of-calls-in-half-open-state: 2
+            ignore-exceptions:
+              - by.cryptic.exceptions.UpdatingException
+              - by.cryptic.exceptions.DeletingException
+              - by.cryptic.exceptions.CreatingException
+              - java.lang.IllegalArgumentException
+              - java.lang.IllegalStateException
+              - java.lang.NullPointerException
+              - org.springframework.dao.DataIntegrityViolationException
+              - jakarta.persistence.EntityNotFoundException
+              - by.cryptic.exceptions.EmptyCartException
+              - jakarta.persistence.EntityNotFoundException
+              - java.lang.IllegalStateException
+              - by.cryptic.exceptions.InsufficientWarehouseCapacityException
+              - by.cryptic.exceptions.NotEnoughProductsException
+              - by.cryptic.exceptions.OutOfStockException
+              - by.cryptic.exceptions.PaymentTooManyRequestException
+        instances:
+          orderCircuitBreaker:
+            baseConfig: default
+          cartCircuitBreaker:
+            baseConfig: default
+          productCircuitBreaker:
+            baseConfig: default
+          categoryCircuitBreaker:
+            baseConfig: default
+          inventoryCircuitBreaker:
+            baseConfig: default
+
+      ratelimiter:
+        configs:
+          default:
+            limit-for-period: 10
+            limit-refresh-period: 1s
+            timeout-duration: 0s
+            register-health-indicator: true
+        instances:
+          paymentRatelimiter:
+            baseConfig: default
+
+    management:
+      tracing:
+        sampling:
+          probability: 1.0
+        propagation:
+          type: w3c
+      otel:
+        traces:
+          exporter: otlp
+        exporter:
+          otlp:
+            endpoint: http://grafana-tempo.observability.svc.cluster.local:4317
+      otlp:
+        tracing:
+          endpoint: http://grafana-tempo.observability.svc.cluster.local:4318/v1/traces
+      endpoints:
+        web:
+          exposure:
+            include: health,metrics,prometheus,info
+      endpoint:
+        prometheus:
+          enabled: true
+        metrics:
+          enabled: true
+        health:
+          show-details: always
+      health:
+        ratelimiters:
+          enabled: true
+      metrics:
+        export:
+          prometheus:
+            enabled: true
+      info:
+        env:
+          enabled: true
+    logging:
+      level:
+        com.netflix.discovery: DEBUG
+        org.springframework.web.client: DEBUG
+        io.github.resilience4j: DEBUG
+        org:
+          springframework:
+            cache: INFO
+            web: INFO
+            http: INFO
+            security: DEBUG
+            security.oauth2.jwt: DEBUG
+            security.oauth2.server.resource: DEBUG
+            kafka: INFO
+          apache:
+            kafka: INFO
+        root: info
+      pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"
+        file: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"
+      file:
+        name: /var/log/springmarket/springmarket.log
+  application-eureka.yaml: |-
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://eureka-server:8761/eureka/
+        register-with-eureka: true
+        fetch-registry: true
+        should-unregister-on-shutdown: false
+  application.yaml: |-
+    spring:
+      lifecycle:
+        timeout-per-shutdown-phase: 30s
+      security:
+        oauth2:
+          resourceserver:
+            jwt:
+              jwk-set-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/certs
+              issuer-uri: http://localhost:9000/realms/springmarket
+    resilience4j:
+      retry:
+        configs:
+          default:
+            max-attempts: 3
+            wait-duration: 500ms
+            retry-exceptions:
+              - java.sql.SQLException
+              - java.net.ConnectException
+              - jakarta.ws.rs.ProcessingException
+              - org.springframework.web.client.HttpClientErrorException
+              - org.springframework.dao.TransientDataAccessResourceException
+            ignore-exceptions:
+              - by.cryptic.exceptions.UpdatingException
+              - by.cryptic.exceptions.DeletingException
+              - by.cryptic.exceptions.CreatingException
+              - java.lang.IllegalArgumentException
+              - java.lang.IllegalStateException
+              - java.lang.NullPointerException
+              - org.springframework.dao.DataIntegrityViolationException
+              - jakarta.persistence.EntityNotFoundException
+              - by.cryptic.exceptions.EmptyCartException
+              - jakarta.persistence.EntityNotFoundException
+              - java.lang.IllegalStateException
+              - by.cryptic.exceptions.InsufficientWarehouseCapacityException
+              - by.cryptic.exceptions.NotEnoughProductsException
+              - by.cryptic.exceptions.OutOfStockException
+              - by.cryptic.exceptions.PaymentTooManyRequestException
+        instances:
+          productRetry:
+            baseConfig: default
+          reviewRetry:
+            baseConfig: default
+          orderRetry:
+            baseConfig: default
+          cartRetry:
+            baseConfig: default
+
+      circuitbreaker:
+        configs:
+          default:
+            minimum-number-of-calls: 10
+            wait-duration-in-open-state: 5s
+            sliding-window-size: 3
+            failure-rate-threshold: 50
+            permitted-number-of-calls-in-half-open-state: 2
+            ignore-exceptions:
+              - by.cryptic.exceptions.UpdatingException
+              - by.cryptic.exceptions.DeletingException
+              - by.cryptic.exceptions.CreatingException
+              - java.lang.IllegalArgumentException
+              - java.lang.IllegalStateException
+              - java.lang.NullPointerException
+              - org.springframework.dao.DataIntegrityViolationException
+              - jakarta.persistence.EntityNotFoundException
+              - by.cryptic.exceptions.EmptyCartException
+              - jakarta.persistence.EntityNotFoundException
+              - java.lang.IllegalStateException
+              - by.cryptic.exceptions.InsufficientWarehouseCapacityException
+              - by.cryptic.exceptions.NotEnoughProductsException
+              - by.cryptic.exceptions.OutOfStockException
+              - by.cryptic.exceptions.PaymentTooManyRequestException
+        instances:
+          orderCircuitBreaker:
+            baseConfig: default
+          cartCircuitBreaker:
+            baseConfig: default
+          productCircuitBreaker:
+            baseConfig: default
+          categoryCircuitBreaker:
+            baseConfig: default
+          inventoryCircuitBreaker:
+            baseConfig: default
+
+      ratelimiter:
+        configs:
+          default:
+            limit-for-period: 10
+            limit-refresh-period: 1s
+            timeout-duration: 0s
+            register-health-indicator: true
+        instances:
+          paymentRatelimiter:
+            baseConfig: default
+
+    management:
+      tracing:
+        sampling:
+          probability: 1.0
+        propagation:
+          type: w3c
+      otel:
+        traces:
+          exporter: otlp
+        exporter:
+          otlp:
+            endpoint: http://grafana-tempo:4317
+      otlp:
+        tracing:
+          endpoint: http://grafana-tempo:4318/v1/traces
+      endpoints:
+        web:
+          exposure:
+            include: health,metrics,prometheus,info
+      endpoint:
+        prometheus:
+          enabled: true
+        metrics:
+          enabled: true
+        health:
+          show-details: always
+      health:
+        ratelimiters:
+          enabled: true
+      metrics:
+        export:
+          prometheus:
+            enabled: true
+      info:
+        env:
+          enabled: true
+    logging:
+      level:
+        com.netflix.discovery: DEBUG
+        org.springframework.web.client: DEBUG
+        io.github.resilience4j: DEBUG
+        org:
+          springframework:
+            cache: INFO
+            web: INFO
+            http: INFO
+            security: DEBUG
+            security.oauth2.jwt: DEBUG
+            security.oauth2.server.resource: DEBUG
+            kafka: INFO
+          apache:
+            kafka: INFO
+        root: info
+      pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"
+        file: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %logger{36} - %msg%n"
+      file:
+        name: /var/log/springmarket/springmarket.log

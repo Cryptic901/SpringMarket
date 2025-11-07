@@ -28,6 +28,9 @@ public class TopicConfig {
 
     @Bean
     public NewTopic categoryTopicDlq() {
+        if (kafkaTopicsProperties == null) {
+            throw new IllegalStateException("DLQ config not ready");
+        }
         return TopicBuilder.name(kafkaTopicsProperties.getDlq().getName())
                 .partitions(kafkaTopicsProperties.getDlq().getPartitions())
                 .replicas(kafkaTopicsProperties.getDlq().getReplicas())

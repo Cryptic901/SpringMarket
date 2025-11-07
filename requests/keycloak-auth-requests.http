@@ -4,7 +4,7 @@ Content-Type: application/x-www-form-urlencoded
 
 grant_type=password&
 client_id=api-gateway&
-client_secret=ZxR7Gdhbt0apBewaZnZX3oZN4rybsnFc&
+client_secret=iUoy91EYLWU4q3cdtjdTzMd3d7iqJ1VL&
 username=luckyartem901@gmail.com&
 password=password
 
@@ -17,7 +17,7 @@ POST http://localhost:9000/realms/master/protocol/openid-connect/token
 Content-Type: application/x-www-form-urlencoded
 
 client_id=admin-cli&
-username=cryptic&
+username=cryptic1&
 password=password&
 grant_type=password
 

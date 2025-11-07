@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: keycloak
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - args:
+            - "/opt/keycloak/bin/kc.sh build --metrics-enabled=true && \n
+              /opt/keycloak/bin/kc.sh start-dev \n
+              --proxy-headers=xforwarded
+                --http-enabled=true
+                  --hostname=localhost 
+                  --hostname-strict=false"
+            - --hostname-backchannel-dynamic=true
+            - --hostname-strict-backchannel=false
+          command:
+            - /bin/bash
+            - -c
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: kafka-1:9090,kafka-2:9090,kafka-3:9090
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_PASSWORD
+              value: postgres
+            - name: KC_DB_URL
+              value: jdbc:postgresql://keycloak-db:5432/keycloak
+            - name: KC_DB_USERNAME
+              value: postgres
+            - name: KC_HOSTNAME_PORT
+              value: "9000"
+            - name: KC_METRICS_ENABLED
+              value: "true"
+          name: keycloak
+          image: ghcr.io/cryptic901/springmarket/keycloak:latest
+          livenessProbe:
+            exec:
+              command:
+                - cat < /dev/null > /dev/tcp/localhost/8080
+            failureThreshold: 5
+            initialDelaySeconds: 190
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      restartPolicy: Always

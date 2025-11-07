@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: spring-market
+  name: cart-service
+  labels:
+    app: cart-service
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: cart-service
+  template:
+    metadata:
+      labels:
+        app: cart-service
+        version: v1
+    spec:
+      containers:
+        - env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -javaagent:/app/opentelemetry-javaagent.jar
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://grafana-tempo.observability.svc.cluster.local:4318
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: http/protobuf
+            - name: OTEL_INSTRUMENTATION_SPRING_WEBMVC_EXCLUDED_PATHS
+              value: /actuator/**
+            - name: OTEL_LOGS_EXPORTER
+              value: logging
+            - name: OTEL_METRICS_EXPORTER
+              value: prometheus
+            - name: OTEL_SERVICE_NAME
+              value: cart-service
+            - name: OTEL_SERVICE_VERSION
+              value: 1.0.0
+            - name: OTEL_TRACES_EXPORTER
+              value: otlp,logging
+            - name: SPRING_PROFILES_ACTIVE
+              value: cache,feign,jpa,kafka,mongo,security,eureka,dev
+
+          image: ghcr.io/cryptic901/springmarket/cart-service:latest
+          imagePullPolicy: IfNotPresent
+          name: cart-service
+          ports:
+            - name: http
+              containerPort: 8084
+              protocol: TCP
+            - name: metrics
+              containerPort: 9464
+              protocol: TCP
+          restartPolicy: Always
+
+          livenessProbe:
+            httpGet:
+              port: 8084
+              path: /actuator/health/liveness
+            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 25
+
+          readinessProbe:
+            httpGet:
+              port: 8084
+              path: /actuator/health/readiness
+            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 25
+
+          startupProbe:
+            httpGet:
+              port: 8084
+              path: /actuator/health/liveness
+            initialDelaySeconds: 0
+            failureThreshold: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "150m"
+            limits:
+              memory: "800Mi"
+              cpu: "350m"

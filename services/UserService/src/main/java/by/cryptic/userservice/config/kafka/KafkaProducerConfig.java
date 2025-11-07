@@ -1,6 +1,7 @@
 package by.cryptic.userservice.config.kafka;
 
 import by.cryptic.utils.event.DomainEvent;
+import lombok.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,7 +13,7 @@ import org.springframework.kafka.core.ProducerFactory;
 public class KafkaProducerConfig {
 
     @Bean
-    public KafkaTemplate<String, DomainEvent> kafkaTemplate(ProducerFactory<String, DomainEvent> producerFactory) {
+    public KafkaTemplate<@NonNull String, @NonNull DomainEvent> kafkaTemplate(ProducerFactory<@NonNull String, @NonNull DomainEvent> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 }

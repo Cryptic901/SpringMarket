@@ -1,6 +1,7 @@
 package by.cryptic.orderservice.config.kafka;
 
 import by.cryptic.utils.event.DomainEvent;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.TopicPartition;
@@ -28,12 +29,13 @@ import java.util.Objects;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, DomainEvent> kafkaListenerContainerFactory(
-            ConsumerFactory<String, DomainEvent> consumerFactory, DeadLetterPublishingRecoverer deadLetterPublishingRecoverer) {
-        ConcurrentKafkaListenerContainerFactory<String, DomainEvent> factory =
+    public ConcurrentKafkaListenerContainerFactory<@NonNull String, @NonNull DomainEvent> kafkaListenerContainerFactory(
+            ConsumerFactory<@NonNull String, @NonNull DomainEvent> consumerFactory, DeadLetterPublishingRecoverer deadLetterPublishingRecoverer) {
+        ConcurrentKafkaListenerContainerFactory<@NonNull String, @NonNull DomainEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConcurrency(3);
         factory.setConsumerFactory(consumerFactory);
+        factory.getContainerProperties().setGroupId("order-consumer-group");
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(
                 deadLetterPublishingRecoverer,
                 new FixedBackOff(1000, 5L)
@@ -46,9 +48,9 @@ public class KafkaConsumerConfig {
     }
 
     @Bean("stringKafkaListenerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, String> stringKafkaListenerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<@NonNull String, @NonNull String> stringKafkaListenerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, String> listenerContainerFactory =
+        ConcurrentKafkaListenerContainerFactory<@NonNull String, @NonNull String> listenerContainerFactory =
                 new ConcurrentKafkaListenerContainerFactory<>();
 
         Map<String, Object> props = new HashMap<>();
@@ -63,7 +65,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer
-            (KafkaTemplate<String, DomainEvent> kafkaTemplate) {
+            (KafkaTemplate<@NonNull String, @NonNull DomainEvent> kafkaTemplate) {
         return new DeadLetterPublishingRecoverer(kafkaTemplate,
                 (record, exception) -> {
                     String topicName = record.topic();

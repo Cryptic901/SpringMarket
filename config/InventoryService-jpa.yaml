@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/inventory_db
+    username: inventory_service
+    password: inventory_pass
+
+  flyway:
+    schemas: inventory_schema
+    default-schema: inventory_schema
+    enabled: true
+    baseline-on-migrate: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.spatial.dialect.postgis.PostgisPG17Dialect

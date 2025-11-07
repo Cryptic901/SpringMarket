@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-alloy
+  namespace: observability
+  labels:
+    app: grafana-alloy
+spec:
+  ports:
+    - name: grafana-alloy
+      port: 12345
+      targetPort: 12345
+  selector:
+    app: grafana-alloy

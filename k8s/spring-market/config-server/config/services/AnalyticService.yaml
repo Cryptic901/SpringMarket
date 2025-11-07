@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: analytic-service
+  name: analytic-server-configmap
+  namespace: spring-market
+data:
+  AnalyticService-cache.yaml: |-
+    spring:
+      data:
+        redis:
+          host: redis.database.svc.cluster.local
+          port: 6379
+  AnalyticService-dev.yaml: |-
+    server:
+      port: 8085
+      shutdown: graceful
+
+    springdoc:
+      api-docs:
+        path: /analytic-service/v3/api-docs
+      swagger-ui:
+        path: /analytic-service/swagger-ui.html
+  AnalyticService-eureka.yaml: |-
+    eureka:
+      instance:
+        hostname: analytic-service
+        prefer-ip-address: false
+      client:
+        service-url:
+          defaultZone: http://eureka-server.spring-market.svc.cluster.local:8761/eureka/
+        register-with-eureka: true
+        fetch-registry: true
+        should-unregister-on-shutdown: false
+  AnalyticService-kafka.yaml: |-
+    spring:
+      kafka:
+        bootstrap-servers: kafka.messaging.svc.cluster.local:9090
+        consumer:
+          auto-offset-reset: earliest
+          group-id: analytic-consumer-group
+          value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+          key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+          properties:
+            spring.json.trusted.packages: by.cryptic.*
+            spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+            spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+            spring.json.value.default.type: by.cryptic.utils.event.DomainEvent
+            spring.json.use.type.headers: false
+            session.timeout.ms: 30000
+            max.poll.interval.ms: 300000
+        producer:
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        listener:
+          missing-topics-fatal: false
+        topics:
+          name: analytic-topic
+          partitions: 3
+          replicas: 3
+          min-insync-replicas: 1
+          dlq:
+            name: analytic-topic.DLQ
+            partitions: 3
+            replicas: 3
+            min-insync-replicas: 1
+  AnalyticService.yaml: |-
+    server:
+      port: 8085
+      shutdown: graceful
+
+    springdoc:
+      api-docs:
+        path: /analytic-service/v3/api-docs
+      swagger-ui:
+        path: /analytic-service/swagger-ui.html

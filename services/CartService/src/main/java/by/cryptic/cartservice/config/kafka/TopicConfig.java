@@ -11,8 +11,8 @@ import org.springframework.kafka.config.TopicBuilder;
 import java.util.Map;
 
 @Configuration
-@Profile("kafka")
 @RequiredArgsConstructor
+@Profile("kafka")
 public class TopicConfig {
 
     private final KafkaTopicsProperties kafkaTopicsProperties;

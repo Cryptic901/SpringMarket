@@ -1,0 +1,307 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: debezium-config
+  namespace: messaging
+  labels:
+    app: debezium
+data:
+  debezium-cart-postgres-connector.json: |-
+    {
+      "name": "cart-outbox-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "cart_db",
+        "database.server.name": "cart-db",
+        "bootstrap.servers": "kafka-1:9090,kafka-2:9090,kafka-3:9090",
+        "table.include.list": "cart_schema.outbox",
+        "topic.prefix": "cart-db",
+        "tombstones.on.delete": "false",
+        "slot.name": "cart_slot",
+        "plugin.name": "pgoutput",
+        "transforms": "outbox",
+
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType,aggregate_id:header:aggregateId",
+        "transforms.outbox.route.topic.replacement": "outbox-event.${routedByValue}",
+        "transforms.outbox.table.field.event.id": "id",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.timestamp": "created_at",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.table.field.event.payload.encoding": "json",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.aggregate.id": "aggregate_id",
+        "transforms.outbox.table.field.aggregate.type": "aggregate_type",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+      }
+    }
+  debezium-category-postgres-connector.json: |-
+    {
+      "name": "category-outbox-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "category_db",
+        "database.server.name": "category-db",
+        "bootstrap.servers": "kafka-1:9090,kafka-2:9090,kafka-3:9090",
+        "topic.prefix": "category-db",
+        "table.include.list": "category_schema.outbox",
+        "tombstones.on.delete": "false",
+        "slot.name": "category_slot",
+        "plugin.name": "pgoutput",
+
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "transforms.outbox.route.topic.replacement": "outbox-event.${routedByValue}",
+        "transforms.outbox.table.field.event.id": "id",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.timestamp": "created_at",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.table.field.event.payload.encoding": "json",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.aggregate.id": "aggregate_id",
+        "transforms.outbox.table.field.aggregate.type": "aggregate_type",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+      }
+    }
+  debezium-inventory-postgres-connector.json: |-
+    {
+      "name": "inventory-outbox-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "inventory_db",
+        "database.server.name": "inventory-db",
+        "bootstrap.servers": "kafka-1:9090,kafka-2:9090,kafka-3:9090",
+        "topic.prefix": "inventory-db",
+        "table.include.list": "inventory_schema.outbox",
+        "tombstones.on.delete": "false",
+        "slot.name": "inventory_slot",
+        "plugin.name": "pgoutput",
+
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType,aggregate_id:header:aggregateId",
+        "transforms.outbox.route.topic.replacement": "outbox-event.${routedByValue}",
+        "transforms.outbox.table.field.event.id": "id",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.timestamp": "created_at",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.table.field.event.payload.encoding": "json",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.aggregate.id": "aggregate_id",
+        "transforms.outbox.table.field.aggregate.type": "aggregate_type",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+      }
+    }
+  debezium-order-postgres-connector.json: |-
+    {
+      "name": "order-outbox-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "order_db",
+        "database.server.name": "order-db",
+        "bootstrap.servers": "kafka-1:9090,kafka-2:9090,kafka-3:9090",
+        "topic.prefix": "order-db",
+        "table.include.list": "order_schema.outbox",
+        "tombstones.on.delete": "false",
+        "slot.name": "order_slot",
+        "plugin.name": "pgoutput",
+
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType,aggregate_id:header:aggregateId",
+        "transforms.outbox.route.topic.replacement": "outbox-event.${routedByValue}",
+        "transforms.outbox.table.field.event.id": "id",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.timestamp": "created_at",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.table.field.event.payload.encoding": "json",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.aggregate.id": "aggregate_id",
+        "transforms.outbox.table.field.aggregate.type": "aggregate_type",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+      }
+    }
+  debezium-payment-postgres-connector.json: |-
+    {
+      "name": "payment-outbox-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "payment_db",
+        "database.server.name": "payment-db",
+        "bootstrap.servers": "kafka-1:9090,kafka-2:9090,kafka-3:9090",
+        "topic.prefix": "payment-db",
+        "table.include.list": "payment_schema.outbox",
+        "tombstones.on.delete": "false",
+        "slot.name": "payment_slot",
+        "plugin.name": "pgoutput",
+
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType,aggregate_id:header:aggregateId",
+        "transforms.outbox.route.topic.replacement": "outbox-event.${routedByValue}",
+        "transforms.outbox.table.field.event.id": "id",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.timestamp": "created_at",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.table.field.event.payload.encoding": "json",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.aggregate.id": "aggregate_id",
+        "transforms.outbox.table.field.aggregate.type": "aggregate_type",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+      }
+    }
+  debezium-product-postgres-connector.json: |-
+    {
+      "name": "product-outbox-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "product_db",
+        "database.server.name": "product-db",
+        "topic.prefix": "product-db",
+        "table.include.list": "product_schema.outbox",
+        "tombstones.on.delete": "false",
+        "bootstrap.servers": "kafka-1:9090,kafka-2:9090,kafka-3:9090",
+        "slot.name": "product_slot",
+        "plugin.name": "pgoutput",
+
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType,aggregate_id:header:aggregateId",
+        "transforms.outbox.route.topic.replacement": "outbox-event.${routedByValue}",
+        "transforms.outbox.table.field.event.id": "id",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.timestamp": "created_at",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.table.field.event.payload.encoding": "json",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.aggregate.id": "aggregate_id",
+        "transforms.outbox.table.field.aggregate.type": "aggregate_type",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+      }
+    }
+  debezium-review-postgres-connector.json: |-
+    {
+      "name": "review-outbox-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "review_db",
+        "database.server.name": "review-db",
+        "bootstrap.servers": "kafka-1:9090,kafka-2:9090,kafka-3:9090",
+        "topic.prefix": "review-db",
+        "table.include.list": "review_schema.outbox",
+        "tombstones.on.delete": "false",
+        "slot.name": "review_slot",
+        "plugin.name": "pgoutput",
+
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType,aggregate_id:header:aggregateId",
+        "transforms.outbox.route.topic.replacement": "outbox-event.${routedByValue}",
+        "transforms.outbox.table.field.event.id": "id",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.timestamp": "created_at",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.table.field.event.payload.encoding": "json",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.aggregate.id": "aggregate_id",
+        "transforms.outbox.table.field.aggregate.type": "aggregate_type",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+      }
+    }
+  init-connectors.sh: |-
+    #!/bin/bash
+
+    DEBEZIUM_URL="http://localhost:3434"
+    CONNECTORS_DIR="../connectors"
+
+    echo "Waiting for Debezium Connect to be ready..."
+    until curl -s $DEBEZIUM_URL/ | grep -q "version"; do
+      echo "Debezium not ready yet, waiting..."
+      sleep 5
+    done
+
+    echo "Debezium Connect is ready!"
+
+    # Регистрируем все коннекторы
+    for connector_file in "$CONNECTORS_DIR"/*.json; do
+      if [ -f "$connector_file" ]; then
+        connector_name=$(basename "$connector_file" .json)
+        echo "Registering connector: $connector_name"
+
+        # Проверяем, существует ли уже
+        if curl -s $DEBEZIUM_URL/connectors/"$connector_name" | grep -q "error_code"; then
+          echo "Connector $connector_name does not exist, creating..."
+          curl -X POST $DEBEZIUM_URL/connectors \
+            -H "Content-Type: application/json" \
+            -d @"$connector_file"
+          echo ""
+        else
+          echo "Connector $connector_name already exists, skipping..."
+        fi
+      fi
+    done
+
+    echo "All connectors registered!"

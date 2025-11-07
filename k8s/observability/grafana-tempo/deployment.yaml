@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-tempo
+  namespace: observability
+  labels:
+    app: grafana-tempo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: grafana-tempo
+  template:
+    metadata:
+      labels:
+        app: grafana-tempo
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+
+      containers:
+        - args:
+            - -config.file=/etc/tempo.yaml
+          image: grafana-tempo
+          livenessProbe:
+            httpGet:
+              port: 3200
+              path: /ready
+            failureThreshold: 5
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          name: grafana-tempo
+          ports:
+            - containerPort: 3200
+              protocol: TCP
+            - containerPort: 4317
+              protocol: TCP
+            - containerPort: 4318
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /tmp/tempo
+              name: tempo-data
+            - mountPath: /etc/tempo.yaml
+              name: grafana-tempo-config
+              subPath: tempo.yaml
+
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "700m"
+      restartPolicy: Always
+      volumes:
+        - name: tempo-data
+          persistentVolumeClaim:
+            claimName: tempo-data
+        - name: grafana-tempo-config
+          configMap:
+            name: grafana-tempo-config
+            items:
+              - key: tempo.yaml
+                path: tempo.yaml
+

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: analytic-service
+  name: analytic-service
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8085
+  selector:
+    app: analytic-service
+  type: ClusterIP

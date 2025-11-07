@@ -23,7 +23,7 @@ services:
       KAFKA_LOG_DIRS: /var/lib/kafka/data
     networks:
       - spring-market
-    restart: unless-stopped
+    restart: always
     healthcheck:
       test: ["CMD-SHELL", "opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9090 || exit 1"]
       interval: 15s
@@ -53,7 +53,7 @@ services:
       KAFKA_LOG_DIRS: /var/lib/kafka/data
     networks:
       - spring-market
-    restart: unless-stopped
+    restart: always
     depends_on:
       kafka-1:
         condition: service_started
@@ -86,7 +86,7 @@ services:
       KAFKA_LOG_DIRS: /var/lib/kafka/data
     networks:
       - spring-market
-    restart: unless-stopped
+    restart: always
     depends_on:
       kafka-1:
         condition: service_started
@@ -105,7 +105,7 @@ services:
     image: debezium/connect:2.7.3.Final
     container_name: debezium
     hostname: debezium
-    restart: unless-stopped
+    restart: always
     ports:
       - "3434:8083"
     environment:
@@ -117,8 +117,8 @@ services:
       CONFIG_STORAGE_TOPIC: kafka-connect-config
       OFFSET_STORAGE_TOPIC: kafka-connect-offset
       STATUS_STORAGE_TOPIC: kafka-connect-status
-      KEY_CONVERTER_SCHEMAS_ENABLE: false
-      VALUE_CONVERTER_SCHEMAS_ENABLE: false
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
     depends_on:
       kafka-1:
         condition: service_healthy
@@ -155,8 +155,9 @@ services:
       - spring-market
 
   postgres:
+    user: "0:0"
     container_name: postgres
-    image: postgis/postgis:latest
+    image: postgis/postgis:18-3.6-alpine
     restart: always
     environment:
       POSTGRES_DB: postgres
@@ -166,7 +167,7 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
       - spring-market
@@ -177,7 +178,7 @@ services:
       retries: 5
 
   mongo-db:
-    image: mongo:4.4
+    image: mongo:8.2.1
     container_name: mongo-db
     ports:
       - "27017:27017"
@@ -193,13 +194,13 @@ services:
       retries: 5
 
   keycloak-db:
-    image: postgres:latest
+    image: postgres:18-alpine
     container_name: keycloak-db
     restart: always
     ports:
       - "5400:5432"
     volumes:
-      - keycloak_data:/var/lib/postgresql/data
+      - keycloak_data:/var/lib/postgresql
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: postgres
@@ -214,32 +215,34 @@ services:
       retries: 5
 
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: keycloak/keycloak:26.0.0
     container_name: keycloak
     entrypoint: [ "/bin/bash", "-c" ]
     command: >
-        "/opt/keycloak/bin/kc.sh build
-        --metrics-enabled=true &&
-          /opt/keycloak/bin/kc.sh start-dev 
-        --proxy-headers=xforwarded 
-        --http-enabled=true 
-        --hostname=localhost
-        --hostname-strict=false" 
-        --hostname-backchannel-dynamic=true
-        --hostname-strict-backchannel=false
+      "/opt/keycloak/bin/kc.sh build
+      --metrics-enabled=true &&
+        /opt/keycloak/bin/kc.sh start-dev 
+      --proxy-headers=xforwarded 
+      --http-enabled=true 
+      --hostname=localhost
+      --hostname-strict=false" 
+      --hostname-backchannel-dynamic=true
+      --hostname-strict-backchannel=false
     environment:
       KC_HOSTNAME_PORT: 9000
       KC_DB_PASSWORD: postgres
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
       KC_DB_USERNAME: postgres
       KC_DB: postgres
-      KC_METRICS_ENABLED: true
+#      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+#      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_METRICS_ENABLED: "true"
       BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090 #connection to kafka for spi
     ports:
       - "9000:8080"
     volumes:
       - ./providers:/opt/keycloak/providers
-    restart: on-failure:3
+    restart: on-failure
     healthcheck:
       test: [ "CMD-SHELL", "cat < /dev/null > /dev/tcp/localhost/8080" ]
       interval: 10s
@@ -264,7 +267,7 @@ services:
     container_name: prometheus
     ports:
       - "9410:9090"
-    restart: on-failure:3
+    restart: on-failure
     networks:
       - spring-market
     volumes:
@@ -283,7 +286,7 @@ services:
     container_name: grafana
     ports:
       - "3000:3000"
-    restart: on-failure:3
+    restart: on-failure
     networks:
       - spring-market
     volumes:
@@ -304,7 +307,7 @@ services:
     container_name: grafana-loki
     ports:
       - "3100:3100"
-    restart: on-failure:3
+    restart: on-failure
     networks:
       - spring-market
     volumes:
@@ -328,7 +331,7 @@ services:
     container_name: grafana-alloy
     ports:
       - "12345:12345"
-    restart: on-failure:3
+    restart: on-failure
     networks:
       - spring-market
     volumes:
@@ -352,21 +355,23 @@ services:
         condition: service_healthy
 
   grafana-tempo:
+    build:
+      context: ./tempo
+      dockerfile: Dockerfile
     user: "0:0"
-    image: grafana/tempo:latest
     container_name: grafana-tempo
     ports:
       - "3200:3200"
       - "4317:4317"
       - "4318:4318"
-    restart: on-failure:3
+    restart: on-failure
     networks:
       - spring-market
     volumes:
       - tempo_data:/tmp/tempo
       - ./tempo/tempo.yaml:/etc/tempo.yaml
     healthcheck:
-      test: ["CMD", "nc", "-z", "127.0.0.1", "3200"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3200/ready | grep -q 'ready' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -383,12 +388,14 @@ services:
       context: ./services/ConfigServer
       dockerfile: Dockerfile
     container_name: config-server
+    user: "0:0"
     restart: on-failure
     ports:
       - "8888:8888"
     networks:
       - spring-market
     environment:
+      SERVER_PORT: 8888
       SPRING_PROFILES_ACTIVE: native
       JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
       OTEL_SERVICE_NAME: config-server
@@ -408,7 +415,10 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - ./config:/config
+      - ./config:/config:rw
+    depends_on:
+      grafana-tempo:
+        condition: service_healthy
 
   eureka-server:
     build:
@@ -441,6 +451,8 @@ services:
       retries: 5
     depends_on:
       config-server:
+        condition: service_healthy
+      grafana-tempo:
         condition: service_healthy
 
   gateway:
@@ -479,19 +491,21 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   analytic-service:
     build:
       context: ./services/AnalyticService
       dockerfile: Dockerfile
     container_name: analytic-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8085:8085"
     networks:
       - spring-market
     environment:
-      SPRING_PROFILES_ACTIVE: cache,feign,jpa,kafka,mongo,security,eureka,dev
+      SPRING_PROFILES_ACTIVE: security,dev,kafka,cache,feign,jpa,mongo,eureka,security
       JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
       OTEL_SERVICE_NAME: analytic-service
       OTEL_SERVICE_VERSION: 1.0.0
@@ -522,13 +536,15 @@ services:
         condition: service_healthy
       kafka-3:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   cart-service:
     build:
       context: ./services/CartService
       dockerfile: Dockerfile
     container_name: cart-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8084:8084"
     networks:
@@ -569,13 +585,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   category-service:
     build:
       context: ./services/CategoryService
       dockerfile: Dockerfile
     container_name: category-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8091:8091"
     networks:
@@ -616,13 +634,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   inventory-service:
     build:
       context: ./services/InventoryService
       dockerfile: Dockerfile
     container_name: inventory-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8087:8087"
     networks:
@@ -663,13 +683,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   notification-service:
     build:
       context: ./services/NotificationService
       dockerfile: Dockerfile
     container_name: notification-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8089:8089"
     networks:
@@ -708,13 +730,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   order-service:
     build:
       context: ./services/OrderService
       dockerfile: Dockerfile
     container_name: order-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8082:8082"
     networks:
@@ -755,6 +779,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   payment-service:
     build:
@@ -763,7 +789,7 @@ services:
     container_name: payment-service
     env_file:
       - .env.local
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8088:8088"
     networks:
@@ -804,13 +830,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   product-service:
     build:
       context: ./services/ProductService
       dockerfile: Dockerfile
     container_name: product-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8081:8081"
     networks:
@@ -851,13 +879,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   review-service:
     build:
       context: ./services/ReviewService
       dockerfile: Dockerfile
     container_name: review-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8083:8083"
     networks:
@@ -898,13 +928,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   saga-service:
     build:
       context: ./services/SagaService
       dockerfile: Dockerfile
     container_name: saga-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8090:8090"
     networks:
@@ -945,13 +977,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      grafana-tempo:
+        condition: service_healthy
 
   user-service:
     build:
       context: ./services/UserService
       dockerfile: Dockerfile
     container_name: user-service
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "8086:8086"
     networks:
@@ -991,6 +1025,8 @@ services:
       kafka-3:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      grafana-tempo:
         condition: service_healthy
 
 volumes:

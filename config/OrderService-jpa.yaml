@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/order_db
+    username: order_service
+    password: order_pass
+  flyway:
+    schemas: order_schema
+    default-schema: order_schema
+    enabled: true
+    baseline-on-migrate: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.spatial.dialect.postgis.PostgisPG17Dialect

@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: config-server
+  name: config-server-configmap
+  namespace: spring-market
+data:
+  application.yaml: |-
+    server:
+      port: 8888
+    eureka:
+      instance:
+        hostname: config-server
+        prefer-ip-address: false
+      client:
+        service-url:
+          defaultZone: http://eureka-server.spring-market.svc.cluster.local:8761/eureka/
+        register-with-eureka: false
+        fetch-registry: false
+    spring:
+      application:
+        name: ConfigServer
+      cloud:
+        config:
+          server:
+            git:
+              uri: https://github.com/Cryptic901/SpringMarket
+              clone-on-start: true
+              search-paths: config
+              default-label: master
+      security:
+        user:
+          name: config
+          password: config
+    
+    management:
+      tracing:
+        enabled: false
+      endpoints:
+        web:
+          exposure:
+            include: health, info
+      health:
+        livenessstate:
+          enabled: true
+        readinessstate:
+          enabled: true
+      endpoint:
+        health:
+          show-details: always
+  application-native.yaml: |-
+    server:
+      port: 8888
+    eureka:
+      instance:
+        hostname: config-server
+        prefer-ip-address: false
+      client:
+        service-url:
+          defaultZone: http://eureka-server.spring-market.svc.cluster.local:8761/eureka/
+        register-with-eureka: false
+        fetch-registry: false
+    spring:
+      application:
+        name: ConfigServer
+      cloud:
+        config:
+          server:
+            native:
+              search-locations: file:/config/services
+      security:
+        user:
+          name: config
+          password: config
+    
+    management:
+      tracing:
+        enabled: false
+      endpoints:
+        web:
+          exposure:
+            include: health, info
+      health:
+        livenessstate:
+          enabled: true
+        readinessstate:
+          enabled: true
+      endpoint:
+        health:
+          show-details: always

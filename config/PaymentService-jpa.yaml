@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/payment_db
+    username: payment_service
+    password: payment_pass
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    schemas: payment_schema
+    default-schema: payment_schema
+    enabled: true
+    baseline-on-migrate: true

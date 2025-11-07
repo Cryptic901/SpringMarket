@@ -1,0 +1,4 @@
+eureka:
+  instance:
+    hostname: product-service
+    prefer-ip-address: false

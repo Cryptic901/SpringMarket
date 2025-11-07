@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: database
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      securityContext:
+        fsGroup: 999
+        runAsUser: 999
+        runAsGroup: 999
+      containers:
+        - args:
+            - postgres
+            - -c
+            - wal_level=logical
+            - -c
+            - max_replication_slots=20
+            - -c
+            - max_wal_senders=20
+            - -c
+            - max_connections=200
+          env:
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
+          image: postgis/postgis:18-3.6-alpine
+
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready -U postgres -d postgres
+            initialDelaySeconds: 30
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          readinessProbe:
+            exec:
+              command: [ "pg_isready", "-U", "postgres" ]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          name: postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+
+          volumeMounts:
+            - mountPath: /var/lib/postgresql
+              name: postgres-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: initdb
+
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+
+      restartPolicy: Always
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: standard

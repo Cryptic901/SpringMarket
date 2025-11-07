@@ -44,10 +44,14 @@ public class AnalyticListener implements SmartLifecycle {
 
     @EventListener(ApplicationReadyEvent.class)
     public void restoreState() {
-        activeUsers.set(analyticsStateService.loadActiveUsers());
-        todayRevenue.set(analyticsStateService.loadTodayRevenue());
-        todayOrders.set(analyticsStateService.loadTodayOrders());
-        log.info("Restored analytics state from Redis {}, {}, {}", activeUsers, todayRevenue, todayOrders);
+        try {
+            activeUsers.set(analyticsStateService.loadActiveUsers());
+            todayRevenue.set(analyticsStateService.loadTodayRevenue());
+            todayOrders.set(analyticsStateService.loadTodayOrders());
+            log.info("Restored analytics state from Redis {}, {}, {}", activeUsers, todayRevenue, todayOrders);
+        } catch (Exception e) {
+            log.warn("Can't restore data from redis");
+        }
     }
 
     @Scheduled(cron = "@daily")

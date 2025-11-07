@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debezium
+  namespace: messaging
+  labels:
+    app: debezium
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debezium
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: debezium
+    spec:
+      containers:
+        - env:
+            - name: BOOTSTRAP_SERVERS
+              value: kafka-1:9090,kafka-2:9090,kafka-3:9090
+            - name: CONFIG_STORAGE_TOPIC
+              value: kafka-connect-config
+            - name: GROUP_ID
+              value: "1"
+            - name: KEY_CONVERTER
+              value: org.apache.kafka.connect.json.JsonConverter
+            - name: KEY_CONVERTER_SCHEMAS_ENABLE
+              value: "false"
+            - name: OFFSET_STORAGE_TOPIC
+              value: kafka-connect-offset
+            - name: REST_PORT
+              value: "8083"
+            - name: STATUS_STORAGE_TOPIC
+              value: kafka-connect-status
+            - name: VALUE_CONVERTER
+              value: org.apache.kafka.connect.json.JsonConverter
+            - name: VALUE_CONVERTER_SCHEMAS_ENABLE
+              value: "false"
+
+          image: debezium/connect:2.7.3.Final
+          livenessProbe:
+            httpGet:
+              port: 8083
+              path: /connectors
+            failureThreshold: 5
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: debezium
+          ports:
+            - containerPort: 8083
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /debezium
+              name: debezium-data
+
+            - mountPath: /docker-entrypoint-init.d
+              name: debezium-config
+
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "150m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      hostname: debezium
+      restartPolicy: Always
+      volumes:
+        - name: debezium-data
+          persistentVolumeClaim:
+            claimName: debezium-data
+
+        - name: debezium-config
+          configMap:
+            name: debezium-config
+

@@ -50,7 +50,7 @@ spring:
         registration:
           keycloak:
             client-id: api-gateway
-            client-secret: ZxR7Gdhbt0apBewaZnZX3oZN4rybsnFc
+            client-secret: iUoy91EYLWU4q3cdtjdTzMd3d7iqJ1VL
             scope: openid,email,profile
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"

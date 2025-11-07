@@ -3,8 +3,10 @@ package by.cryptic.notificationservice.config.kafka;
 import by.cryptic.utils.properties.KafkaTopicsProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.TopicBuilder;
 
@@ -28,6 +30,9 @@ public class TopicConfig {
 
     @Bean
     public NewTopic notificationTopicDlq() {
+        if (kafkaTopicsProperties == null) {
+            throw new IllegalStateException("DLQ config not ready");
+        }
         return TopicBuilder.name(kafkaTopicsProperties.getDlq().getName())
                 .partitions(kafkaTopicsProperties.getDlq().getPartitions())
                 .replicas(kafkaTopicsProperties.getDlq().getReplicas())

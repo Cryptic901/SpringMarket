@@ -10,7 +10,7 @@ public class KafkaTopicsProperties {
     private int partitions;
     private int replicas;
     private int minInsyncReplicas;
-    private Dlq dlq;
+    private Dlq dlq = new Dlq();
 
     @Data
     public static class Dlq {

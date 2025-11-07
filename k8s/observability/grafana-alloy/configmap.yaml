@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: observability
+  name: grafana-alloy-config
+  annotations:
+    use-subpath: "true"
+  labels:
+    app: grafana-alloy
+data:
+  config.alloy: |-
+    discovery.kubernetes "pods" {
+      role = "pod"
+    }
+      
+      discovery.relabel "pods" {
+      targets = discovery.kubernetes.pods.targets
+    
+      rule {
+      source_labels = ["__meta_kubernetes_pod_container_name"]
+      target_label  = "container"
+    }
+    
+      rule {
+      source_labels = ["__meta_kubernetes_pod_name"]
+      target_label  = "pod"
+    }
+    
+      rule {
+      source_labels = ["__meta_kubernetes_namespace"]
+      target_label  = "namespace"
+    }
+    
+      rule {
+      source_labels = ["__meta_kubernetes_pod_label_app"]
+      target_label  = "app"
+    }
+    
+      rule {
+      source_labels = ["__meta_kubernetes_pod_node_name"]
+      target_label  = "node"
+    }
+    
+      rule {
+      source_labels = ["__meta_kubernetes_pod_name"]
+      regex         = "(.+)-[^-]+-[^-]+$"
+      target_label  = "service_name"
+      replacement   = "$1"
+    }
+    
+      rule {
+      source_labels = ["service_name"]
+      target_label  = "job"
+    }
+    }
+      
+      loki.source.kubernetes "pod_logs" {
+      targets    = discovery.relabel.pods.output
+      forward_to = [loki.process.add_labels.receiver]
+    
+      use_incoming_timestamp = false
+    }
+      
+      loki.process "add_labels" {
+      stage.static_labels {
+      values = {
+      cluster = "spring-market"
+      }
+    }
+    
+      stage.regex {
+      expression = "^(?P<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}) \\[(?P<thread>[^\\]]+)\\] (?P<level>\\w+) (?:\\[(?P<trace_id>[^,]+),(?P<span_id>[^\\]]+)\\] )?(?P<logger>\\S+) - (?P<message>.*)"
+    }
+    
+      stage.labels {
+      values = {
+      level = "level",
+      }
+    }
+    
+      forward_to = [loki.write.loki_endpoint.receiver]
+    }
+      
+      loki.write "loki_endpoint" {
+      endpoint {
+      url = "http://grafana-loki.observability.svc.cluster.local:3100/loki/api/v1/push"
+    }
+    }
+      
+      logging {
+      level  = "info"
+      format = "logfmt"
+    }
