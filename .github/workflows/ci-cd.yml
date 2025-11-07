@@ -333,6 +333,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create keycloak directory
+        run: mkdir -p ./keycloak
+
       - name: Download SPI artifact
         uses: actions/download-artifact@v4
         with:
