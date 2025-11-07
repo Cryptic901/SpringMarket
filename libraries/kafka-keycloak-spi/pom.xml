@@ -81,14 +81,29 @@
 				</configuration>
 			</plugin>
 			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.5.0</version>
+				<version>3.6.0</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
 						<goals><goal>shade</goal></goals>
 						<configuration>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.hibernate</pattern>
+                                    <shadedPattern>shaded.hibernate</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jboss.logging</pattern>
+                                    <shadedPattern>shaded.jboss.logging</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jboss</pattern>
+                                    <shadedPattern>shaded.jboss</shadedPattern>
+                                </relocation>
+                            </relocations>
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>
