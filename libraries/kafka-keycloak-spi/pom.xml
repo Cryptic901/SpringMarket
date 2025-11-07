@@ -9,8 +9,6 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>kafka-keycloak-spi</artifactId>
-	<version>1.0-SNAPSHOT</version>
-
 	<properties>
 		<java.version>17</java.version>
 		<maven.compiler.source>17</maven.compiler.source>
@@ -53,6 +51,7 @@
 	</dependencies>
 
 	<build>
+        <finalName>kafka-keycloak-spi</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
