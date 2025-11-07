@@ -1,6 +1,10 @@
 FROM keycloak/keycloak:26.0.0 AS builder
 
-COPY kafka-keycloak-spi-1.0-SNAPSHOT.jar /opt/keycloak/providers/
+LABEL org.opencontainers.image.source="https://github.com/Cryptic901/SpringMarket"
+LABEL org.opencontainers.image.description="Kafka-Keycloak SPI - Spring Market"
+LABEL org.opencontainers.image.version="1.0.0"
+
+COPY kafka-keycloak-spi.jar /opt/keycloak/providers/
 
 RUN /opt/keycloak/bin/kc.sh build
 
