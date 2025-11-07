@@ -343,18 +343,18 @@ jobs:
 
       - name: DEBUG — list what we actually downloaded
         run: |
-          echo "=== Contents of ./keycloak/temp-download/ ==="
-          ls -la ./keycloak/temp-download/ || echo "Directory empty"
+          echo "=== Contents of ./keycloak/ ==="
+          ls -la ./keycloak/ || echo "Directory empty"
           echo "=== All files recursively ==="
-          find ./keycloak/temp-download/ -type f || echo "No files"
+          find ./keycloak/ -type f || echo "No files"
 
       - name: Find and copy the correct JAR
         run: |
             # Ищем любой JAR, начинающийся с kafka-keycloak-spi
-            JAR_FILE=$(find ./keycloak/temp-download/ -name "kafka-keycloak-spi*.jar" | head -n 1)
+            JAR_FILE=$(find ./keycloak/ -name "kafka-keycloak-spi*.jar" | head -n 1)
             if [ -z "$JAR_FILE" ]; then
               echo "JAR not found! List of all files:"
-              find ./keycloak/temp-download/ -type f
+              find ./keycloak/ -type f
               exit 1
             fi
             echo "Found JAR: $JAR_FILE"
