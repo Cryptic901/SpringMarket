@@ -342,6 +342,13 @@ jobs:
           name: keycloak-spi-jar
           path: ./keycloak/
 
+      - name: list downloaded files
+        run: |
+            echo "Current dir:"
+            ls -la
+            echo "keycloak dir:"
+            ls -la ./keycloak/ || echo "keycloak dir empty or missing"
+
       - name: Rename JAR
         run: |
           cd keycloak
