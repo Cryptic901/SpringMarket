@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.source="https://github.com/Cryptic901/SpringMarke
 LABEL org.opencontainers.image.description="Kafka-Keycloak SPI - Spring Market"
 LABEL org.opencontainers.image.version="1.0.0"
 
-COPY /providers/kafka-keycloak-spi.jar /opt/keycloak/providers/
+COPY ./keycloak/kafka-keycloak-spi.jar /opt/keycloak/providers/
 
 RUN /opt/keycloak/bin/kc.sh build
 
