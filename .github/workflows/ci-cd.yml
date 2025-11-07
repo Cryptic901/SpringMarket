@@ -341,13 +341,6 @@ jobs:
           name: keycloak-spi-jar
           path: ./keycloak/
 
-      - name: DEBUG — list what we actually downloaded
-        run: |
-          echo "=== Contents of ./keycloak/ ==="
-          ls -la ./keycloak/ || echo "Directory empty"
-          echo "=== All files recursively ==="
-          find ./keycloak/ -type f || echo "No files"
-
       - name: Image prefix to lowercase
         id: prep
         run: echo "IMAGE_PREFIX_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
@@ -372,10 +365,17 @@ jobs:
             type=raw,value=latest
             type=semver,pattern={{version}}
 
+      - name: DEBUG — list what we actually downloaded
+        run: |
+          echo "=== Contents of ./keycloak/ ==="
+          ls -la ./keycloak/ || echo "Directory empty"
+          echo "=== All files recursively ==="
+          find ./keycloak/ -type f || echo "No files"
+
       - name: Build and push Keycloak image
         uses: docker/build-push-action@v5
         with:
-          context: ./keycloak
+          context: ./keycloak/
           file: ./keycloak/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
