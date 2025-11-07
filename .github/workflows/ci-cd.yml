@@ -341,6 +341,31 @@ jobs:
           name: keycloak-spi-jar
           path: ./keycloak/
 
+      - name: DEBUG — list what we actually downloaded
+        run: |
+          echo "=== Contents of ./keycloak/temp-download/ ==="
+          ls -la ./keycloak/temp-download/ || echo "Directory empty"
+          echo "=== All files recursively ==="
+          find ./keycloak/temp-download/ -type f || echo "No files"
+
+      - name: Find and copy the correct JAR
+        run: |
+            # Ищем любой JAR, начинающийся с kafka-keycloak-spi
+            JAR_FILE=$(find ./keycloak/temp-download/ -name "kafka-keycloak-spi*.jar" | head -n 1)
+            if [ -z "$JAR_FILE" ]; then
+              echo "JAR not found! List of all files:"
+              find ./keycloak/temp-download/ -type f
+              exit 1
+            fi
+            echo "Found JAR: $JAR_FILE"
+            cp "$JAR_FILE" ./keycloak/kafka-keycloak-spi.jar
+            echo "Copied to ./keycloak/kafka-keycloak-spi.jar"
+
+      - name: Final check — must exist!
+        run: |
+            ls -la ./keycloak/
+            [ -f ./keycloak/kafka-keycloak-spi.jar ] && echo "JAR ready!" || (echo "JAR missing!" && exit 1)
+
       - name: Rename JAR
         run: |
           cd keycloak
