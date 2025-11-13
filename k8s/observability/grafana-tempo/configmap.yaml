@@ -6,6 +6,7 @@ metadata:
   labels:
     app: grafana-tempo
   name: grafana-tempo-config
+  namespace: observability
 data:
   tempo.yaml: |+
     server:

@@ -20,7 +20,7 @@ spec:
       containers:
         - env:
             - name: BOOTSTRAP_SERVERS
-              value: kafka-1:9090,kafka-2:9090,kafka-3:9090
+              value: kafka.messaging.svc.cluster.local:9090
             - name: CONFIG_STORAGE_TOPIC
               value: kafka-connect-config
             - name: GROUP_ID

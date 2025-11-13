@@ -4,6 +4,7 @@ metadata:
   labels:
     app: tempo
   name: tempo-data
+  namespace: observability
 spec:
   accessModes:
     - ReadWriteOnce

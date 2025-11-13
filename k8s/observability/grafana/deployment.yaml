@@ -31,7 +31,7 @@ spec:
               path: /api/health
               port: 3000
             failureThreshold: 5
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
 
@@ -40,7 +40,7 @@ spec:
               path: /api/health
               port: 3000
             failureThreshold: 5
-            initialDelaySeconds: 60
+            initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 5
 

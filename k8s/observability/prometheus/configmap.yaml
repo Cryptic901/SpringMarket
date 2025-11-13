@@ -6,27 +6,29 @@ metadata:
   labels:
     app: prometheus
   name: prometheus-config
+  namespace: observability
 data:
   prometheus.yaml: |
     scrape_configs:
       - job_name: application
         static_configs:
           - targets:
-              - "eureka-server:8761"
-              - "gateway:8080"
-              - "analytic-service:8085"
-              - "cart-service:8084"
-              - "category-service:8091"
-              - "inventory-service:8087"
-              - "notification-service:8089"
-              - "order-service:8082"
-              - "payment-service:8088"
-              - "product-service:8081"
-              - "review-service:8083"
-              - "saga-service:8090"
-              - "user-service:8086"
+              - "eureka-server.spring-market.svc.cluster.local:8761"
+              - "gateway.spring-market.svc.cluster.local:8080"
+              - "analytic-service.spring-market.svc.cluster.local:8085"
+              - "cart-service.spring-market.svc.cluster.local:8084"
+              - "category-service.spring-market.svc.cluster.local:8091"
+              - "inventory-service.spring-market.svc.cluster.local:8087"
+              - "notification-service.spring-market.svc.cluster.local:8089"
+              - "order-service.spring-market.svc.cluster.local:8082"
+              - "payment-service.spring-market.svc.cluster.local:8088"
+              - "product-service.spring-market.svc.cluster.local:8081"
+              - "review-service.spring-market.svc.cluster.local:8083"
+              - "saga-service.spring-market.svc.cluster.local:8090"
+              - "user-service.spring-market.svc.cluster.local:8086"
         metrics_path: /actuator/prometheus
         scrape_interval: 15s
+        
     #    oauth2:
     #      client_id: prometheus
     #      client_secret: 39J5VcNypsNneX83Ijw1mnGTsFt0BN5Z

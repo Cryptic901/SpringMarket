@@ -76,6 +76,11 @@ spec:
 
       restartPolicy: Always
 
+      volumes:
+        - name: initdb
+          configMap:
+            name: postgres-initdb
+
   volumeClaimTemplates:
     - metadata:
         name: postgres-data

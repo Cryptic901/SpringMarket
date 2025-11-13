@@ -218,7 +218,7 @@ jobs:
     needs:
       - detect-changes
       - build-and-test
-#    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     permissions:
       contents: read
@@ -318,9 +318,9 @@ jobs:
     needs:
       - detect-changes
       - build-keycloak-spi
-#      - github.ref == 'refs/heads/master' &&
     if: |
       github.event_name == 'push' &&
+      github.ref == 'refs/heads/master' &&
       (contains(needs.detect-changes.outputs.services, 'kafka-keycloak-spi') ||
       contains(needs.detect-changes.outputs.services, 'all'))
 

@@ -24,15 +24,6 @@ spec:
 
       containers:
         - image: prom/prometheus:latest
-          livenessProbe:
-            httpGet:
-              port: 9090
-              path: /-/healthy
-            failureThreshold: 5
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 5
-
           name: prometheus
           ports:
             - containerPort: 9090
@@ -45,6 +36,15 @@ spec:
 
             - mountPath: /var/lib/prometheus
               name: prometheus-data
+
+          livenessProbe:
+            httpGet:
+              port: 9090
+              path: /-/healthy
+            failureThreshold: 5
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
 
           resources:
             requests:

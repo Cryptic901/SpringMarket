@@ -23,7 +23,7 @@ spec:
         fsGroup: 10001
 
       containers:
-        - image: grafana/loki:latest
+        - image: grafana/loki:3.5
           livenessProbe:
             httpGet:
               port: 3100

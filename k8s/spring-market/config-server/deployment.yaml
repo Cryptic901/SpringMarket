@@ -7,7 +7,7 @@ metadata:
     app: config-server
     version: v1
 spec:
-  replicas: 3
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -23,14 +23,18 @@ spec:
         version: v1
 
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
       containers:
         - name: config-server
           volumeMounts:
             - name: services-config
-              mountPath: /config/services
+              mountPath: /app/config/services
               readOnly: true
             - name: config-server-config
-              mountPath: /config/source-config
+              mountPath: /app/config/source-config
               readOnly: true
 
           env:
@@ -57,7 +61,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: native
             - name: SPRING_CONFIG_LOCATION
-              value: file:/app/config/application-native.yaml
+              value: optional:file:/config/source-config/application-native.yaml
 
 
           image: ghcr.io/cryptic901/springmarket/config-server:latest

@@ -8,6 +8,7 @@ metadata:
 spec:
   serviceName: kafka-headless
   replicas: 3
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       app: kafka
@@ -18,13 +19,24 @@ spec:
     spec:
       containers:
         - name: kafka
-          image: apache/kafka:latest
+          image: apache/kafka:4.0.1
+          command:
+            - /bin/bash
+            - -c
+            - |
+              NODE_ID=${HOSTNAME##*-}
+              export KAFKA_NODE_ID=$NODE_ID
+              export KAFKA_BROKER_ID=$NODE_ID
+              cat >> /etc/kafka/kraft/server.properties <<EOF
+              node.id=$NODE_ID
+              EOF
+              /etc/kafka/docker/run
           ports:
             - containerPort: 9090
               name: client
             - containerPort: 9091
               name: controller
-        - env:
+          env:
             - name: CLUSTER_ID
               value: MkU3OEVBNTcwNTJENDM2Qk
             - name: KAFKA_ADVERTISED_LISTENERS
@@ -43,28 +55,23 @@ spec:
               value: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
             - name: KAFKA_LOG_DIRS
               value: /var/lib/kafka/data
-            - name: KAFKA_NODE_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
             - name: KAFKA_PROCESS_ROLES
               value: controller,broker
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+          readinessProbe:
+            tcpSocket:
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
           livenessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - >
-                  NODE_ID=$(echo $POD_NAME | grep -o '[0-9]\+$') &&
-                  /opt/kafka/bin/kafka-metadata-quorum.sh --bootstrap-server localhost:9090 describe --status
+            tcpSocket:
+              port: 9090
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 10
             failureThreshold: 5
-            initialDelaySeconds: 90
-            periodSeconds: 15
-            timeoutSeconds: 60
 
           resources:
             requests:
@@ -74,7 +81,6 @@ spec:
               memory: "1Gi"
               cpu: "750m"
 
-          name: kafka
           volumeMounts:
             - mountPath: /var/lib/kafka/data
               name: kafka-data

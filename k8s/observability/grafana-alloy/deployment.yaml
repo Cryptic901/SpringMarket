@@ -34,6 +34,16 @@ spec:
             failureThreshold: 5
             periodSeconds: 10
             timeoutSeconds: 5
+
+          readinessProbe:
+            exec:
+              command:
+                - pgrep
+                - alloy
+            failureThreshold: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+
           name: grafana-alloy
           ports:
             - containerPort: 12345

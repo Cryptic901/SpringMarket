@@ -7,7 +7,7 @@ metadata:
     app: cart-service
     version: v1
 spec:
-  replicas: 3
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -43,7 +43,7 @@ spec:
             - name: OTEL_TRACES_EXPORTER
               value: otlp,logging
             - name: SPRING_PROFILES_ACTIVE
-              value: cache,feign,jpa,kafka,mongo,security,eureka,dev
+              value: cache,feign,jpa,kafka,mongo,security,eureka,dev,k8s
 
           image: ghcr.io/cryptic901/springmarket/cart-service:latest
           imagePullPolicy: IfNotPresent

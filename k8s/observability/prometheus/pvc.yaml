@@ -4,6 +4,7 @@ metadata:
   labels:
     app: prometheus
   name: prometheus-data
+  namespace: observability
 spec:
   accessModes:
     - ReadWriteOnce

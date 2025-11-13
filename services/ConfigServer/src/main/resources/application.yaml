@@ -5,8 +5,6 @@ eureka:
     hostname: config-server
     prefer-ip-address: false
   client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
     register-with-eureka: false
     fetch-registry: false
 spring:

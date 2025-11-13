@@ -8,7 +8,7 @@ metadata:
     version: v1
 
 spec:
-  replicas: 3
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -45,7 +45,7 @@ spec:
             - name: OTEL_TRACES_EXPORTER
               value: otlp,logging
             - name: SPRING_PROFILES_ACTIVE
-              value: security,dev,kafka,cache,feign,jpa,mongo,eureka
+              value: security,dev,kafka,cache,feign,jpa,mongo,eureka,k8s
 
           image: ghcr.io/cryptic901/springmarket/analytic-service:latest
           imagePullPolicy: IfNotPresent

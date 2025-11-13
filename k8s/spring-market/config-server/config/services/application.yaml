@@ -51,7 +51,7 @@ data:
             baseConfig: default
           cartRetry:
             baseConfig: default
-
+    
       circuitbreaker:
         configs:
           default:
@@ -87,7 +87,7 @@ data:
             baseConfig: default
           inventoryCircuitBreaker:
             baseConfig: default
-
+    
       ratelimiter:
         configs:
           default:
@@ -98,13 +98,14 @@ data:
         instances:
           paymentRatelimiter:
             baseConfig: default
-
+    
     management:
       tracing:
         sampling:
           probability: 1.0
         propagation:
           type: w3c
+    
       otel:
         traces:
           exporter: otlp
@@ -114,10 +115,13 @@ data:
       otlp:
         tracing:
           endpoint: http://grafana-tempo.observability.svc.cluster.local:4318/v1/traces
+    
       endpoints:
         web:
           exposure:
             include: health,metrics,prometheus,info
+          base-path: /actuator
+    
       endpoint:
         prometheus:
           enabled: true
@@ -125,16 +129,27 @@ data:
           enabled: true
         health:
           show-details: always
+          show-components: always
+          probes:
+            enabled: true
+    
       health:
         ratelimiters:
           enabled: true
+        livenessState:
+          enabled: true
+        readinessState:
+          enabled: true
+    
+      info:
+        env:
+          enabled: true
+    
       metrics:
         export:
           prometheus:
             enabled: true
-      info:
-        env:
-          enabled: true
+    
     logging:
       level:
         com.netflix.discovery: DEBUG
@@ -161,7 +176,7 @@ data:
     eureka:
       client:
         service-url:
-          defaultZone: http://eureka-server:8761/eureka/
+          defaultZone: http://eureka-server.spring-market.svc.cluster.local:8761/eureka/
         register-with-eureka: true
         fetch-registry: true
         should-unregister-on-shutdown: false
@@ -173,7 +188,7 @@ data:
         oauth2:
           resourceserver:
             jwt:
-              jwk-set-uri: http://keycloak:8080/realms/springmarket/protocol/openid-connect/certs
+              jwk-set-uri: http://keycloak.keycloak.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/certs
               issuer-uri: http://localhost:9000/realms/springmarket
     resilience4j:
       retry:
@@ -271,10 +286,10 @@ data:
           exporter: otlp
         exporter:
           otlp:
-            endpoint: http://grafana-tempo:4317
+            endpoint: http://grafana-tempo.observability.svc.cluster.local:4317
       otlp:
         tracing:
-          endpoint: http://grafana-tempo:4318/v1/traces
+          endpoint: http://grafana-tempo.observability.svc.cluster.local:4318/v1/traces
       endpoints:
         web:
           exposure:
