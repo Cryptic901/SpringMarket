@@ -19,3 +19,5 @@ logging:
     io.github.resilience4j: DEBUG
     org.springframework: DEBUG
     by.cryptic.cartservice: DEBUG
+
+
