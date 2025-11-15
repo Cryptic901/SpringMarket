@@ -1,9 +1,9 @@
-name: SpringMarket CI/CD
+name: ci-master.yml
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, develop ]
+    branches: [ master ]
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ${{github.repository}}
@@ -218,7 +218,7 @@ jobs:
     needs:
       - detect-changes
       - build-and-test
-#    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     permissions:
       contents: read
@@ -315,13 +315,12 @@ jobs:
 
   build-and-push-keycloak:
     runs-on: ubuntu-latest
-#    github.ref == 'refs/heads/master' &&
     needs:
       - detect-changes
       - build-keycloak-spi
     if: |
       github.event_name == 'push' &&
-      
+      github.ref == 'refs/heads/master' &&
       (contains(needs.detect-changes.outputs.services, 'kafka-keycloak-spi') ||
       contains(needs.detect-changes.outputs.services, 'all'))
 
