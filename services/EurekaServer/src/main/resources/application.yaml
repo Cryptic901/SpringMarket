@@ -1,10 +1,6 @@
 spring:
   application:
     name: EurekaServer
-  cloud:
-    config:
-      username: config
-      password: config
 server:
   port: 8761
   shutdown: graceful
