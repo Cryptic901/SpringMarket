@@ -218,7 +218,7 @@ jobs:
     needs:
       - detect-changes
       - build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+#    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     permissions:
       contents: read
@@ -315,12 +315,13 @@ jobs:
 
   build-and-push-keycloak:
     runs-on: ubuntu-latest
+#    github.ref == 'refs/heads/master' &&
     needs:
       - detect-changes
       - build-keycloak-spi
     if: |
       github.event_name == 'push' &&
-      github.ref == 'refs/heads/master' &&
+      
       (contains(needs.detect-changes.outputs.services, 'kafka-keycloak-spi') ||
       contains(needs.detect-changes.outputs.services, 'all'))
 
@@ -364,13 +365,6 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest
             type=semver,pattern={{version}}
-
-      - name: DEBUG — list what we actually downloaded
-        run: |
-          echo "=== Contents of ./keycloak/ ==="
-          ls -la ./keycloak/ || echo "Directory empty"
-          echo "=== All files recursively ==="
-          find ./keycloak/ -type f || echo "No files"
 
       - name: Build and push Keycloak image
         uses: docker/build-push-action@v5
