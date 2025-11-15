@@ -45,7 +45,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: cache,feign,jpa,kafka,mongo,security,dev,k8s
 
-          image: ghcr.io/cryptic901/springmarket/eureka-server:latest
+          image: ghcr.io/cryptic901/springmarket/eureka-server:develop-latest
           imagePullPolicy: IfNotPresent
           name: eureka-server
           ports:

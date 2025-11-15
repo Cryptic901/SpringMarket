@@ -1,12 +1,5 @@
 server:
   port: 8888
-eureka:
-  instance:
-    hostname: config-server
-    prefer-ip-address: false
-  client:
-    register-with-eureka: false
-    fetch-registry: false
 spring:
   application:
     name: ConfigServer
