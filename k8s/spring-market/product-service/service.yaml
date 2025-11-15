@@ -4,10 +4,11 @@ metadata:
   labels:
     app: product-service
   name: product-service
+  namespace: spring-market
 spec:
   ports:
     - name: http
-      port: 80
+      port: 8081
       targetPort: 8081
   selector:
     app: product-service

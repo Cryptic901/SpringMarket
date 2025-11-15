@@ -4,10 +4,11 @@ metadata:
   labels:
     app: notification-service
   name: notification-service
+  namespace: spring-market
 spec:
   ports:
     - name: http
-      port: 80
+      port: 8089
       targetPort: 8089
   selector:
     app: notification-service

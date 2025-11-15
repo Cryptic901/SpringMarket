@@ -4,10 +4,11 @@ metadata:
   labels:
     app: payment-service
   name: payment-service
+  namespace: spring-market
 spec:
   ports:
     - name: http
-      port: 80
+      port: 8088
       targetPort: 8088
   selector:
     app: payment-service

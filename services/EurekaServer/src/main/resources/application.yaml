@@ -5,3 +5,13 @@ spring:
     config:
       username: config
       password: config
+server:
+  port: 8761
+  shutdown: graceful
+eureka:
+  instance:
+    hostname: eureka-server
+    prefer-ip-address: false
+  client:
+    register-with-eureka: false
+    fetch-registry: false

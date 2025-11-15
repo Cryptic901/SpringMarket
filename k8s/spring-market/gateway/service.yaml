@@ -4,6 +4,7 @@ metadata:
   labels:
     app: gateway
   name: gateway
+  namespace: spring-market
 spec:
   ports:
     - name: http

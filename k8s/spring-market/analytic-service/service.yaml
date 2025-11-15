@@ -4,10 +4,11 @@ metadata:
   labels:
     app: analytic-service
   name: analytic-service
+  namespace: spring-market
 spec:
   ports:
     - name: http
-      port: 80
+      port: 8085
       targetPort: 8085
   selector:
     app: analytic-service

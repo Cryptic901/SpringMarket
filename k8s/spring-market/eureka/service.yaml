@@ -4,10 +4,11 @@ metadata:
   labels:
     app: eureka-server
   name: eureka-server
+  namespace: spring-market
 spec:
   ports:
     - name: http
-      port: 80
+      port: 8761
       targetPort: 8761
   selector:
     app: eureka-server
