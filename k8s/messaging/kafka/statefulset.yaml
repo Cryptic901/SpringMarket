@@ -37,6 +37,10 @@ spec:
             - containerPort: 9091
               name: controller
           env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: CLUSTER_ID
               value: MkU3OEVBNTcwNTJENDM2Qk
             - name: KAFKA_ADVERTISED_LISTENERS

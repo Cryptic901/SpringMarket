@@ -9,15 +9,6 @@ data:
   application.yaml: |-
     server:
       port: 8888
-    eureka:
-      instance:
-        hostname: config-server
-        prefer-ip-address: false
-      client:
-        service-url:
-          defaultZone: http://eureka-server.spring-market.svc.cluster.local:8761/eureka/
-        register-with-eureka: false
-        fetch-registry: false
     spring:
       application:
         name: ConfigServer
@@ -52,15 +43,6 @@ data:
   application-native.yaml: |-
     server:
       port: 8888
-    eureka:
-      instance:
-        hostname: config-server
-        prefer-ip-address: false
-      client:
-        service-url:
-          defaultZone: http://eureka-server.spring-market.svc.cluster.local:8761/eureka/
-        register-with-eureka: false
-        fetch-registry: false
     spring:
       application:
         name: ConfigServer

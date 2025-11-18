@@ -17,26 +17,27 @@ spec:
     spec:
       containers:
         - args:
-            - "/opt/keycloak/bin/kc.sh build --metrics-enabled=true && \n
-              /opt/keycloak/bin/kc.sh start-dev \n
-              --proxy-headers=xforwarded
-                --http-enabled=true
-                  --hostname=localhost 
-                  --hostname-strict=false"
-            - --hostname-backchannel-dynamic=true
-            - --hostname-strict-backchannel=false
+            - |
+              /opt/keycloak/bin/kc.sh build --metrics-enabled=true && \
+              /opt/keycloak/bin/kc.sh start-dev \
+                --proxy-headers=xforwarded \
+                --http-enabled=true \
+                --hostname=auth.local \
+                --hostname-strict=false \
+                --hostname-backchannel-dynamic=true \
+                --hostname-strict-backchannel=false
           command:
             - /bin/bash
             - -c
           env:
             - name: BOOTSTRAP_SERVERS
-              value: kafka-1:9090,kafka-2:9090,kafka-3:9090
+              value: kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090
             - name: KC_DB
               value: postgres
             - name: KC_DB_PASSWORD
               value: postgres
             - name: KC_DB_URL
-              value: jdbc:postgresql://keycloak-db:5432/keycloak
+              value: jdbc:postgresql://keycloak-db.database.svc.cluster.local:5432/keycloak
             - name: KC_DB_USERNAME
               value: postgres
             - name: KC_HOSTNAME_PORT

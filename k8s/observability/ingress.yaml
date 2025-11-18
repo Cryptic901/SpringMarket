@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: monitoring.localhost
+    - host: monitoring.local
       http:
         paths:
           - path: /grafana

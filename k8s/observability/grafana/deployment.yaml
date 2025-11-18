@@ -25,6 +25,9 @@ spec:
       containers:
         - name: grafana
           image: grafana/grafana:latest
+          env:
+            - name: GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS
+              value: "*"
 
           livenessProbe:
             httpGet:
@@ -50,7 +53,7 @@ spec:
               cpu: "100m"
             limits:
               memory: "512Mi"
-              cpu: "500m"
+              cpu: "300m"
 
           ports:
             - containerPort: 3000

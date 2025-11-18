@@ -61,11 +61,11 @@ spec:
 
           resources:
             requests:
-              memory: "500Mi"
+              memory: "256Mi"
               cpu: "250m"
             limits:
-              memory: "1Gi"
-              cpu: "700m"
+              memory: "650Mi"
+              cpu: "400m"
       restartPolicy: Always
       volumes:
         - name: tempo-data

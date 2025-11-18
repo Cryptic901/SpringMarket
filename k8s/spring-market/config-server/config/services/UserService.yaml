@@ -43,7 +43,7 @@ data:
   UserService-kafka.yaml: |
     spring:
       kafka:
-        bootstrap-servers: kafka.messaging.svc.cluster.local:9090
+        bootstrap-servers: kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090
         consumer:
           auto-offset-reset: earliest
           group-id: user-consumer-group

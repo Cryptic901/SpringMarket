@@ -49,10 +49,10 @@ spec:
           resources:
             requests:
               memory: "500Mi"
-              cpu: "250m"
+              cpu: "150m"
             limits:
-              memory: "1Gi"
-              cpu: "600m"
+              memory: "750Mi"
+              cpu: "300m"
       restartPolicy: Always
       volumes:
         - name: prometheus-config

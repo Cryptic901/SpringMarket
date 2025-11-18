@@ -62,11 +62,11 @@ spec:
 
           resources:
             requests:
-              memory: "500Mi"
+              memory: "300Mi"
               cpu: "150m"
             limits:
-              memory: "1Gi"
-              cpu: "500m"
+              memory: "600Mi"
+              cpu: "400m"
       hostname: debezium
       restartPolicy: Always
       volumes:
