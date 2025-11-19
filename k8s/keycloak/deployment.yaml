@@ -16,7 +16,7 @@ spec:
         app: keycloak
     spec:
       containers:
-        - command: ["opt/keycloak/bin/kc.sh"]
+        - command: ["/opt/keycloak/bin/kc.sh"]
           args:
              - "start"
              - "--proxy-headers=xforwarded"
