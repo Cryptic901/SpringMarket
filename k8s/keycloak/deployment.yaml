@@ -16,19 +16,15 @@ spec:
         app: keycloak
     spec:
       containers:
-        - args:
-            - |
-              /opt/keycloak/bin/kc.sh build --metrics-enabled=true && \
-              /opt/keycloak/bin/kc.sh start-dev \
-                --proxy-headers=xforwarded \
-                --http-enabled=true \
-                --hostname=auth.local \
-                --hostname-strict=false \
-                --hostname-backchannel-dynamic=true \
-                --hostname-strict-backchannel=false
-          command:
-            - /bin/bash
-            - -c
+        - command: ["opt/keycloak/bin/kc.sh"]
+          args:
+             - "start"
+             - "--proxy-headers=xforwarded"
+             - "--http-enabled=true"
+             - "--hostname=auth.local"
+             - "--hostname-strict=false"
+             - "--hostname-backchannel-dynamic=false"
+             - "--optimized"
           env:
             - name: BOOTSTRAP_SERVERS
               value: kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090
@@ -37,30 +33,34 @@ spec:
             - name: KC_DB_PASSWORD
               value: postgres
             - name: KC_DB_URL
-              value: jdbc:postgresql://keycloak-db.database.svc.cluster.local:5432/keycloak
+              value: jdbc:postgresql://keycloak-db.database.svc.cluster.local:5400/keycloak
             - name: KC_DB_USERNAME
               value: postgres
             - name: KC_HOSTNAME_PORT
-              value: "9000"
+              value: "8080"
             - name: KC_METRICS_ENABLED
               value: "true"
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              value: "admin"
+            - name: KC_BOOTSTRAP_ADMIN_USERNAME
+              value: "admin"
           name: keycloak
           image: ghcr.io/cryptic901/springmarket/keycloak:latest
           livenessProbe:
-            exec:
-              command:
-                - cat < /dev/null > /dev/tcp/localhost/8080
-            failureThreshold: 5
-            initialDelaySeconds: 190
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5
+            failureThreshold: 5
 
           resources:
             requests:
-              memory: "500Mi"
+              memory: "2Gi"
               cpu: "250m"
             limits:
-              memory: "1Gi"
+              memory: "3Gi"
               cpu: "1000m"
           ports:
             - containerPort: 8080

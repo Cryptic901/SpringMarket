@@ -23,12 +23,16 @@ spec:
               value: postgres
             - name: POSTGRES_USER
               value: postgres
-          image: postgres:18-alpine
+          image: postgres:18
 
           livenessProbe:
             exec:
               command:
-                - pg_isready -U postgres -d keycloak
+                - pg_isready
+                - -U
+                - postgres
+                - -d
+                - postgres
             failureThreshold: 5
             initialDelaySeconds: 20
             periodSeconds: 10

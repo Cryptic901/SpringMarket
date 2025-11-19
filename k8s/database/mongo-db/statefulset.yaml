@@ -20,12 +20,17 @@ spec:
         - image: mongo:8.2.1
 
           livenessProbe:
-            exec:
-              command:
-                - mongo
-                - --eval
-                - db.adminCommand('ping')
+            tcpSocket:
+              port: 27017
             initialDelaySeconds: 30
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          readinessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 10
             failureThreshold: 5
             periodSeconds: 10
             timeoutSeconds: 5

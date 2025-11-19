@@ -38,12 +38,16 @@ spec:
               value: postgres
             - name: POSTGRES_USER
               value: postgres
-          image: postgis/postgis:18-3.6-alpine
+          image: postgis/postgis:18-3.6
 
           livenessProbe:
             exec:
               command:
-                - pg_isready -U postgres -d postgres
+                - pg_isready
+                - -U
+                - postgres
+                - -d
+                - postgres
             initialDelaySeconds: 30
             failureThreshold: 5
             periodSeconds: 10

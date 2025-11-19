@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+  namespace: observability
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://keycloak.keycloak.svc.cluster.local/auth"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: monitoring.local
+      http:
+        paths:
+          - path: /prometheus
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: 9090

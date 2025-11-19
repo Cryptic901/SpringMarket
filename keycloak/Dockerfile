@@ -6,7 +6,7 @@ LABEL org.opencontainers.image.version="1.0.0"
 
 COPY kafka-keycloak-spi.jar /opt/keycloak/providers/
 
-RUN /opt/keycloak/bin/kc.sh build
+RUN /opt/keycloak/bin/kc.sh build --metrics-enabled=true
 
 FROM keycloak/keycloak:26.0.0
 
