@@ -30,9 +30,6 @@ data:
       jpa:
         hibernate:
           ddl-auto: update
-        properties:
-          hibernate:
-            dialect: org.hibernate.dialect.PostgreSQLDialect
       flyway:
         schemas: review_schema
         default-schema: review_schema

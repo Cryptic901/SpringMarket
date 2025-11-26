@@ -137,13 +137,6 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-devtools</artifactId>
-                <version>${spring.version}</version>
-                <scope>runtime</scope>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
@@ -348,11 +341,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
             <version>${spring.version}</version>
         </dependency>
         <dependency>

@@ -18,13 +18,14 @@ spec:
       containers:
         - command: ["/opt/keycloak/bin/kc.sh"]
           args:
-             - "start"
+             - "start-dev"
              - "--proxy-headers=xforwarded"
              - "--http-enabled=true"
+             - "--http-port=8080"
              - "--hostname=auth.local"
              - "--hostname-strict=false"
              - "--hostname-backchannel-dynamic=false"
-             - "--optimized"
+#             - "--optimized"
           env:
             - name: BOOTSTRAP_SERVERS
               value: kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090
@@ -44,6 +45,12 @@ spec:
               value: "admin"
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: "admin"
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: "admin"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
           name: keycloak
           image: ghcr.io/cryptic901/springmarket/keycloak:latest
           livenessProbe:
@@ -55,13 +62,22 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 5
 
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
           resources:
             requests:
-              memory: "2Gi"
-              cpu: "250m"
+              memory: "1Gi"
+              cpu: "500m"
             limits:
-              memory: "3Gi"
-              cpu: "1000m"
+              memory: "2Gi"
+              cpu: "700m"
           ports:
             - containerPort: 8080
               protocol: TCP

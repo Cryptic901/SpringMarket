@@ -50,7 +50,7 @@ data:
         config:
           server:
             native:
-              search-locations: file:/config/services
+              search-locations: file:/app/config/services
       security:
         user:
           name: config

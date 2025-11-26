@@ -17,6 +17,9 @@ echo "-----------------------------------------"
 echo "=== Scaling messaging deployments ==="
 kubectl scale deployments --all --replicas=0 -n messaging
 
+echo "=== Scaling messaging statefulsets ==="
+kubectl scale statefulset --all --replicas=0 -n messaging
+
 echo "=== Deleting messaging services ==="
 kubectl delete svc --all -n messaging
 

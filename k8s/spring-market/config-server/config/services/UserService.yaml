@@ -31,9 +31,6 @@ data:
       jpa:
         hibernate:
           ddl-auto: update
-        properties:
-          hibernate:
-            dialect: org.hibernate.dialect.PostgreSQLDialect
 
       flyway:
         schemas: user_schema

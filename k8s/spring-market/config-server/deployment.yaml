@@ -61,7 +61,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: native
             - name: SPRING_CONFIG_LOCATION
-              value: optional:file:/config/source-config/application-native.yaml
+              value: optional:file:/app/config/source-config/
 
 
           image: ghcr.io/cryptic901/springmarket/config-server:develop-2
