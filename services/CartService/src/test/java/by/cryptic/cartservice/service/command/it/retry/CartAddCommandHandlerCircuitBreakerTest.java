@@ -37,7 +37,10 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 /* Run Docker before start */
 @SpringBootTest(
         classes = CartServiceApplication.class,
-        properties = "spring.kafka.listener.auto-startup=false"
+        properties = {
+                "spring.kafka.listener.auto-startup=false",
+                "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration"
+        }
 )
 @ImportAutoConfiguration(exclude = KafkaAutoConfiguration.class)
 @ActiveProfiles(value = {"test", "jpa"})
