@@ -23,6 +23,7 @@ spec:
         version: v1
 
     spec:
+      serviceAccountName: spring-services-sa
       containers:
         - env:
             - name: JAVA_TOOL_OPTIONS
@@ -44,12 +45,12 @@ spec:
             - name: OTEL_TRACES_EXPORTER
               value: otlp,logging
             - name: SPRING_PROFILES_ACTIVE
-              value: cache,feign,jpa,kafka,mongo,security,eureka,dev,k8s
+              value: dev
           envFrom:
             - configMapRef:
                 name: env-local
 
-          image: ghcr.io/cryptic901/springmarket/payment-service:latest
+          image: ghcr.io/cryptic901/springmarket/payment-service:develop-latest
           imagePullPolicy: IfNotPresent
           name: payment-service
           ports:
@@ -83,16 +84,15 @@ spec:
             httpGet:
               port: 8088
               path: /actuator/health/liveness
-            initialDelaySeconds: 30
-            failureThreshold: 15
-            periodSeconds: 10
-            successThreshold: 1
+            initialDelaySeconds: 20
+            failureThreshold: 30
+            periodSeconds: 5
             timeoutSeconds: 5
 
           resources:
             requests:
-              memory: "300Mi"
-              cpu: "150m"
+              memory: "400Mi"
+              cpu: "250m"
             limits:
               memory: "600Mi"
-              cpu: "350m"
+              cpu: "450m"

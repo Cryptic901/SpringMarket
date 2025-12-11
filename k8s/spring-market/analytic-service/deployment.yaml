@@ -24,6 +24,7 @@ spec:
         version: v1
 
     spec:
+      serviceAccountName: spring-services-sa
       containers:
         - env:
             - name: JAVA_TOOL_OPTIONS
@@ -45,9 +46,9 @@ spec:
             - name: OTEL_TRACES_EXPORTER
               value: otlp,logging
             - name: SPRING_PROFILES_ACTIVE
-              value: security,dev,kafka,cache,feign,jpa,mongo,eureka,k8s
+              value: dev
 
-          image: ghcr.io/cryptic901/springmarket/analytic-service:latest
+          image: ghcr.io/cryptic901/springmarket/analytic-service:develop-latest
           imagePullPolicy: IfNotPresent
           name: analytic-service
           ports:
@@ -81,18 +82,17 @@ spec:
             httpGet:
               port: 8085
               path: /actuator/health/liveness
-            initialDelaySeconds: 30
-            failureThreshold: 15
-            periodSeconds: 10
-            successThreshold: 1
+            initialDelaySeconds: 20
+            failureThreshold: 30
+            periodSeconds: 5
             timeoutSeconds: 5
 
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "150m"
+              memory: "400Mi"
+              cpu: "250m"
             limits:
-              memory: "512Mi"
-              cpu: "350m"
+              memory: "600Mi"
+              cpu: "450m"
 
 

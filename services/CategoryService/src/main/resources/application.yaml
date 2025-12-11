@@ -1,7 +1,23 @@
 spring:
   application:
     name: CategoryService
+  profiles:
+    group:
+      dev: "security,kafka,cache,feign,jpa,mongo,k8s"
   cloud:
-    config:
-      username: config
-      password: config
+    kubernetes:
+      reload:
+        enabled: true
+        mode: polling
+        period: 5000
+      config:
+        enabled: true
+        sources:
+          - namespace: spring-market
+            name: common-config
+          - namespace: spring-market
+            name: common-config-${spring.profiles.active}
+          - namespace: spring-market
+            name: category-service-config
+          - namespace: spring-market
+            name: category-service-config-${spring.profiles.active}

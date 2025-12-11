@@ -13,12 +13,14 @@
   "redirectUris": [
     "http://localhost:8080/*",
     "http://keycloak:8080/*",
-    "http://localhost:9000/*"
+    "http://localhost:9000/*",
+    "http://keycloak.keycloak.svc.cluster.local:8080/*"
   ],
   "webOrigins": [
     "http://keycloak:8080",
     "http://localhost:8080",
-    "http://localhost:9000"
+    "http://localhost:9000",
+    "http://keycloak.keycloak.svc.cluster.local:8080"
   ],
   "notBefore": 0,
   "bearerOnly": false,
