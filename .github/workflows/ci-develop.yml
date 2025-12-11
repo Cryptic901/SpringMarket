@@ -19,7 +19,7 @@ jobs:
             - uses: dorny/paths-filter@v3
               id: filter
               with:
-                  filters: |
+                filters: |
                       analytic-service:
                         - 'services/AnalyticService/**'
                         - 'config/AnalyticService-**.yaml'
@@ -29,12 +29,6 @@ jobs:
                       category-service:
                         - 'services/CategoryService/**'
                         - 'config/CategoryService-**.yaml'
-                      config-server:
-                        - 'services/ConfigServer/**'
-                        - 'config/ConfigServer-**.yaml'
-                      eureka-server:
-                        - 'services/EurekaServer/**'
-                        - 'config/EurekaServer-**.yaml'
                       gateway:
                         - 'services/Gateway/**'
                         - 'config/Gateway-**.yaml'
@@ -94,14 +88,6 @@ jobs:
                     - name: category-service
                       port: 8091
                       context: ./services/CategoryService
-
-                    - name: config-server
-                      port: 8888
-                      context: ./services/ConfigServer
-
-                    - name: eureka-server
-                      port: 8761
-                      context: ./services/EurekaServer
 
                     - name: gateway
                       port: 8080
@@ -233,12 +219,6 @@ jobs:
 
                     - name: category-service
                       context: ./services/CategoryService
-
-                    - name: config-server
-                      context: ./services/ConfigServer
-
-                    - name: eureka-server
-                      context: ./services/EurekaServer
 
                     - name: gateway
                       context: ./services/Gateway
