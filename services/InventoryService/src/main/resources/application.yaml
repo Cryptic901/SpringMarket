@@ -3,7 +3,7 @@ spring:
     name: InventoryService
   profiles:
     group:
-      dev: "security,kafka,cache,feign,jpa,mongo,k8s"
+      dev: "security,kafka,cache,feign,jpa,mongo"
   cloud:
     kubernetes:
       reload:

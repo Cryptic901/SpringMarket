@@ -44,7 +44,7 @@ spec:
             - name: OTEL_TRACES_EXPORTER
               value: otlp,logging
             - name: SPRING_PROFILES_ACTIVE
-              value: dev
+              value: dev,k8s
 
           image: ghcr.io/cryptic901/springmarket/category-service:develop-latest
           imagePullPolicy: IfNotPresent
