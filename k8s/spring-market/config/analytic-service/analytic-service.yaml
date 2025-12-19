@@ -12,17 +12,6 @@ data:
       port: 8085
       shutdown: graceful
 
-    spring:
-      application:
-        name: analytic-service
-      cloud:
-        kubernetes:
-          enabled: true
-          reload:
-            enabled: true
-            mode: polling
-            period: 5000
-
     springdoc:
       api-docs:
         path: /analytic-service/v3/api-docs

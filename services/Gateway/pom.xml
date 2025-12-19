@@ -9,7 +9,6 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>Gateway</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<name>Gateway</name>
 	<description>Gateway</description>
 

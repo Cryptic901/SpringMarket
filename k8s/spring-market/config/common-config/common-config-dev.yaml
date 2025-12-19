@@ -152,7 +152,6 @@ data:
     
     logging:
       level:
-        com.netflix.discovery: DEBUG
         org.springframework.web.client: DEBUG
         io.github.resilience4j: DEBUG
         org:

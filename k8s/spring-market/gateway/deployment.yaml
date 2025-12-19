@@ -47,7 +47,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: dev,k8s
 
-          image: ghcr.io/cryptic901/springmarket/gateway:develop-latest
+          image: ghcr.io/cryptic901/springmarket/gateway:develop-10
           imagePullPolicy: IfNotPresent
           name: gateway
           ports:
