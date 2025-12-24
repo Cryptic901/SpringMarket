@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: gateway
-    environment: dev
-  name: gateway-config-dev
+  name: gateway-config
   namespace: spring-market
 data:
   application.yaml: |-

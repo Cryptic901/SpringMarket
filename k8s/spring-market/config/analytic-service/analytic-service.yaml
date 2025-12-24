@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: analytic-service
-    environment: default
-  name: analytic-service-config
+  name: analytic-service
   namespace: spring-market
 data:
   application.yaml: |-

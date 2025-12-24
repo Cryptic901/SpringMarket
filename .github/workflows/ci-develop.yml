@@ -20,55 +20,55 @@ jobs:
               id: filter
               with:
                 filters: |
-                      analytic-service:
-                        - 'services/AnalyticService/**'
-                        - 'config/AnalyticService-**.yaml'
-                      cart-service:
-                        - 'services/CartService/**'
-                        - 'config/CartService-**.yaml'
-                      category-service:
-                        - 'services/CategoryService/**'
-                        - 'config/CategoryService-**.yaml'
-                      gateway:
-                        - 'services/Gateway/**'
-                        - 'config/Gateway-**.yaml'
-                      inventory-service:
-                        - 'services/InventoryService/**'
-                        - 'config/InventoryService-**.yaml'
-                      notification-service:
-                        - 'services/NotificationService/**'
-                        - 'config/NotificationService-**.yaml'
-                      order-service:
-                        - 'services/OrderService/**'
-                        - 'config/OrderService-**.yaml'
-                      payment-service:
-                        - 'services/PaymentService/**'
-                        - 'config/PaymentService-**.yaml'
-                      product-service:
-                        - 'services/ProductService/**'
-                        - 'config/ProductService-**.yaml'
-                      review-server:
-                        - 'services/ReviewService/**'
-                        - 'config/ReviewService-**.yaml'
-                      saga-service:
-                        - 'services/SagaService/**'
-                        - 'config/SagaService-**.yaml'
-                      user-service:
-                        - 'services/UserService/**'
-                        - 'config/UserService-**.yaml'
-                      common-exception:
-                        - 'libraries/common-exception/**'
-                      common-security:
-                        - 'libraries/common-security/**'
-                      common-utils:
-                        - 'libraries/common-utils/**'
-                      kafka-keycloak-spi:
-                        - 'libraries/kafka-keycloak-spi/**'
-                      all:
-                        - 'libraries/**'
-                        - '.github/workflows/**'
-                        - 'pom.xml'
-                        - 'config/application-**.yaml'
+                  analytic-service:
+                    - 'services/analytic-service/**'
+                    - 'config/analytic-service-**.yaml'
+                  cart-service:
+                    - 'services/cart-service/**'
+                    - 'config/cart-service-**.yaml'
+                  category-service:
+                    - 'services/category-service/**'
+                    - 'config/category-service-**.yaml'
+                  gateway:
+                    - 'services/gateway/**'
+                    - 'config/gateway-**.yaml'
+                  inventory-service:
+                    - 'services/inventory-service/**'
+                    - 'config/inventory-service-**.yaml'
+                  notification-service:
+                    - 'services/notification-service/**'
+                    - 'config/notification-service-**.yaml'
+                  order-service:
+                    - 'services/order-service/**'
+                    - 'config/order-service-**.yaml'
+                  payment-service:
+                    - 'services/payment-service/**'
+                    - 'config/payment-service-**.yaml'
+                  product-service:
+                    - 'services/product-service/**'
+                    - 'config/product-service-**.yaml'
+                  review-server:
+                    - 'services/review-service/**'
+                    - 'config/review-service-**.yaml'
+                  saga-service:
+                    - 'services/saga-service/**'
+                    - 'config/saga-service-**.yaml'
+                  user-service:
+                    - 'services/user-service/**'
+                    - 'config/user-service-**.yaml'
+                  common-exception:
+                    - 'libraries/common-exception/**'
+                  common-security:
+                    - 'libraries/common-security/**'
+                  common-utils:
+                    - 'libraries/common-utils/**'
+                  kafka-keycloak-spi:
+                    - 'libraries/kafka-keycloak-spi/**'
+                  all:
+                    - 'libraries/**'
+                    - '.github/workflows/**'
+                    - 'pom.xml'
+                    - 'config/application-**.yaml'
 
     build-and-test:
         runs-on: ubuntu-latest
@@ -78,52 +78,40 @@ jobs:
             matrix:
                 include:
                     - name: analytic-service
-                      port: 8085
-                      context: ./services/AnalyticService
+                      context: ./services/analytic-service
 
                     - name: cart-service
-                      port: 8084
-                      context: ./services/CartService
+                      context: ./services/cart-service
 
                     - name: category-service
-                      port: 8091
-                      context: ./services/CategoryService
+                      context: ./services/category-service
 
                     - name: gateway
-                      port: 8080
-                      context: ./services/Gateway
+                      context: ./services/gateway
 
                     - name: inventory-service
-                      port: 8087
-                      context: ./services/InventoryService
+                      context: ./services/inventory-service
 
                     - name: notification-service
-                      port: 8089
-                      context: ./services/NotificationService
+                      context: ./services/notification-service
 
                     - name: order-service
-                      port: 8091
-                      context: ./services/OrderService
+                      context: ./services/order-service
 
                     - name: payment-service
-                      port: 8088
-                      context: ./services/PaymentService
+                      context: ./services/payment-service
 
                     - name: product-service
-                      port: 8081
-                      context: ./services/ProductService
+                      context: ./services/product-service
 
                     - name: review-service
-                      port: 8083
-                      context: ./services/ReviewService
+                      context: ./services/review-service
 
                     - name: saga-service
-                      port: 8090
-                      context: ./services/SagaService
+                      context: ./services/saga-service
 
                     - name: user-service
-                      port: 8086
-                      context: ./services/UserService
+                      context: ./services/user-service
 
         steps:
             - name: Checkout code
@@ -212,40 +200,40 @@ jobs:
             matrix:
                 include:
                     - name: analytic-service
-                      context: ./services/AnalyticService
+                      context: ./services/analytic-service
 
                     - name: cart-service
-                      context: ./services/CartService
+                      context: ./services/cart-service
 
                     - name: category-service
-                      context: ./services/CategoryService
+                      context: ./services/category-service
 
                     - name: gateway
-                      context: ./services/Gateway
+                      context: ./services/gateway
 
                     - name: inventory-service
-                      context: ./services/InventoryService
+                      context: ./services/inventory-service
 
                     - name: notification-service
-                      context: ./services/NotificationService
+                      context: ./services/notification-service
 
                     - name: order-service
-                      context: ./services/OrderService
+                      context: ./services/order-service
 
                     - name: payment-service
-                      context: ./services/PaymentService
+                      context: ./services/payment-service
 
                     - name: product-service
-                      context: ./services/ProductService
+                      context: ./services/product-service
 
                     - name: review-service
-                      context: ./services/ReviewService
+                      context: ./services/review-service
 
                     - name: saga-service
-                      context: ./services/SagaService
+                      context: ./services/saga-service
 
                     - name: user-service
-                      context: ./services/UserService
+                      context: ./services/user-service
 
         steps:
             - name: Checkout code

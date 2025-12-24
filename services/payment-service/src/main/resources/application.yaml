@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: payment-service
+  profiles:
+    group:
+      dev: "security,kafka,cache,feign,jpa,mongo"
+  cloud:
+    kubernetes:
+      reload:
+        enabled: true
+        mode: polling
+        period: 5000
+      config:
+        enabled: true
+        sources:
+          - namespace: spring-market
+            name: common-config
+          - namespace: spring-market
+            name: common-config-${spring.profiles.active}
+          - namespace: spring-market
+            name: payment-service
+          - namespace: spring-market
+            name: payment-service-${spring.profiles.active}
+
+
+
+
+
+
+
+
+
+
+

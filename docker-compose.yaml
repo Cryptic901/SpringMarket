@@ -457,7 +457,7 @@ services:
 
   gateway:
     build:
-      context: ./services/Gateway
+      context: ./services/gateway
       dockerfile: Dockerfile
     container_name: gateway
     restart: always
@@ -496,7 +496,7 @@ services:
 
   analytic-service:
     build:
-      context: ./services/AnalyticService
+      context: ./services/analytic-service
       dockerfile: Dockerfile
     container_name: analytic-service
     restart: on-failure
@@ -541,7 +541,7 @@ services:
 
   cart-service:
     build:
-      context: ./services/CartService
+      context: ./services/cart-service
       dockerfile: Dockerfile
     container_name: cart-service
     restart: on-failure
@@ -590,7 +590,7 @@ services:
 
   category-service:
     build:
-      context: ./services/CategoryService
+      context: ./services/category-service
       dockerfile: Dockerfile
     container_name: category-service
     restart: on-failure
@@ -639,7 +639,7 @@ services:
 
   inventory-service:
     build:
-      context: ./services/InventoryService
+      context: ./services/inventory-service
       dockerfile: Dockerfile
     container_name: inventory-service
     restart: on-failure
@@ -688,7 +688,7 @@ services:
 
   notification-service:
     build:
-      context: ./services/NotificationService
+      context: ./services/notification-service
       dockerfile: Dockerfile
     container_name: notification-service
     restart: on-failure
@@ -735,7 +735,7 @@ services:
 
   order-service:
     build:
-      context: ./services/OrderService
+      context: ./services/order-service
       dockerfile: Dockerfile
     container_name: order-service
     restart: on-failure
@@ -784,7 +784,7 @@ services:
 
   payment-service:
     build:
-      context: ./services/PaymentService
+      context: ./services/payment-service
       dockerfile: Dockerfile
     container_name: payment-service
     env_file:
@@ -835,7 +835,7 @@ services:
 
   product-service:
     build:
-      context: ./services/ProductService
+      context: ./services/product-service
       dockerfile: Dockerfile
     container_name: product-service
     restart: on-failure
@@ -884,7 +884,7 @@ services:
 
   review-service:
     build:
-      context: ./services/ReviewService
+      context: ./services/review-service
       dockerfile: Dockerfile
     container_name: review-service
     restart: on-failure
@@ -933,7 +933,7 @@ services:
 
   saga-service:
     build:
-      context: ./services/SagaService
+      context: ./services/saga-service
       dockerfile: Dockerfile
     container_name: saga-service
     restart: on-failure
@@ -982,7 +982,7 @@ services:
 
   user-service:
     build:
-      context: ./services/UserService
+      context: ./services/user-service
       dockerfile: Dockerfile
     container_name: user-service
     restart: on-failure

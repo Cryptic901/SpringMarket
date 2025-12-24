@@ -10,7 +10,6 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>common-security</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <java.version>21</java.version>

@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: inventory-service
-    environment: dev
-  name: inventory-service-config-dev
+  name: inventory-service-dev
   namespace: spring-market
 data:
   application.yaml: |-

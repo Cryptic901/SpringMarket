@@ -13,7 +13,6 @@ data:
       - job_name: application
         static_configs:
           - targets:
-              - "eureka-server.spring-market.svc.cluster.local:8761"
               - "gateway.spring-market.svc.cluster.local:8080"
               - "analytic-service.spring-market.svc.cluster.local:8085"
               - "cart-service.spring-market.svc.cluster.local:8084"

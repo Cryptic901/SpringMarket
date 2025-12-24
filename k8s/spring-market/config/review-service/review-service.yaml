@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: review-service
-    environment: default
-  name: review-service-config
+  name: review-service
   namespace: spring-market
 data:
   application.yaml: |-

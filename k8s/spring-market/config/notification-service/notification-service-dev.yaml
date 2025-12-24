@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: notification-service
-    environment: dev
-  name: notification-service-config-dev
+  name: notification-service-dev
   namespace: spring-market
 data:
   application.yaml: |
@@ -13,7 +12,6 @@ data:
       shutdown: graceful
 
     spring:
-      spring:
       kafka:
         bootstrap-servers: kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090
         consumer:

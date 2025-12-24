@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: payment-service
-    environment: default
-  name: payment-service-config
+  name: payment-service
   namespace: spring-market
 data:
   application.yaml: |

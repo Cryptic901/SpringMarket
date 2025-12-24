@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: product-service
-    environment: dev
-  name: product-service-config-dev
+  name: product-service-dev
   namespace: spring-market
 data:
   application.yaml: |-

@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: saga-service
-    environment: default
-  name: saga-service-config
+  name: saga-service
   namespace: spring-market
 data:
   application.yaml: |

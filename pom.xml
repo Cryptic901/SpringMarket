@@ -31,18 +31,18 @@
         <module>libraries/common-utils</module>
         <module>libraries/kafka-keycloak-spi</module>
 
-        <module>services/AnalyticService</module>
-        <module>services/CartService</module>
-        <module>services/CategoryService</module>
-        <module>services/Gateway</module>
-        <module>services/InventoryService</module>
-        <module>services/NotificationService</module>
-        <module>services/OrderService</module>
-        <module>services/PaymentService</module>
-        <module>services/ProductService</module>
-        <module>services/ReviewService</module>
-        <module>services/SagaService</module>
-        <module>services/UserService</module>
+        <module>services/analytic-service</module>
+        <module>services/cart-service</module>
+        <module>services/category-service</module>
+        <module>services/gateway</module>
+        <module>services/inventory-service</module>
+        <module>services/notification-service</module>
+        <module>services/order-service</module>
+        <module>services/payment-service</module>
+        <module>services/product-service</module>
+        <module>services/review-service</module>
+        <module>services/saga-service</module>
+        <module>services/user-service</module>
     </modules>
     <dependencyManagement>
         <dependencies>

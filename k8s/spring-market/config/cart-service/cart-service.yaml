@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: cart-service
-    environment: default
-  name: cart-service-config
+  name: cart-service
   namespace: spring-market
 data:
   application.yaml: |-
