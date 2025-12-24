@@ -85,11 +85,15 @@ install_helm_chart() {
         helm install "$release_name" "$chart_name" \
             -n "$namespace" \
             --create-namespace \
+            --timeout 10m \
+            --wait \
             --values "$values_file"
     else
         helm install "$release_name" "$chart_name" \
             -n "$namespace" \
-            --create-namespace
+            --create-namespace \
+            --timeout 10m \
+            --wait
     fi
     
     print_status "$release_name installed successfully"

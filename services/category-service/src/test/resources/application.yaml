@@ -1,9 +1,3 @@
 spring:
   application:
-    name: CategoryService
-  cloud:
-    config:
-      username: config
-      password: config
-  config:
-    import: "optional:configserver:http://config-server:8888"
+    name: category-service

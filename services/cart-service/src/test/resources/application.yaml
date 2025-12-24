@@ -1,9 +1,3 @@
 spring:
   application:
-    name: CartService
-  cloud:
-    config:
-      username: config
-      password: config
-  config:
-    import: "optional:configserver:http://config-server:8888"
+    name: cart-service
