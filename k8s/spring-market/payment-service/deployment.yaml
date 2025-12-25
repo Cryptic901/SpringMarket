@@ -50,7 +50,7 @@ spec:
             - configMapRef:
                 name: env-local
 
-          image: ghcr.io/cryptic901/springmarket/payment-service:develop-d59a0c2
+          image: ghcr.io/cryptic901/springmarket/payment-service:develop-9df0489
           imagePullPolicy: IfNotPresent
           name: payment-service
           ports:

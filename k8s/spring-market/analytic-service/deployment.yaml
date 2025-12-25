@@ -48,7 +48,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
 
-          image: ghcr.io/cryptic901/springmarket/analytic-service:develop-d59a0c2
+          image: ghcr.io/cryptic901/springmarket/analytic-service:develop-9df0489
           imagePullPolicy: IfNotPresent
           name: analytic-service
           ports:

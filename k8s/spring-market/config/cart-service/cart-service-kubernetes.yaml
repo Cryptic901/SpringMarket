@@ -3,14 +3,14 @@ kind: ConfigMap
 metadata:
   labels:
     app: cart-service
-  name: cart-service-dev
+  name: cart-service-kubernetes
   namespace: spring-market
 data:
   application.yaml: |-
     server:
       port: 8084
       shutdown: graceful
-      
+
     springdoc:
       api-docs:
         path: /cart-service/v3/api-docs

@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: gateway
-  name: gateway-dev
+  name: gateway-kubernetes
   namespace: spring-market
 data:
   application.yaml: |-
