@@ -1,6 +1,6 @@
 spring:
-  kafka:
-    enabled: true
+  config:
+    import: "optional:kubernetes:"
   application:
     name: cart-service
   profiles:
