@@ -3,6 +3,7 @@ package by.cryptic.productservice.config.kafka;
 import by.cryptic.utils.properties.KafkaTopicsProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-@Profile("kafka")
+@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true")
 public class TopicConfig {
 
     private final KafkaTopicsProperties kafkaTopicsProperties;

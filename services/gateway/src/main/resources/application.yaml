@@ -1,9 +1,6 @@
 spring:
   application:
     name: gateway
-  profiles:
-    group:
-      dev: "security,kafka,cache,feign,jpa,mongo"
   cloud:
     kubernetes:
       reload:

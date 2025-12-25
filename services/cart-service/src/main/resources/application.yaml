@@ -1,4 +1,6 @@
 spring:
+  kafka:
+    enabled: true
   application:
     name: cart-service
   profiles:

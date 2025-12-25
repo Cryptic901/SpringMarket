@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: order-service
+  name: order-service-jpa
+  namespace: spring-market
+data:
+  application.yaml: |-
+    spring:
+      datasource:
+        url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/order_db
+        username: order_service
+        password: order_pass
+      flyway:
+        schemas: order_schema
+        default-schema: order_schema
+        enabled: true
+        baseline-on-migrate: true
+      jpa:
+        enabled: true
+        hibernate:
+          ddl-auto: update
+          dialect: org.hibernate.spatial.dialect.postgis.PostgisPG17Dialect

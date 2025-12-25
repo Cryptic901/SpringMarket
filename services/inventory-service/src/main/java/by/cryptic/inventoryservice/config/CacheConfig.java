@@ -1,6 +1,7 @@
 package by.cryptic.inventoryservice.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,7 @@ import java.time.Duration;
 @Configuration
 @EnableCaching
 @RequiredArgsConstructor
-@Profile("cache")
+@ConditionalOnProperty(name = "spring.cache.enabled", havingValue = "true")
 public class CacheConfig {
 
     @Bean

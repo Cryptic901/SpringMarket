@@ -3,6 +3,7 @@ package by.cryptic.cartservice.config;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -13,7 +14,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @Slf4j
 @Configuration
 @EnableFeignClients(value = "by.cryptic.cartservice.client")
-@Profile("feign")
+@ConditionalOnProperty(name = "spring.feign.enabled", havingValue = "true")
 public class FeignClientConfig implements RequestInterceptor {
 
     @Override

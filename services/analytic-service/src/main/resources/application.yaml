@@ -3,7 +3,7 @@ spring:
     name: analytic-service
   profiles:
     group:
-      dev: "security,kafka,cache,feign,jpa,mongo"
+      dev: "security,kafka,cache"
   cloud:
     kubernetes:
       reload:

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -23,7 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Configuration
-@Profile("kafka")
+@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true")
 @EnableKafka
 @Slf4j
 public class KafkaConsumerConfig {

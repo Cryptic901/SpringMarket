@@ -1,5 +1,6 @@
 package by.cryptic.categoryservice.config.security;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -9,7 +10,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
-@Profile("security")
+@ConditionalOnProperty(name = "spring.security.enabled", havingValue = "true")
 @Configuration
 public class SecurityConfig {
 

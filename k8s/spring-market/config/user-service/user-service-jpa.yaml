@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: user-service
+  name: user-service-jpa
+  namespace: spring-market
+data:
+  application.yaml: |-
+    spring:
+      datasource:
+        url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/user_db
+        username: user_service
+        password: user_pass
+
+      jpa:
+        enabled: true
+        hibernate:
+          ddl-auto: update
+
+      flyway:
+        schemas: user_schema
+        default-schema: user_schema
+        enabled: true
+        baseline-on-migrate: true

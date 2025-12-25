@@ -4,6 +4,7 @@ import by.cryptic.utils.properties.KafkaTopicsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Configuration
-@Profile("kafka")
+@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true")
 @RequiredArgsConstructor
 @Slf4j
 public class TopicConfig {

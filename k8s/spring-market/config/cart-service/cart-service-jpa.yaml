@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: cart-service
+  name: cart-service-jpa
+  namespace: spring-market
+data:
+  application.yaml: |- 
+    spring:
+      datasource:
+        url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/cart_db
+        username: cart_service
+        password: cart_pass
+      jpa:
+        enabled: true
+        hibernate:
+          ddl-auto: update
+      flyway:
+        schemas: cart_schema
+        default-schema: cart_schema
+        enabled: true
+        baseline-on-migrate: true

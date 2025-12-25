@@ -3,7 +3,7 @@ spring:
     name: user-service
   profiles:
     group:
-      dev: "security,kafka,cache,feign,jpa,mongo"
+      dev: "security,kafka,cache,jpa,mongo"
   cloud:
     kubernetes:
       reload:

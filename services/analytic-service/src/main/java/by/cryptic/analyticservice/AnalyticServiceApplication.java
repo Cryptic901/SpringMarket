@@ -5,9 +5,11 @@ import by.cryptic.utils.properties.KafkaTopicsProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
+@EnableDiscoveryClient
 @EnableConfigurationProperties(KafkaTopicsProperties.class)
 @Import(GlobalExceptionHandler.class)
 public class AnalyticServiceApplication {
