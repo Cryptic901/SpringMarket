@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: "optional:kubernetes:"
   application:
     name: review-service
   profiles:
