@@ -16,10 +16,25 @@ spring:
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config
+            name: common-config-dev
+
           - namespace: spring-market
-            name: common-config-${spring.profiles.active}
+            name: review-service-dev
+
           - namespace: spring-market
-            name: review-service
+            name: review-service-cache
+
           - namespace: spring-market
-            name: review-service-${spring.profiles.active}
+            name: review-service-kafka
+
+          - namespace: spring-market
+            name: review-service-security
+
+          - namespace: spring-market
+            name: review-service-feign
+
+          - namespace: spring-market
+            name: review-service-jpa
+
+          - namespace: spring-market
+            name: review-service-mongo

@@ -16,13 +16,25 @@ spring:
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config
+            name: common-config-dev
+
           - namespace: spring-market
-            name: common-config-${spring.profiles.active}
+            name: payment-service-dev
+
           - namespace: spring-market
-            name: payment-service
+            name: payment-service-cache
+
           - namespace: spring-market
-            name: payment-service-${spring.profiles.active}
+            name: payment-service-kafka
+
+          - namespace: spring-market
+            name: payment-service-security
+
+          - namespace: spring-market
+            name: payment-service-jpa
+
+          - namespace: spring-market
+            name: payment-service-mongo
 
 
 

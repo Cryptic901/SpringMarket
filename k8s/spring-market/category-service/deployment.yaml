@@ -46,7 +46,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
 
-          image: ghcr.io/cryptic901/springmarket/category-service:develop-9df0489
+          image: ghcr.io/cryptic901/springmarket/category-service:develop-a9e38bf
           imagePullPolicy: IfNotPresent
           name: category-service
           ports:

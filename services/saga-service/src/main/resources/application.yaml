@@ -16,11 +16,14 @@ spring:
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config
+            name: common-config-dev
+
           - namespace: spring-market
-            name: common-config-${spring.profiles.active}
+            name: saga-service-dev
+
           - namespace: spring-market
-            name: saga-service
+            name: saga-service-kafka
+
           - namespace: spring-market
-            name: saga-service-${spring.profiles.active}
+            name: saga-service-security
 

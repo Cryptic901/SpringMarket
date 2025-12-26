@@ -16,13 +16,28 @@ spring:
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config
+            name: common-config-dev
+
           - namespace: spring-market
-            name: common-config-${spring.profiles.active}
+            name: order-service-dev
+
           - namespace: spring-market
-            name: order-service
+            name: order-service-cache
+
           - namespace: spring-market
-            name: order-service-${spring.profiles.active}
+            name: order-service-kafka
+
+          - namespace: spring-market
+            name: order-service-security
+
+          - namespace: spring-market
+            name: order-service-feign
+
+          - namespace: spring-market
+            name: order-service-jpa
+
+          - namespace: spring-market
+            name: order-service-mongo
 
 
 

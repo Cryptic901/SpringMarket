@@ -13,13 +13,10 @@ spring:
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config
+            name: common-config-dev
+
           - namespace: spring-market
-            name: common-config-${spring.profiles.active}
-          - namespace: spring-market
-            name: gateway
-          - namespace: spring-market
-            name: gateway-${spring.profiles.active}
+            name: gateway-dev
 
 
 

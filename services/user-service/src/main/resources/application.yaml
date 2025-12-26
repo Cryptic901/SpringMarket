@@ -16,12 +16,24 @@ spring:
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config
+            name: common-config-dev
+
           - namespace: spring-market
-            name: common-config-${spring.profiles.active}
+            name: user-service-dev
+
           - namespace: spring-market
-            name: user-service
+            name: user-service-cache
+
           - namespace: spring-market
-            name: user-service-${spring.profiles.active}
+            name: user-service-jpa
+
+          - namespace: spring-market
+            name: user-service-mongo
+
+          - namespace: spring-market
+            name: user-service-kafka
+
+          - namespace: spring-market
+            name: user-service-security
 
 

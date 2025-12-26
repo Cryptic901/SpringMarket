@@ -16,10 +16,16 @@ spring:
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config
+            name: common-config-dev
+
           - namespace: spring-market
-            name: common-config-${spring.profiles.active}
+            name: analytic-service-dev
+
           - namespace: spring-market
-            name: analytic-service
+            name: analytic-service-cache
+
           - namespace: spring-market
-            name: analytic-service-${spring.profiles.active}
+            name: analytic-service-kafka
+
+          - namespace: spring-market
+            name: analytic-service-security

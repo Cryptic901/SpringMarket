@@ -16,10 +16,19 @@ spring:
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config
+            name: common-config-dev
+
           - namespace: spring-market
-            name: common-config-${spring.profiles.active}
+            name: inventory-service-dev
+
           - namespace: spring-market
-            name: inventory-service
+            name: inventory-service-cache
+
           - namespace: spring-market
-            name: inventory-service-${spring.profiles.active}
+            name: inventory-service-kafka
+
+          - namespace: spring-market
+            name: inventory-service-security
+
+          - namespace: spring-market
+            name: inventory-service-jpa

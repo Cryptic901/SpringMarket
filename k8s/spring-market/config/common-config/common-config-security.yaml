@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: common-config-dev
-  namespace: spring-market
-data:
-  application.yaml: |-
