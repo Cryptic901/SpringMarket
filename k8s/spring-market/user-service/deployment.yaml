@@ -47,7 +47,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: security,kafka,cache,jpa,mongo
 
-          image: ghcr.io/cryptic901/springmarket/user-service:develop-d4ad03f
+          image: ghcr.io/cryptic901/springmarket/user-service:develop-9218499
           imagePullPolicy: IfNotPresent
           name: user-service
           ports:

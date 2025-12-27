@@ -11,6 +11,7 @@ spring:
         period: 5000
       config:
         enabled: true
+        include-profile-specific-sources: false
         sources:
           - namespace: spring-market
             name: common-config
