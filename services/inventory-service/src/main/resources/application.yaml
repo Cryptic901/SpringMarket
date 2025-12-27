@@ -3,9 +3,6 @@ spring:
     import: "optional:kubernetes:"
   application:
     name: inventory-service
-  profiles:
-    group:
-      dev: "security,kafka,cache,jpa"
   cloud:
     kubernetes:
       reload:
@@ -13,14 +10,13 @@ spring:
         mode: polling
         period: 5000
       config:
-        include-profile-specific-sources: false
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config-dev
+            name: common-config
 
           - namespace: spring-market
-            name: inventory-service-dev
+            name: inventory-service
 
           - namespace: spring-market
             name: inventory-service-cache

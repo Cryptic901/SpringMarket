@@ -3,9 +3,6 @@ spring:
     import: "optional:kubernetes:"
   application:
     name: analytic-service
-  profiles:
-    group:
-      dev: "security,kafka,cache"
   cloud:
     kubernetes:
       reload:
@@ -13,14 +10,13 @@ spring:
         mode: polling
         period: 5000
       config:
-        include-profile-specific-sources: false
         enabled: true
         sources:
           - namespace: spring-market
-            name: common-config-dev
+            name: common-config
 
           - namespace: spring-market
-            name: analytic-service-dev
+            name: analytic-service
 
           - namespace: spring-market
             name: analytic-service-cache
@@ -30,3 +26,4 @@ spring:
 
           - namespace: spring-market
             name: analytic-service-security
+

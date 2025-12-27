@@ -44,9 +44,9 @@ spec:
             - name: OTEL_TRACES_EXPORTER
               value: otlp,logging
             - name: SPRING_PROFILES_ACTIVE
-              value: dev
+              value: security,kafka,cache,feign,jpa,mongo
 
-          image: ghcr.io/cryptic901/springmarket/product-service:develop-7b7cfa0
+          image: ghcr.io/cryptic901/springmarket/product-service:develop-d4ad03f
           imagePullPolicy: IfNotPresent
           name: product-service
           ports:

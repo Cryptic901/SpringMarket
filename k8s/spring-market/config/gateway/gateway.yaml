@@ -15,31 +15,31 @@ data:
         enabled: true
       swagger-ui:
         urls:
-          - name: UserService
+          - name: user-service
             url: /user-service/v3/api-docs
 
-          - name: ReviewService
+          - name: review-service
             url: /review-service/v3/api-docs
 
-          - name: ProductService
+          - name: product-service
             url: /product-service/v3/api-docs
 
-          - name: PaymentService
+          - name: payment-service
             url: /payment-service/v3/api-docs
 
-          - name: OrderService
+          - name: order-service
             url: /order-service/v3/api-docs
 
-          - name: CategoryService
+          - name: category-service
             url: /category-service/v3/api-docs
 
-          - name: CartService
+          - name: cart-service
             url: /cart-service/v3/api-docs
 
-          - name: AnalyticService
+          - name: analytic-service
             url: /analytic-service/v3/api-docs
 
-          - name: InventoryService
+          - name: inventory-service
             url: /inventory-service/v3/api-docs
     spring:
       security:
