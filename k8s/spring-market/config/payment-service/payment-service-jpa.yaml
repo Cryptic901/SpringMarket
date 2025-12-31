@@ -12,6 +12,7 @@ data:
         url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/payment_db
         username: payment_service
         password: payment_pass
+        driver-class-name: org.postgresql.Driver
       jpa:
         enabled: true
         hibernate:

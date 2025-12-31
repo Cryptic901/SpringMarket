@@ -12,6 +12,7 @@ data:
         url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/product_db
         username: product_service
         password: product_pass
+        driver-class-name: org.postgresql.Driver
       flyway:
         schemas: product_schema
         default-schema: product_schema
@@ -26,4 +27,3 @@ data:
               batch_size: 50
             order_updates: true
             order_inserts: true
-        path: /product-service/swagger-ui.html

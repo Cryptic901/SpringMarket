@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: user-service
-  name: user-service-dev
+  name: user-service-kafka
   namespace: spring-market
 data:
   application.yaml: |-

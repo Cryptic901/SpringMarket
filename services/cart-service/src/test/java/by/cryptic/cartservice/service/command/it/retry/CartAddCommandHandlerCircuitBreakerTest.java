@@ -34,6 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
+//sudo systemctl enable docker.service
+//sudo systemctl start docker.service
+
 /* Run Docker before start */
 @SpringBootTest(
         classes = CartServiceApplication.class,

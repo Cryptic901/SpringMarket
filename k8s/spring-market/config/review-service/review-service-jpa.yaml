@@ -12,6 +12,7 @@ data:
         url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/review_db
         username: review_service
         password: review_pass
+        driver-class-name: org.postgresql.Driver
       jpa:
         enabled: true
         hibernate:

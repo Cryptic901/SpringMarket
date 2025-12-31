@@ -23,7 +23,6 @@ data:
             retry-exceptions:
               - java.sql.SQLException
               - java.net.ConnectException
-              - jakarta.ws.rs.ProcessingException
               - org.springframework.web.client.HttpClientErrorException
               - org.springframework.dao.TransientDataAccessResourceException
             ignore-exceptions:

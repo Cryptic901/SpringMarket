@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     app: inventory-service
-  name: inventory-service-dev
+  name: inventory-service-jpa
   namespace: spring-market
 data:
   application.yaml: |-
@@ -12,7 +12,6 @@ data:
         url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/inventory_db
         username: inventory_service
         password: inventory_pass
-
       flyway:
         schemas: inventory_schema
         default-schema: inventory_schema

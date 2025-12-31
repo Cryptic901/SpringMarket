@@ -26,7 +26,7 @@ spec:
       containers:
         - env:
             - name: JAVA_TOOL_OPTIONS
-              value: -javaagent:/app/opentelemetry-javaagent.jar
+              value: -XX:ActiveProcessorCount=2 -XX:MaxRAMPercentage=70.0 -javaagent:/app/opentelemetry-javaagent.jar
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: http://grafana-tempo.observability.svc.cluster.local:4318
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
@@ -46,7 +46,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: security,kafka,cache,jpa,mongo
 
-          image: ghcr.io/cryptic901/springmarket/category-service:develop-9218499
+          image: ghcr.io/cryptic901/springmarket/category-service:develop-a466017
           imagePullPolicy: IfNotPresent
           name: category-service
           ports:
@@ -87,8 +87,8 @@ spec:
 
           resources:
             requests:
-              memory: "400Mi"
+              memory: "450Mi"
               cpu: "250m"
             limits:
-              memory: "600Mi"
+              memory: "800Mi"
               cpu: "450m"

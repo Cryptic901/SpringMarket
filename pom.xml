@@ -19,11 +19,11 @@
         <java.version>21</java.version>
         <spring.kafka.version>3.3.11</spring.kafka.version>
         <spring.version>3.4.5</spring.version>
-        <jwt.version>0.12.6</jwt.version>
-        <lombok.version>1.18.38</lombok.version>
-        <postgres.version>1.20.6</postgres.version>
+        <jwt.version>0.13.0</jwt.version>
+        <lombok.version>1.18.42</lombok.version>
+        <postgres.version>1.21.4</postgres.version>
         <spring-cloud.version>2024.0.1</spring-cloud.version>
-        <keycloak.version>26.3.1</keycloak.version>
+        <keycloak.version>26.4.7</keycloak.version>
     </properties>
     <modules>
         <module>libraries/common-exception</module>

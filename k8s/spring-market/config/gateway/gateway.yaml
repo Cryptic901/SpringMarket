@@ -183,3 +183,10 @@ data:
               uri: lb://cart-service
               predicates:
                 - Path=/cart-service/v3/api-docs
+                
+        kubernetes:
+          discovery:
+            enabled: true
+          loadbalancer:
+            enabled: true
+            mode: service
