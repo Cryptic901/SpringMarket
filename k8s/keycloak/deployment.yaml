@@ -45,10 +45,10 @@ spec:
               value: "admin"
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: "admin"
-#            - name: KEYCLOAK_ADMIN
-#              value: "admin"
-#            - name: KEYCLOAK_ADMIN_PASSWORD
-#              value: "admin"
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: "admin"
             - name: KC_HEALTH_ENABLED
               value: "true"
           name: keycloak

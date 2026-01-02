@@ -3,7 +3,7 @@
   "name": "API Gateway",
   "description": "",
   "rootUrl": "http://localhost:8080",
-  "adminUrl": "http://localhost:8080",
+  "adminUrl": "http://api.local",
   "baseUrl": "",
   "surrogateAuthRequired": false,
   "enabled": true,
@@ -11,16 +11,16 @@
   "clientAuthenticatorType": "client-secret",
   "secret": "iUoy91EYLWU4q3cdtjdTzMd3d7iqJ1VL",
   "redirectUris": [
-    "http://localhost:8080/*",
-    "http://keycloak:8080/*",
-    "http://localhost:9000/*",
-    "http://keycloak.keycloak.svc.cluster.local:8080/*"
+    "http://auth.local/*",
+    "http://keycloak.keycloak.svc.cluster.local/*",
+    "http://keycloak.keycloak.svc.cluster.local:8080/*",
+    "http://keycloak.keycloak.svc.cluster.local:80/*"
   ],
   "webOrigins": [
-    "http://keycloak:8080",
-    "http://localhost:8080",
-    "http://localhost:9000",
-    "http://keycloak.keycloak.svc.cluster.local:8080"
+    "http://keycloak.keycloak.svc.cluster.local:8080",
+    "http://keycloak.keycloak.svc.cluster.local:80",
+    "http://keycloak.keycloak.svc.cluster.local",
+    "http://auth.local"
   ],
   "notBefore": 0,
   "bearerOnly": false,
@@ -37,6 +37,7 @@
     "oidc.ciba.grant.enabled": "false",
     "client.secret.creation.time": "1761735049",
     "backchannel.logout.session.required": "true",
+    "display.on.consent.screen": "false",
     "oauth2.device.authorization.grant.enabled": "false",
     "backchannel.logout.revoke.offline.tokens": "false"
   },
@@ -54,8 +55,8 @@
   "optionalClientScopes": [
     "address",
     "phone",
-    "organization",
     "offline_access",
+    "organization",
     "microprofile-jwt"
   ],
   "access": {

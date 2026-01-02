@@ -1,5 +1,6 @@
 .env
 .env.local
+/k8s/spring-market/env-local.yaml
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar

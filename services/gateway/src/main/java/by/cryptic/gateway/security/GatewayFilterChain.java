@@ -83,11 +83,11 @@ public class GatewayFilterChain {
     @Bean
     public ReactiveJwtDecoder reactiveJwtDecoder() {
         NimbusReactiveJwtDecoder decoder = NimbusReactiveJwtDecoder.withJwkSetUri(
-                "http://keycloak.keycloak.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/certs"
+                "http://keycloak.keycloak.svc.cluster.local/realms/springmarket/protocol/openid-connect/certs"
         ).build();
 
         OAuth2TokenValidator<Jwt> validator =
-                JwtValidators.createDefaultWithIssuer("http://localhost:9000/realms/springmarket");
+                JwtValidators.createDefaultWithIssuer("http://auth.local/realms/springmarket");
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(validator));
         return decoder;
     }

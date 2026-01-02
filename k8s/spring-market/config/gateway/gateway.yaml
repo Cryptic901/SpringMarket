@@ -47,10 +47,10 @@ data:
           client:
             provider:
               keycloak:
-                authorization-uri: http://keycloak.keycloak.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/auth
-                token-uri: http://keycloak.keycloak.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/token
-                user-info-uri: http://keycloak.keycloak.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/userinfo
-                jwk-set-uri: http://keycloak.keycloak.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/certs
+                authorization-uri: http://keycloak.keycloak.svc.cluster.local/realms/springmarket/protocol/openid-connect/auth
+                token-uri: http://keycloak.keycloak.svc.cluster.local/realms/springmarket/protocol/openid-connect/token
+                user-info-uri: http://keycloak.keycloak.svc.cluster.local/realms/springmarket/protocol/openid-connect/userinfo
+                jwk-set-uri: http://keycloak.keycloak.svc.cluster.local/realms/springmarket/protocol/openid-connect/certs
 
             registration:
               keycloak:

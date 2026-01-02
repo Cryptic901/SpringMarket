@@ -3,9 +3,6 @@ kind: Ingress
 metadata:
   name: grafana-ingress
   namespace: observability
-  annotations:
-    nginx.ingress.kubernetes.io/auth-url: "http://keycloak.keycloak.svc.cluster.local/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://auth.local/oauth2/start"
 spec:
   ingressClassName: nginx
   rules:
