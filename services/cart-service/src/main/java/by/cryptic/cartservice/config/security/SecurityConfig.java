@@ -22,7 +22,7 @@ public class SecurityConfig {
 
         OAuth2TokenValidator<Jwt> jwtOAuth2TokenValidator =
                 JwtValidators.createDefaultWithIssuer(
-                        "http://api.local/realms/springmarket"
+                        "http://auth.local/realms/springmarket"
                 );
 
         jwtDecoder.setJwtValidator(jwtOAuth2TokenValidator);

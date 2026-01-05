@@ -47,7 +47,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: security,kafka,cache,feign,jpa,mongo
 
-          image: ghcr.io/cryptic901/springmarket/order-service:develop-093789e
+          image: ghcr.io/cryptic901/springmarket/order-service:develop-e2e2785
           imagePullPolicy: IfNotPresent
           name: order-service
           ports:
