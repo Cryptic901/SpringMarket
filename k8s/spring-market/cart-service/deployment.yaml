@@ -46,7 +46,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: security,kafka,cache,feign,jpa,mongo
 
-          image: ghcr.io/cryptic901/springmarket/cart-service:develop-e2e2785
+          image: ghcr.io/cryptic901/springmarket/cart-service:develop-f8c32ed
           imagePullPolicy: IfNotPresent
           name: cart-service
           ports:

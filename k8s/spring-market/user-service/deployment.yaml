@@ -47,7 +47,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: security,kafka,cache,jpa,mongo
 
-          image: ghcr.io/cryptic901/springmarket/user-service:develop-e2e2785
+          image: ghcr.io/cryptic901/springmarket/user-service:develop-f8c32ed
           imagePullPolicy: IfNotPresent
           name: user-service
           ports:
@@ -91,5 +91,5 @@ spec:
               memory: "450Mi"
               cpu: "250m"
             limits:
-              memory: "1000Mi"
+              memory: "1200Mi"
               cpu: "650m"
