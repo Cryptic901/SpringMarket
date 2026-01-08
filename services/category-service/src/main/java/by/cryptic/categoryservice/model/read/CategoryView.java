@@ -7,10 +7,8 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 import java.util.Objects;
 import java.util.UUID;
 
-@Getter
-@Setter
-@ToString
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "category_view")

@@ -1,6 +1,7 @@
 ARG SERVICE_NAME
-ARG SERVICE_PORT=8080
-ARG SERVICE_VERSION=1.0-SNAPSHOT
+ARG SERVICE_PORT
+ARG SERVICE_VERSION
+ARG SERVICE_CONTEXT
 
 FROM eclipse-temurin:21-jdk-alpine
 
@@ -18,7 +19,8 @@ ADD --chown=spring:spring \
   /app/opentelemetry-javaagent.jar
 
 ARG SERVICE_VERSION
-COPY --chown=spring:spring target/${SERVICE_NAME}-${SERVICE_VERSION}.jar /app/app.jar
+ARG SERVICE_CONTEXT
+COPY --chown=spring:spring ${SERVICE_CONTEXT}/target/${SERVICE_NAME}-${SERVICE_VERSION}.jar /app/app.jar
 
 USER spring:spring
 

@@ -215,39 +215,51 @@ jobs:
         include:
           - name: analytic-service
             context: ./services/analytic-service
+            port: 8085
 
           - name: cart-service
             context: ./services/cart-service
+            port: 8084
 
           - name: category-service
             context: ./services/category-service
+            port: 8091
 
           - name: gateway
             context: ./services/gateway
+            port: 8080
 
           - name: inventory-service
             context: ./services/inventory-service
+            port: 8087
 
           - name: notification-service
             context: ./services/notification-service
+            port: 8089
 
           - name: order-service
             context: ./services/order-service
+            port: 8082
 
           - name: payment-service
             context: ./services/payment-service
+            port: 8088
 
           - name: product-service
             context: ./services/product-service
+            port: 8081
 
           - name: review-service
             context: ./services/review-service
+            port: 8083
 
           - name: saga-service
             context: ./services/saga-service
+            port: 8090
 
           - name: user-service
             context: ./services/user-service
+            port: 8086
 
     steps:
       - name: Checkout code
@@ -286,8 +298,14 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.context }}
+          context: .
+          file: ./Dockerfile
           push: true
+          build-args: |
+            SERVICE_NAME=${{ matrix.name }}
+            SERVICE_PORT=${{ matrix.port }}
+            SERVICE_VERSION=1.0-SNAPSHOT
+            SERVICE_CONTEXT=${{ matrix.context }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX_LOWER }}/${{ matrix.name }}:buildcache
@@ -349,7 +367,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./keycloak/
-          file: ./keycloak/Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
