@@ -47,7 +47,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: security,kafka,cache,jpa
 
-          image: ghcr.io/cryptic901/springmarket/inventory-service:develop-f8c32ed
+          image: ghcr.io/cryptic901/springmarket/inventory-service:develop-aa8510c
           imagePullPolicy: IfNotPresent
           name: inventory-service
           ports:

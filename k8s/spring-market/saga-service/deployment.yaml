@@ -47,7 +47,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: security,kafka
 
-          image: ghcr.io/cryptic901/springmarket/saga-service:develop-f8c32ed
+          image: ghcr.io/cryptic901/springmarket/saga-service:develop-aa8510c
           imagePullPolicy: IfNotPresent
           name: saga-service
           ports:
