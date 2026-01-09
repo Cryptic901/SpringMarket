@@ -20,10 +20,29 @@ COPY .mvn .mvn
 COPY pom.xml .
 
 # Копируем pom.xml конкретного сервиса для кэширования зависимостей
-COPY ${SERVICE_CONTEXT}/pom.xml ${SERVICE_CONTEXT}/
+COPY libraries/common-exception/pom.xml libraries/common-exception/pom.xml
+COPY libraries/common-security/pom.xml libraries/common-security/pom.xml
+COPY libraries/common-utils/pom.xml libraries/common-utils/pom.xml
+COPY libraries/kafka-keycloak-spi/pom.xml libraries/kafka-keycloak-spi/pom.xml
+
+# Копируем pom.xml всех сервисов
+COPY services/analytic-service/pom.xml services/analytic-service/pom.xml
+COPY services/cart-service/pom.xml services/cart-service/pom.xml
+COPY services/category-service/pom.xml services/category-service/pom.xml
+COPY services/gateway/pom.xml services/gateway/pom.xml
+COPY services/inventory-service/pom.xml services/inventory-service/pom.xml
+COPY services/notification-service/pom.xml services/notification-service/pom.xml
+COPY services/order-service/pom.xml services/order-service/pom.xml
+COPY services/payment-service/pom.xml services/payment-service/pom.xml
+COPY services/product-service/pom.xml services/product-service/pom.xml
+COPY services/review-service/pom.xml services/review-service/pom.xml
+COPY services/saga-service/pom.xml services/saga-service/pom.xml
+COPY services/user-service/pom.xml services/user-service/pom.xml
 
 # Загружаем зависимости (этот слой будет кэшироваться если pom.xml не менялся)
 RUN ./mvnw dependency:go-offline -pl ${SERVICE_CONTEXT} -am -B || true
+
+COPY libraries/ libraries/
 
 # Копируем исходный код конкретного сервиса
 COPY ${SERVICE_CONTEXT}/src ${SERVICE_CONTEXT}/src
