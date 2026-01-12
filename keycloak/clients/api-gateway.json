@@ -12,14 +12,14 @@
   "secret": "iUoy91EYLWU4q3cdtjdTzMd3d7iqJ1VL",
   "redirectUris": [
     "http://auth.local/*",
-    "http://keycloak.keycloak.svc.cluster.local/*",
-    "http://keycloak.keycloak.svc.cluster.local:8080/*",
-    "http://keycloak.keycloak.svc.cluster.local:80/*"
+    "http://keycloak.auth.svc.cluster.local/*",
+    "http://keycloak.auth.svc.cluster.local:8080/*",
+    "http://keycloak.auth.svc.cluster.local:80/*"
   ],
   "webOrigins": [
-    "http://keycloak.keycloak.svc.cluster.local:8080",
-    "http://keycloak.keycloak.svc.cluster.local:80",
-    "http://keycloak.keycloak.svc.cluster.local",
+    "http://keycloak.auth.svc.cluster.local:8080",
+    "http://keycloak.auth.svc.cluster.local:80",
+    "http://keycloak.auth.svc.cluster.local",
     "http://auth.local"
   ],
   "notBefore": 0,

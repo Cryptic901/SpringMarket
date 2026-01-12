@@ -1,4 +1,0 @@
-eureka:
-  instance:
-    hostname: category-service
-    prefer-ip-address: false

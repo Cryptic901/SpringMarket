@@ -1,4 +1,0 @@
-eureka:
-  instance:
-    hostname: payment-service
-    prefer-ip-address: false

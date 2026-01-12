@@ -1,9 +1,0 @@
-server:
-  port: 8084
-  shutdown: graceful
-
-springdoc:
-  api-docs:
-    path: /cart-service/v3/api-docs
-  swagger-ui:
-    path: /cart-service/swagger-ui.html

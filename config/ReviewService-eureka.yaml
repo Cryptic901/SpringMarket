@@ -1,4 +1,0 @@
-eureka:
-  instance:
-    hostname: review-service
-    prefer-ip-address: false

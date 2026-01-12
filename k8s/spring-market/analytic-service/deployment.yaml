@@ -48,7 +48,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: security,kafka,cache
 
-          image: ghcr.io/cryptic901/springmarket/analytic-service:develop-aa8510c
+          image: ghcr.io/cryptic901/springmarket/analytic-service:develop-0167b3b
           imagePullPolicy: IfNotPresent
           name: analytic-service
           ports:

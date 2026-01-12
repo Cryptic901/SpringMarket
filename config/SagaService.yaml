@@ -1,8 +1,0 @@
-server:
-  port: 8090
-  shutdown: graceful
-
-eureka:
-  instance:
-    hostname: saga-service
-    prefer-ip-address: false

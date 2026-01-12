@@ -1,9 +1,0 @@
-server:
-  port: 8087
-  shutdown: graceful
-
-springdoc:
-  api-docs:
-    path: /inventory-service/v3/api-docs
-  swagger-ui:
-    path: /inventory-service/swagger-ui.html

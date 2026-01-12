@@ -67,10 +67,12 @@ spec:
               memory: "650Mi"
               cpu: "400m"
       restartPolicy: Always
+
       volumes:
         - name: tempo-data
           persistentVolumeClaim:
             claimName: tempo-data
+
         - name: grafana-tempo-config
           configMap:
             name: grafana-tempo-config

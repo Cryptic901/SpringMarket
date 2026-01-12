@@ -1,9 +1,0 @@
-server:
-  port: 8086
-  shutdown: graceful
-
-springdoc:
-  api-docs:
-    path: /user-service/v3/api-docs
-  swagger-ui:
-    path: /user-service/swagger-ui.html

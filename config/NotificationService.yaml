@@ -1,8 +1,0 @@
-server:
-  port: 8089
-  shutdown: graceful
-
-spring:
-  mail:
-    password: ywre dqkk oevd lelo
-    username: luckyartem901@gmail.com

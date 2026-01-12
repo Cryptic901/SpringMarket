@@ -1,4 +1,0 @@
-eureka:
-  instance:
-    hostname: inventory-service
-    prefer-ip-address: false

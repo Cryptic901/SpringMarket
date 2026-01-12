@@ -17,7 +17,7 @@ public class SecurityConfig {
     @Bean
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(
-                "http://keycloak.keycloak.svc.cluster.local/realms/springmarket/protocol/openid-connect/certs"
+                "http://keycloak.auth.svc.cluster.local/realms/springmarket/protocol/openid-connect/certs"
         ).build();
 
         OAuth2TokenValidator<Jwt> jwtOAuth2TokenValidator =

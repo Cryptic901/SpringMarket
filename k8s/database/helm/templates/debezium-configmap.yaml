@@ -1,0 +1,54 @@
+{{- if .Values.debezium.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: debezium-config
+  namespace: {{ .Values.global.namespace | default "messaging" }}
+  labels:
+    app: debezium
+data:
+  {{- range $serviceName, $connector := .Values.debezium.connectors }}
+  {{- if $connector.enabled }}
+  debezium-{{ $serviceName }}-postgres-connector.json: |-
+    {
+      "name": "{{ $serviceName }}-outbox-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "{{ $.Values.debezium.defaults.database.host }}",
+        "database.port": "{{ $.Values.debezium.defaults.database.port }}",
+        "database.user": "{{ $.Values.debezium.defaults.database.user }}",
+        "database.password": "{{ $.Values.debezium.defaults.database.password }}",
+        "database.dbname": "{{ $connector.database.name }}",
+        "database.server.name": "{{ $serviceName }}-db",
+        "bootstrap.servers": "{{ $.Values.debezium.kafka.bootstrapServers }}",
+        "topic.prefix": "{{ $serviceName }}-db",
+        "table.include.list": "{{ $connector.table }}",
+        "tombstones.on.delete": "false",
+        "slot.name": "{{ $serviceName }}_slot",
+        "plugin.name": "pgoutput",
+
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        {{- if $connector.additionalPlacement }}
+        "transforms.outbox.table.fields.additional.placement": "{{ $connector.additionalPlacement }}",
+        {{- end }}
+        "transforms.outbox.route.topic.replacement": "outbox-event.${routedByValue}",
+        "transforms.outbox.table.field.event.id": "id",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.timestamp": "created_at",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.table.field.event.payload.encoding": "json",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.aggregate.id": "aggregate_id",
+        "transforms.outbox.table.field.aggregate.type": "aggregate_type",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+      }
+    }
+  {{- end }}
+  {{- end }}
+{{- end }}

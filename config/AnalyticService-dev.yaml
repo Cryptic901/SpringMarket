@@ -1,9 +1,0 @@
-server:
-  port: 8085
-  shutdown: graceful
-
-springdoc:
-  api-docs:
-    path: /analytic-service/v3/api-docs
-  swagger-ui:
-    path: /analytic-service/swagger-ui.html

@@ -1,4 +1,0 @@
-eureka:
-  instance:
-    hostname: cart-service
-    prefer-ip-address: false

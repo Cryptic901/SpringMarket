@@ -12,7 +12,7 @@ data:
         oauth2:
           resourceserver:
             jwt:
-              jwk-set-uri: http://keycloak.keycloak.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/certs
+              jwk-set-uri: http://keycloak.auth.svc.cluster.local:8080/realms/springmarket/protocol/openid-connect/certs
               issuer-uri: http://auth.local/realms/springmarket
     resilience4j:
       retry:

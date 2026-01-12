@@ -1,4 +1,0 @@
-eureka:
-  instance:
-    hostname: notification-service
-    prefer-ip-address: false

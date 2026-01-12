@@ -1,13 +1,15 @@
+{{- range $serviceName, $service := .Values.spring.services -}}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: spring-market
-  name: saga-service
+  name: {{ $serviceName }}
   labels:
-    app: saga-service
+    app: {{ $serviceName }}
     version: v1
 spec:
-  replicas: 1
+  replicas: {{ $service.replicaCount }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -15,15 +17,15 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: saga-service
+      app: {{ $serviceName }}
   template:
     metadata:
       labels:
-        app: saga-service
+        app: {{ $serviceName }}
         version: v1
-
     spec:
       serviceAccountName: spring-services-sa
+      restartPolicy: Always
       containers:
         - env:
             - name: JAVA_TOOL_OPTIONS
@@ -39,29 +41,28 @@ spec:
             - name: OTEL_METRICS_EXPORTER
               value: prometheus
             - name: OTEL_SERVICE_NAME
-              value: saga-service
+              value: {{ $serviceName }}
             - name: OTEL_SERVICE_VERSION
               value: 1.0.0
             - name: OTEL_TRACES_EXPORTER
               value: otlp,logging
             - name: SPRING_PROFILES_ACTIVE
-              value: security,kafka
+              value: {{ $service.profiles }}
 
-          image: ghcr.io/cryptic901/springmarket/saga-service:develop-0167b3b
+          image: {{ $service.image }}:develop-0167b3b
           imagePullPolicy: IfNotPresent
-          name: saga-service
+          name: {{ $serviceName }}
           ports:
             - name: http
-              containerPort: 8090
+              containerPort: {{ $service.port }}
               protocol: TCP
             - name: metrics
               containerPort: 9464
               protocol: TCP
-          restartPolicy: Always
 
           livenessProbe:
             httpGet:
-              port: 8090
+              port: {{ $service.port }}
               path: /actuator/health/liveness
             failureThreshold: 3
             initialDelaySeconds: 0
@@ -70,7 +71,7 @@ spec:
 
           readinessProbe:
             httpGet:
-              port: 8090
+              port: {{ $service.port }}
               path: /actuator/health/readiness
             failureThreshold: 3
             initialDelaySeconds: 0
@@ -79,7 +80,7 @@ spec:
 
           startupProbe:
             httpGet:
-              port: 8090
+              port: {{ $service.port }}
               path: /actuator/health/liveness
             initialDelaySeconds: 20
             failureThreshold: 30
@@ -88,8 +89,9 @@ spec:
 
           resources:
             requests:
-              memory: "450Mi"
-              cpu: "250m"
+              memory: {{ $service.resources.requests.memory }}
+              cpu: {{ $service.resources.requests.cpu }}
             limits:
-              memory: "1300Mi"
-              cpu: "450m"
+              memory: {{ $service.resources.limits.memory }}
+              cpu: {{ $service.resources.limits.cpu }}
+  {{- end }}

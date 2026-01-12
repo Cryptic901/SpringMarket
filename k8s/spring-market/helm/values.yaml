@@ -1,0 +1,160 @@
+spring:
+  services:
+    analytic-service:
+      port: 8085
+      replicaCount: 1
+      profiles: security,kafka,cache
+      image: ghcr.io/cryptic901/springmarket/analytic-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "800Mi"
+          cpu: "450m"
+
+    cart-service:
+      port: 8084
+      replicaCount: 1
+      profiles: security,kafka,cache,feign,jpa,mongo
+      image: ghcr.io/cryptic901/springmarket/cart-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "1300Mi"
+          cpu: "750m"
+
+    category-service:
+      port: 8091
+      replicaCount: 1
+      profiles: security,kafka,cache,jpa,mongo
+      image: ghcr.io/cryptic901/springmarket/category-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "1200Mi"
+          cpu: "450m"
+
+    gateway:
+      port: 8080
+      servicePort: 80
+      replicaCount: 1
+      profiles: dev
+      image: ghcr.io/cryptic901/springmarket/gateway
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "2000Mi"
+          cpu: "1000m"
+
+    inventory-service:
+      port: 8087
+      replicaCount: 1
+      profiles: security,kafka,cache,jpa
+      image: ghcr.io/cryptic901/springmarket/inventory-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "1300Mi"
+          cpu: "650m"
+
+    notification-service:
+      port: 8089
+      replicaCount: 1
+      profiles: security,kafka
+      image: ghcr.io/cryptic901/springmarket/notification-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "800Mi"
+          cpu: "450m"
+
+    order-service:
+      port: 8082
+      replicaCount: 1
+      profiles: security,kafka,cache,feign,jpa,mongo
+      image: ghcr.io/cryptic901/springmarket/order-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "1300Mi"
+          cpu: "750m"
+
+    payment-service:
+      port: 8088
+      replicaCount: 1
+      profiles: security,kafka,cache,jpa,mongo
+      image: ghcr.io/cryptic901/springmarket/payment-service
+      resources:
+        requests:
+          memory: "650Mi"
+          cpu: "450m"
+        limits:
+          memory: "1300Mi"
+          cpu: "750m"
+
+    product-service:
+      port: 8081
+      replicaCount: 1
+      profiles: security,kafka,cache,feign,jpa,mongo
+      image: ghcr.io/cryptic901/springmarket/product-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "1300Mi"
+          cpu: "1000m"
+
+    review-service:
+      port: 8083
+      replicaCount: 1
+      profiles: security,kafka,cache,feign,jpa,mongo
+      image: ghcr.io/cryptic901/springmarket/review-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "350m"
+        limits:
+          memory: "1300Mi"
+          cpu: "750m"
+
+    saga-service:
+      port: 8090
+      replicaCount: 1
+      profiles: security,kafka
+      image: ghcr.io/cryptic901/springmarket/saga-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "1300Mi"
+          cpu: "450m"
+
+    user-service:
+      port: 8086
+      replicaCount: 1
+      profiles: security,kafka,cache,jpa,mongo
+      image: ghcr.io/cryptic901/springmarket/user-service
+      resources:
+        requests:
+          memory: "450Mi"
+          cpu: "250m"
+        limits:
+          memory: "1200Mi"
+          cpu: "650m"
+
+      
