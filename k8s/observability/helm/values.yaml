@@ -1,0 +1,28 @@
+observability:
+  services:
+    grafana:
+      port: 3000
+      targetPort: 3000
+      replicaCount: 1
+
+    grafana-alloy:
+      port: 12345
+      targetPort: 12345
+      replicaCount: 1
+
+    grafana-loki:
+      port: 3100
+      targetPort: 3100
+      replicaCount: 1
+
+    grafana-tempo:
+      ports:
+        service: 3200
+        grpc: 4317
+        http: 4318
+      replicaCount: 1
+
+    prometheus:
+      port: 9410
+      targetPort: 9090
+      replicaCount: 1

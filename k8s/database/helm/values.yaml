@@ -1,0 +1,86 @@
+database:
+  services:
+    keycloak-db:
+      port: 5400
+      targetPort: 5432
+      replicaCount: 1
+
+    mongo:
+      port: 27017
+      targetPort: 27017
+      replicaCount: 1
+
+    postgres:
+      port: 5432
+      targetPort: 5432
+      replicaCount: 1
+
+    redis:
+      port: 6379
+      targetPort: 6379
+      replicaCount: 1
+
+global:
+  namespace: messaging
+
+debezium:
+  enabled: true
+
+  defaults:
+    database:
+      host: postgres.database.svc.cluster.local
+      port: "5432"
+      user: postgres
+      password: postgres
+
+  kafka:
+    bootstrapServers: "kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090"
+
+  connectors:
+    cart:
+      enabled: true
+      database:
+        name: cart_db
+      table: cart_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    category:
+      enabled: true
+      database:
+        name: category_db
+      table: category_schema.outbox
+
+    inventory:
+      enabled: true
+      database:
+        name: inventory_db
+      table: inventory_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    order:
+      enabled: true
+      database:
+        name: order_db
+      table: order_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    payment:
+      enabled: true
+      database:
+        name: payment_db
+      table: payment_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    product:
+      enabled: true
+      database:
+        name: product_db
+      table: product_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    review:
+      enabled: true
+      database:
+        name: review_db
+      table: review_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"

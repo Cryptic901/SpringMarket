@@ -1,0 +1,11 @@
+messaging:
+  services:
+    kafka:
+      port: 9090
+      targetPort: 9090
+      replicaCount: 1
+
+    debezium:
+      port: 3434
+      targetPort: 8083
+      replicaCount: 1
