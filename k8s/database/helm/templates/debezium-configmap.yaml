@@ -1,4 +1,3 @@
-{{- if .Values.debezium.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,7 +7,6 @@ metadata:
     app: debezium
 data:
   {{- range $serviceName, $connector := .Values.debezium.connectors }}
-  {{- if $connector.enabled }}
   debezium-{{ $serviceName }}-postgres-connector.json: |-
     {
       "name": "{{ $serviceName }}-outbox-connector",
@@ -50,5 +48,3 @@ data:
       }
     }
   {{- end }}
-  {{- end }}
-{{- end }}

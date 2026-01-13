@@ -22,40 +22,28 @@ jobs:
                 filters: |
                   analytic-service:
                     - 'services/analytic-service/**'
-                    - 'config/analytic-service-**.yaml'
                   cart-service:
                     - 'services/cart-service/**'
-                    - 'config/cart-service-**.yaml'
                   category-service:
                     - 'services/category-service/**'
-                    - 'config/category-service-**.yaml'
                   gateway:
                     - 'services/gateway/**'
-                    - 'config/gateway-**.yaml'
                   inventory-service:
                     - 'services/inventory-service/**'
-                    - 'config/inventory-service-**.yaml'
                   notification-service:
                     - 'services/notification-service/**'
-                    - 'config/notification-service-**.yaml'
                   order-service:
                     - 'services/order-service/**'
-                    - 'config/order-service-**.yaml'
                   payment-service:
                     - 'services/payment-service/**'
-                    - 'config/payment-service-**.yaml'
                   product-service:
                     - 'services/product-service/**'
-                    - 'config/product-service-**.yaml'
                   review-server:
                     - 'services/review-service/**'
-                    - 'config/review-service-**.yaml'
                   saga-service:
                     - 'services/saga-service/**'
-                    - 'config/saga-service-**.yaml'
                   user-service:
                     - 'services/user-service/**'
-                    - 'config/user-service-**.yaml'
                   common-exception:
                     - 'libraries/common-exception/**'
                   common-security:
@@ -68,7 +56,6 @@ jobs:
                     - 'libraries/**'
                     - '.github/workflows/**'
                     - 'pom.xml'
-                    - 'config/application-**.yaml'
 
     build-and-test:
         runs-on: ubuntu-latest

@@ -24,8 +24,6 @@ global:
   namespace: messaging
 
 debezium:
-  enabled: true
-
   defaults:
     database:
       host: postgres.database.svc.cluster.local
@@ -38,49 +36,93 @@ debezium:
 
   connectors:
     cart:
-      enabled: true
       database:
         name: cart_db
       table: cart_schema.outbox
       additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
 
     category:
-      enabled: true
       database:
         name: category_db
       table: category_schema.outbox
 
     inventory:
-      enabled: true
       database:
         name: inventory_db
       table: inventory_schema.outbox
       additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
 
     order:
-      enabled: true
       database:
         name: order_db
       table: order_schema.outbox
       additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
 
     payment:
-      enabled: true
       database:
         name: payment_db
       table: payment_schema.outbox
       additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
 
     product:
-      enabled: true
       database:
         name: product_db
       table: product_schema.outbox
       additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
 
     review:
-      enabled: true
       database:
         name: review_db
       table: review_schema.outbox
       additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+
+postgres:
+  database:
+    cart:
+      name: cart_db
+      schema: cart_schema
+      username: cart_service
+      password: 'cart_pass'
+
+    category:
+      name: category_db
+      schema: category_schema
+      username: category_service
+      password: 'category_pass'
+
+    inventory:
+      name: inventory_db
+      schema: inventory_schema
+      username: inventory_service
+      password: 'inventory_pass'
+
+    order:
+      name: order_db
+      schema: order_schema
+      username: order_service
+      password: 'order_pass'
+
+    payment:
+      name: payment_db
+      schema: payment_schema
+      username: payment_service
+      password: 'payment_pass'
+
+    product:
+      name: product_db
+      schema: product_schema
+      username: product_service
+      password: 'product_pass'
+
+    review:
+      name: review_db
+      schema: review_schema
+      username: review_service
+      password: 'review_pass'
+
+    user:
+      name: user_db
+      schema: user_schema
+      username: user_service
+      password: 'user_pass'
