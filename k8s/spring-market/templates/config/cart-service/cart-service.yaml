@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: cart-service
+  name: cart-service
+  namespace: {{ .Values.namespace }}
+data:
+  application.yaml: |-
+    server:
+      port: {{ index .Values.spring.services.cartService.port }}
+      shutdown: graceful
+
+    springdoc:
+      api-docs:
+        path: /cart-service/v3/api-docs
+      swagger-ui:
+        path: /cart-service/swagger-ui.html

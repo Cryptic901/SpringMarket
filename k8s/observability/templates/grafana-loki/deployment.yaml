@@ -1,0 +1,79 @@
+{{- $service := .Values.observability.services.grafanaLoki }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-loki
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: grafana-loki
+spec:
+  replicas: {{ $service.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: grafana-loki
+  template:
+    metadata:
+      labels:
+        app: grafana-loki
+    spec:
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+
+      containers:
+        - image: grafana/loki:3.5
+          livenessProbe:
+            httpGet:
+              port: {{ $service.targetPort }}
+              path: /ready
+            failureThreshold: 5
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          readinessProbe:
+            httpGet:
+              port: {{ $service.targetPort }}
+              path: /ready
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          name: grafana-loki
+          ports:
+            - containerPort: {{ $service.targetPort }}
+              protocol: TCP
+          args:
+            - -config.file=/etc/loki/loki-config.yaml
+          volumeMounts:
+            - mountPath: /loki
+              name: loki-data
+            - mountPath: /etc/loki/loki-config.yaml
+              name: loki-config
+              readOnly: true
+              subPath: loki-config.yaml
+
+          resources:
+            requests:
+              memory: {{ $service.resources.requests.memory }}
+              cpu: {{ $service.resources.requests.cpu }}
+            limits:
+              memory: {{ $service.resources.limits.memory }}
+              cpu: {{ $service.resources.limits.cpu }}
+
+      restartPolicy: Always
+
+      volumes:
+        - name: loki-data
+          persistentVolumeClaim:
+            claimName: loki-data
+
+        - name: loki-config
+          configMap:
+            name: grafana-loki-config
+            items:
+              - key: loki-config.yaml
+                path: loki-config.yaml
+

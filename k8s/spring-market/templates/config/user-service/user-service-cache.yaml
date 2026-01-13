@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: user-service
+  name: user-service-cache
+  namespace: {{ .Values.namespace }}
+data:
+  application.yaml: |-
+    spring:
+      cache:
+        enabled: true
+      data:
+        redis:
+          host: redis.database.svc.cluster.local
+          port: 6379

@@ -1,0 +1,67 @@
+{{- $service := .Values.database.services.mongo }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: mongo
+spec:
+  serviceName: mongo
+  replicas: {{ $service.replicaCount }}
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - image: mongo:8.2.1
+
+          livenessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 30
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          readinessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 10
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          name: mongo
+          ports:
+          - containerPort: {{ $service.targetPort }}
+              protocol: TCP
+
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-data
+
+          resources:
+            requests:
+              memory: {{ $service.resources.requests.memory }}
+              cpu: {{ $service.resources.requests.cpu }}
+            limits:
+              memory: {{ $service.resources.limits.memory }}
+              cpu: {{ $service.resources.limits.cpu }}
+
+      restartPolicy: Always
+
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ $service.resources.requests.storage }}
+        storageClassName: standard

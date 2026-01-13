@@ -1,0 +1,82 @@
+namespace: messaging
+debezium:
+  defaults:
+    database:
+      host: postgres.database.svc.cluster.local
+      port: "5432"
+      user: postgres
+      password: postgres
+
+  kafka:
+    bootstrapServers: "kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090"
+
+  connectors:
+    cart:
+      database:
+        name: cart_db
+      table: cart_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    category:
+      database:
+        name: category_db
+      table: category_schema.outbox
+
+    inventory:
+      database:
+        name: inventory_db
+      table: inventory_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    order:
+      database:
+        name: order_db
+      table: order_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    payment:
+      database:
+        name: payment_db
+      table: payment_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    product:
+      database:
+        name: product_db
+      table: product_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+
+    review:
+      database:
+        name: review_db
+      table: review_schema.outbox
+      additionalPlacement: "event_type:header:eventType,aggregate_id:header:aggregateId"
+messaging:
+  services:
+    kafka:
+      clientPort: 9090
+      clientTargetPort: 9090
+      controllerPort: 9091
+      controllerTargetPort: 9091
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "500Mi"
+          cpu: "250m"
+          storage: "10Gi"
+        limits:
+          memory: "1Gi"
+          cpu: "750m"
+
+    debezium:
+      port: 3434
+      targetPort: 8083
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "600Mi"
+          cpu: "350m"
+          storage: "10Gi"
+        limits:
+          memory: "1Gi"
+          cpu: "600m"

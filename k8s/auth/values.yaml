@@ -1,0 +1,14 @@
+namespace: auth
+auth:
+  services:
+    keycloak:
+      port: 80
+      targetPort: 8080
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "1000Mi"
+          cpu: "500m"
+        limits:
+          memory: "2000Mi"
+          cpu: "700m"

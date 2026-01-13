@@ -1,0 +1,192 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: gateway
+  name: gateway
+  namespace: {{ .Values.namespace }}
+data:
+  application.yaml: |-
+    server:
+      port: {{ index .Values.spring.services.gateway.port }}
+      shutdown: graceful
+    springdoc:
+      api-docs:
+        enabled: true
+      swagger-ui:
+        urls:
+          - name: user-service
+            url: /user-service/v3/api-docs
+
+          - name: review-service
+            url: /review-service/v3/api-docs
+
+          - name: product-service
+            url: /product-service/v3/api-docs
+
+          - name: payment-service
+            url: /payment-service/v3/api-docs
+
+          - name: order-service
+            url: /order-service/v3/api-docs
+
+          - name: category-service
+            url: /category-service/v3/api-docs
+
+          - name: cart-service
+            url: /cart-service/v3/api-docs
+
+          - name: analytic-service
+            url: /analytic-service/v3/api-docs
+
+          - name: inventory-service
+            url: /inventory-service/v3/api-docs
+    spring:
+      security:
+        oauth2:
+          client:
+            provider:
+              keycloak:
+                authorization-uri: http://keycloak.auth.svc.cluster.local/realms/springmarket/protocol/openid-connect/auth
+                token-uri: http://keycloak.auth.svc.cluster.local/realms/springmarket/protocol/openid-connect/token
+                user-info-uri: http://keycloak.auth.svc.cluster.local/realms/springmarket/protocol/openid-connect/userinfo
+                jwk-set-uri: http://keycloak.auth.svc.cluster.local/realms/springmarket/protocol/openid-connect/certs
+
+            registration:
+              keycloak:
+                client-id: api-gateway
+                client-secret: iUoy91EYLWU4q3cdtjdTzMd3d7iqJ1VL
+                scope: openid,email,profile
+                authorization-grant-type: authorization_code
+                redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+      cloud:
+        gateway:
+          routes:
+            - id: product-routes
+              uri: lb://product-service
+              predicates:
+                - Path=/api/v1/products/**
+              filters:
+                - TokenRelay
+
+            - id: product-docs
+              uri: lb://product-service
+              predicates:
+                - Path=/product-service/v3/api-docs
+
+            - id: category-routes
+              uri: lb://category-service
+              predicates:
+                - Path=/api/v1/categories/**
+              filters:
+                - TokenRelay
+
+            - id: category-docs
+              uri: lb://category-service
+              predicates:
+                - Path=/category-service/v3/api-docs
+
+            - id: order-routes
+              uri: lb://order-service
+              predicates:
+                - Path=/api/v1/orders/**
+              filters:
+                - TokenRelay
+
+            - id: order-docs
+              uri: lb://order-service
+              predicates:
+                - Path=/order-service/v3/api-docs
+
+            - id: inventory-routes
+              uri: lb://inventory-service
+              predicates:
+                - Path=/api/v1/inventories/**
+              filters:
+                - TokenRelay
+
+            - id: warehouse-routes
+              uri: lb://inventory-service
+              predicates:
+                - Path=/api/v1/warehouses/**
+              filters:
+                - TokenRelay
+
+            - id: inventory-docs
+              uri: lb://inventory-service
+              predicates:
+                - Path=/inventory-service/v3/api-docs
+
+            - id: review-routes
+              uri: lb://review-service
+              predicates:
+                - Path=/api/v1/reviews/**
+              filters:
+                - TokenRelay
+
+            - id: review-docs
+              uri: lb://review-service
+              predicates:
+                - Path=/review-service/v3/api-docs
+
+            - id: user-routes
+              uri: lb://user-service
+              predicates:
+                - Path=/api/v1/users/**
+              filters:
+                - TokenRelay
+
+            - id: user-docs
+              uri: lb://user-service
+              predicates:
+                - Path=/user-service/v3/api-docs
+
+            - id: payment-routes
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/v1/payments/**
+              filters:
+                - TokenRelay
+
+            - id: payment-docs
+              uri: lb://payment-service
+              predicates:
+                - Path=/payment-service/v3/api-docs
+
+            - id: notification-routes
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/v1/notifications/**
+              filters:
+                - TokenRelay
+
+            - id: analytic-routes
+              uri: lb://analytic-service
+              predicates:
+                - Path=/api/v1/admin/**
+              filters:
+                - TokenRelay
+
+            - id: analytic-docs
+              uri: lb://analytic-service
+              predicates:
+                - Path=/analytic-service/v3/api-docs
+
+            - id: cart-routes
+              uri: lb://cart-service
+              predicates:
+                - Path=/api/v1/carts/**
+              filters:
+                - TokenRelay
+
+            - id: cart-docs
+              uri: lb://cart-service
+              predicates:
+                - Path=/cart-service/v3/api-docs
+                
+        kubernetes:
+          discovery:
+            enabled: true
+          loadbalancer:
+            enabled: true
+            mode: service

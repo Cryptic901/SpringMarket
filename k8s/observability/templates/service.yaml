@@ -1,0 +1,28 @@
+{{- range $serviceName, $service := .Values.observability.services -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ $serviceName }}
+spec:
+  ports:
+ {{- if $service.port }}
+    - name: http
+      port: {{ $service.port }}
+      targetPort: {{ $service.targetPort }}
+      protocol: TCP
+  {{- else if $service.ports }}
+
+  {{- range $portName, $portNumber := $service.ports }}
+    - name: {{ $portName }}
+      port: {{ $portNumber }}
+      targetPort: {{ $portNumber }}
+      protocol: TCP
+  {{- end }}
+  {{- end }}
+  selector:
+    app: {{ $serviceName }}
+{{- end }}

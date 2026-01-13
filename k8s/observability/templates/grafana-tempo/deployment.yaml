@@ -1,0 +1,83 @@
+{{- $service := .Values.observability.services.grafanaTempo }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-tempo
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: grafana-tempo
+spec:
+  replicas: {{ $service.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: grafana-tempo
+  template:
+    metadata:
+      labels:
+        app: grafana-tempo
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+
+      containers:
+        - args:
+            - -config.file=/etc/tempo.yaml
+          image: grafana/tempo:latest
+          livenessProbe:
+            httpGet:
+              port: {{ $service.ports.service }}
+              path: /ready
+            failureThreshold: 5
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          readinessProbe:
+            httpGet:
+              port: {{ $service.ports.service }}
+              path: /ready
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+
+          name: grafana-tempo
+          ports:
+            - containerPort: {{ $service.ports.service }}
+              protocol: TCP
+            - containerPort: {{ $service.ports.grpc }}
+              protocol: TCP
+            - containerPort: {{ $service.ports.http }}
+              protocol: TCP
+
+          volumeMounts:
+            - mountPath: /tmp/tempo
+              name: tempo-data
+            - mountPath: /etc/tempo.yaml
+              name: grafana-tempo-config
+              subPath: tempo.yaml
+
+          resources:
+            requests:
+              memory: {{ $service.resources.requests.memory }}
+              cpu: {{ $service.resources.requests.cpu }}
+            limits:
+              memory: {{ $service.resources.limits.memory }}
+              cpu: {{ $service.resources.limits.cpu }}
+      restartPolicy: Always
+
+      volumes:
+        - name: tempo-data
+          persistentVolumeClaim:
+            claimName: tempo-data
+
+        - name: grafana-tempo-config
+          configMap:
+            name: grafana-tempo-config
+            items:
+              - key: tempo.yaml
+                path: tempo.yaml
+

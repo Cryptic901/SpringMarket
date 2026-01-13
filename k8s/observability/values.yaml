@@ -1,0 +1,63 @@
+namespace: observability
+observability:
+  services:
+    grafana:
+      port: 3000
+      targetPort: 3000
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "100m"
+        limits:
+          memory: "512Mi"
+          cpu: "300m"
+
+    grafanaAlloy:
+      port: 12345
+      targetPort: 12345
+      resources:
+        requests:
+          memory: "250Mi"
+          cpu: "150m"
+        limits:
+          memory: "600Mi"
+          cpu: "350m"
+
+    grafanaLoki:
+      port: 3100
+      targetPort: 3100
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "500Mi"
+          cpu: "150m"
+        limits:
+          memory: "700Mi"
+          cpu: "500m"
+
+    grafanaTempo:
+      ports:
+        service: 3200
+        grpc: 4317
+        http: 4318
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "250m"
+        limits:
+          memory: "650Mi"
+          cpu: "400m"
+
+    prometheus:
+      port: 9410
+      targetPort: 9090
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "500Mi"
+          cpu: "150m"
+        limits:
+          memory: "750Mi"
+          cpu: "300m"

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-headless
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: kafka
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: kafka
+  ports:
+    - port: {{ .Values.messaging.services.kafka.clientPort }}
+      targetPort: {{ .Values.messaging.services.kafka.clientTargetPort }}
+      name: client
+    - port: {{ .Values.messaging.services.kafka.controllerPort }}
+      targetPort: {{ .Values.messaging.services.kafka.controllerTargetPort }}
+      name: controller

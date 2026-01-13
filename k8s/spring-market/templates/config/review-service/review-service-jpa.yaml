@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: review-service
+  name: review-service-jpa
+  namespace: {{ .Values.namespace }}
+data:
+  application.yaml: |-
+    spring:
+      datasource:
+        url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/review_db
+        username: review_service
+        password: review_pass
+        driver-class-name: org.postgresql.Driver
+      jpa:
+        enabled: true
+        hibernate:
+          ddl-auto: update
+      flyway:
+        schemas: review_schema
+        default-schema: review_schema
+        enabled: true
+        baseline-on-migrate: true

@@ -1,0 +1,57 @@
+{{- $service := .Values.database.services.redis }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: {{ .Values.namespace }}
+  labels:
+   app: redis
+spec:
+  replicas: {{ $service.replicaCount }}
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - image: redis:8.2.2
+
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            failureThreshold: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          name: redis
+          ports:
+            - containerPort: {{ $service.targetPort }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data
+              name: redis-data
+
+          resources:
+            requests:
+              memory: {{ .Values.database.services.redis.resources.requests.memory }}
+              cpu: {{ .Values.database.services.redis.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.database.services.redis.resources.limits.memory }}
+              cpu: {{ .Values.database.services.redis.resources.limits.memory }}
+
+      restartPolicy: Always
+
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.database.services.redis.resources.requests.storage }}

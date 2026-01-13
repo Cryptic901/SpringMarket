@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: inventory-service
+  name: inventory-service-jpa
+  namespace: {{ .Values.namespace }}
+data:
+  application.yaml: |-
+    spring:
+      datasource:
+        url: jdbc:postgresql://postgres.database.svc.cluster.local:5432/inventory_db
+        username: inventory_service
+        password: inventory_pass
+      flyway:
+        schemas: inventory_schema
+        default-schema: inventory_schema
+        enabled: true
+        baseline-on-migrate: true
+      jpa:
+        enabled: true
+        hibernate:
+          ddl-auto: update
+          dialect: org.hibernate.spatial.dialect.postgis.PostgisPG17Dialect

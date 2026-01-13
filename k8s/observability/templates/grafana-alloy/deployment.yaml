@@ -1,0 +1,77 @@
+{{- $service := .Values.observability.services.grafanaAlloy }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: grafana-alloy
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: grafana-alloy
+spec:
+  selector:
+    matchLabels:
+      app: grafana-alloy
+  template:
+    metadata:
+      labels:
+        app: grafana-alloy
+    spec:
+      serviceAccountName: grafana-alloy
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+
+      containers:
+        - args:
+            - run
+            - --server.http.listen-addr=0.0.0.0:12345
+            - /etc/alloy/config.alloy
+          image: grafana/alloy:latest
+          livenessProbe:
+            exec:
+              command:
+                - pgrep
+                - alloy
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          readinessProbe:
+            exec:
+              command:
+                - pgrep
+                - alloy
+            failureThreshold: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+
+          name: grafana-alloy
+          ports:
+            - containerPort: {{ $service.targetPort }}
+              protocol: TCP
+          securityContext:
+            runAsGroup: 0
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /etc/alloy/config.alloy
+              name: grafana-alloy-config
+              readOnly: true
+              subPath: config.alloy
+
+          resources:
+            requests:
+              memory: {{ $service.resources.requests.memory }}
+              cpu: {{ $service.resources.requests.cpu }}
+            limits:
+              memory: {{ $service.resources.limits.memory }}
+              cpu: {{ $service.resources.limits.cpu }}
+
+      restartPolicy: Always
+      volumes:
+        - name: grafana-alloy-config
+          configMap:
+            name: grafana-alloy-config
+            items:
+              - key: config.alloy
+                path: config.alloy
+

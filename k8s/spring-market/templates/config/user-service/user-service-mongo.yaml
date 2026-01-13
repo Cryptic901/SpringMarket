@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: user-service
+  name: user-service-mongo
+  namespace: {{ .Values.namespace }}
+data:
+  application.yaml: |-
+    spring:
+      mongo:
+        enabled: true
+      data:
+        mongodb:
+          uri: mongodb://mongo.database.svc.cluster.local:27017/userDB

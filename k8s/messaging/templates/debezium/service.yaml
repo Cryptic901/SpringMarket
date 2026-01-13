@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: debezium
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: debezium
+spec:
+  ports:
+    - name: debezium
+      port: {{ .Values.messaging.services.debezium.port }}
+      targetPort: {{ .Values.messaging.services.debezium.targetPort }}
+  selector:
+    app: debezium

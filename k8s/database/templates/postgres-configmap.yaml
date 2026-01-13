@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  namespace: {{ .Values.namespace }}
+  name: postgres-initdb
+  labels:
+    app: postgres
+data:
+  init-db.sql: {{ include "postgres.initdb" . | quote }}

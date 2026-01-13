@@ -1,0 +1,104 @@
+{{- $service := .Values.messaging.services.kafka }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: kafka
+spec:
+  serviceName: kafka-headless
+  replicas: {{ $service.replicaCount }}
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: apache/kafka:4.0.1
+          command:
+            - /bin/bash
+            - -c
+            - |
+              NODE_ID=${HOSTNAME##*-}
+              export KAFKA_NODE_ID=$NODE_ID
+              export KAFKA_BROKER_ID=$NODE_ID
+              cat >> /etc/kafka/kraft/server.properties <<EOF
+              node.id=$NODE_ID
+              EOF
+              /etc/kafka/docker/run
+          ports:
+            - containerPort: {{ $service.clientTargetPort }}
+              name: client
+            - containerPort: {{ $service.controllerTargetPort }}
+              name: controller
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: CLUSTER_ID
+              value: MkU3OEVBNTcwNTJENDM2Qk
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: PLAINTEXT://$(POD_NAME).kafka-headless.{{ .Values.namespace }}.svc.cluster.local:9090
+            - name: KAFKA_CONTROLLER_LISTENER_NAMES
+              value: CONTROLLER
+            - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+              value: "0@kafka-0.kafka-headless.{{ .Values.namespace }}.svc.cluster.local:9091,
+              1@kafka-1.kafka-headless.{{ .Values.namespace }}.svc.cluster.local:9091,
+              2@kafka-2.kafka-headless.{{ .Values.namespace }}.svc.cluster.local:9091"
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: PLAINTEXT
+            - name: KAFKA_LISTENERS
+              value: PLAINTEXT://:9090,CONTROLLER://:9091
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+            - name: KAFKA_LOG_DIRS
+              value: /var/lib/kafka/data
+            - name: KAFKA_PROCESS_ROLES
+              value: controller,broker
+          readinessProbe:
+            tcpSocket:
+              port: {{ $service.clientTargetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          livenessProbe:
+            tcpSocket:
+              port: {{ $service.clientTargetPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 5
+
+          resources:
+            requests:
+              memory: {{ $service.resources.requests.memory }}
+              cpu: {{ $service.resources.requests.cpu }}
+            limits:
+              memory: {{ $service.resources.limits.memory }}
+              cpu: {{ $service.resources.limits.cpu }}
+
+          volumeMounts:
+            - mountPath: /var/lib/kafka/data
+              name: kafka-data
+
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ $service.resources.requests.storage }}

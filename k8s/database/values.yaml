@@ -1,0 +1,104 @@
+namespace: database
+database:
+  services:
+    keycloak:
+      port: 5400
+      targetPort: 5432
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "250Mi"
+          cpu: "125m"
+          storage: "5Gi"
+        limits:
+          memory: "500Mi"
+          cpu: "350m"
+
+    mongo:
+      port: 27017
+      targetPort: 27017
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "356Mi"
+          cpu: "250m"
+          storage: "5Gi"
+        limits:
+          memory: "700Mi"
+          cpu: "450m"
+
+    postgres:
+      port: 5432
+      targetPort: 5432
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "500Mi"
+          cpu: "250m"
+          storage: "10Gi"
+        limits:
+          memory: "1Gi"
+          cpu: "800m"
+
+    redis:
+      port: 6379
+      targetPort: 6379
+      replicaCount: 1
+      resources:
+        requests:
+          memory: "500Mi"
+          cpu: "250m"
+          storage: "4Gi"
+        limits:
+          memory: "1Gi"
+          cpu: "500m"
+
+postgres:
+  database:
+    cart:
+      name: cart_db
+      schema: cart_schema
+      username: cart_service
+      password: 'cart_pass'
+
+    category:
+      name: category_db
+      schema: category_schema
+      username: category_service
+      password: 'category_pass'
+
+    inventory:
+      name: inventory_db
+      schema: inventory_schema
+      username: inventory_service
+      password: 'inventory_pass'
+
+    order:
+      name: order_db
+      schema: order_schema
+      username: order_service
+      password: 'order_pass'
+
+    payment:
+      name: payment_db
+      schema: payment_schema
+      username: payment_service
+      password: 'payment_pass'
+
+    product:
+      name: product_db
+      schema: product_schema
+      username: product_service
+      password: 'product_pass'
+
+    review:
+      name: review_db
+      schema: review_schema
+      username: review_service
+      password: 'review_pass'
+
+    user:
+      name: user_db
+      schema: user_schema
+      username: user_service
+      password: 'user_pass'

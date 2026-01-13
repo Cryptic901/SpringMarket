@@ -1,0 +1,68 @@
+{{- $service := .Values.observability.services.prometheus }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: prometheus
+spec:
+  strategy:
+    type: Recreate
+  replicas: {{ $service.replicaCount }}
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+
+      containers:
+        - image: prom/prometheus:latest
+          name: prometheus
+          ports:
+            - containerPort: {{ $service.targetPort }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/prometheus/prometheus.yml
+              name: prometheus-config
+              readOnly: true
+              subPath: prometheus.yml
+
+            - mountPath: /var/lib/prometheus
+              name: prometheus-data
+
+          livenessProbe:
+            httpGet:
+              port: {{ $service.targetPort }}
+              path: /-/healthy
+            failureThreshold: 5
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          resources:
+            requests:
+              memory: {{ $service.resources.requests.memory }}
+              cpu: {{ $service.resources.requests.cpu }}
+            limits:
+              memory: {{ $service.resources.limits.memory }}
+              cpu: {{ $service.resources.limits.cpu }}
+      restartPolicy: Always
+      volumes:
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+            items:
+              - key: prometheus.yaml
+                path: prometheus.yml
+
+        - name: prometheus-data
+          persistentVolumeClaim:
+            claimName: prometheus-data
