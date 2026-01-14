@@ -13,7 +13,7 @@ observability:
           memory: "512Mi"
           cpu: "300m"
 
-    grafanaAlloy:
+    grafana-alloy:
       port: 12345
       targetPort: 12345
       resources:
@@ -24,7 +24,7 @@ observability:
           memory: "600Mi"
           cpu: "350m"
 
-    grafanaLoki:
+    grafana-loki:
       port: 3100
       targetPort: 3100
       replicaCount: 1
@@ -36,7 +36,7 @@ observability:
           memory: "700Mi"
           cpu: "500m"
 
-    grafanaTempo:
+    grafana-tempo:
       ports:
         service: 3200
         grpc: 4317

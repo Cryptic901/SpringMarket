@@ -1,4 +1,4 @@
-{{- range $serviceName, $service := .Values.spring.services -}}
+{{- range $serviceName, $service := .Values.spring.services }}
 ---
 apiVersion: v1
 kind: Service
@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ $serviceName }}
   name: {{ $serviceName }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $.Values.namespace }}
 spec:
   ports:
     - name: http
@@ -15,4 +15,4 @@ spec:
   selector:
     app: {{ $serviceName }}
   type: ClusterIP
-    {{- end }}
+  {{- end }}

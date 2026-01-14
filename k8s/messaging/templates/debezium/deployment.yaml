@@ -23,21 +23,21 @@ spec:
             - name: BOOTSTRAP_SERVERS
               value: kafka-0.kafka-headless.{{ .Values.namespace }}.svc.cluster.local:9090,kafka-1.kafka-headless.{{ .Values.namespace }}.svc.cluster.local:9090,kafka-2.kafka-headless.{{ .Values.namespace }}.svc.cluster.local:9090
             - name: CONFIG_STORAGE_TOPIC
-              value: kafka-connect-config
+              value: "kafka-connect-config"
             - name: GROUP_ID
               value: "1"
             - name: KEY_CONVERTER
-              value: org.apache.kafka.connect.json.JsonConverter
+              value: "org.apache.kafka.connect.json.JsonConverter"
             - name: KEY_CONVERTER_SCHEMAS_ENABLE
               value: "false"
             - name: OFFSET_STORAGE_TOPIC
-              value: kafka-connect-offset
+              value: "kafka-connect-offset"
             - name: REST_PORT
-              value: {{ $service.targetPort }}
+              value: "{{ $service.targetPort }}"
             - name: STATUS_STORAGE_TOPIC
-              value: kafka-connect-status
+              value: "kafka-connect-status"
             - name: VALUE_CONVERTER
-              value: org.apache.kafka.connect.json.JsonConverter
+              value: "org.apache.kafka.connect.json.JsonConverter"
             - name: VALUE_CONVERTER_SCHEMAS_ENABLE
               value: "false"
 

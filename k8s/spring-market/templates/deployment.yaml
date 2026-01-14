@@ -1,9 +1,9 @@
-{{- range $serviceName, $service := .Values.spring.services -}}
+{{- range $serviceName, $service := .Values.spring.services }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: {{ .Values.namespace }}
+  namespace: {{ $.Values.namespace }}
   name: {{ $serviceName }}
   labels:
     app: {{ $serviceName }}

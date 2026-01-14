@@ -1,7 +1,7 @@
 namespace: spring-market
 spring:
   services:
-    analyticService:
+    analytic-service:
       port: 8085
       replicaCount: 1
       profiles: security,kafka,cache
@@ -14,7 +14,7 @@ spring:
           memory: "800Mi"
           cpu: "450m"
 
-    cartService:
+    cart-service:
       port: 8084
       replicaCount: 1
       profiles: security,kafka,cache,feign,jpa,mongo
@@ -27,7 +27,7 @@ spring:
           memory: "1300Mi"
           cpu: "750m"
 
-    categoryService:
+    category-service:
       port: 8091
       replicaCount: 1
       profiles: security,kafka,cache,jpa,mongo
@@ -54,7 +54,7 @@ spring:
           memory: "2000Mi"
           cpu: "1000m"
 
-    inventoryService:
+    inventory-service:
       port: 8087
       replicaCount: 1
       profiles: security,kafka,cache,jpa
@@ -67,7 +67,7 @@ spring:
           memory: "1300Mi"
           cpu: "650m"
 
-    notificationService:
+    notification-service:
       port: 8089
       replicaCount: 1
       profiles: security,kafka
@@ -80,7 +80,7 @@ spring:
           memory: "800Mi"
           cpu: "450m"
 
-    orderService:
+    order-service:
       port: 8082
       replicaCount: 1
       profiles: security,kafka,cache,feign,jpa,mongo
@@ -93,7 +93,7 @@ spring:
           memory: "1300Mi"
           cpu: "750m"
 
-    paymentService:
+    payment-service:
       port: 8088
       replicaCount: 1
       profiles: security,kafka,cache,jpa,mongo
@@ -106,7 +106,7 @@ spring:
           memory: "1300Mi"
           cpu: "750m"
 
-    productService:
+    product-service:
       port: 8081
       replicaCount: 1
       profiles: security,kafka,cache,feign,jpa,mongo
@@ -119,7 +119,7 @@ spring:
           memory: "1300Mi"
           cpu: "1000m"
 
-    reviewService:
+    review-service:
       port: 8083
       replicaCount: 1
       profiles: security,kafka,cache,feign,jpa,mongo
@@ -132,7 +132,7 @@ spring:
           memory: "1300Mi"
           cpu: "750m"
 
-    sagaService:
+    saga-service:
       port: 8090
       replicaCount: 1
       profiles: security,kafka
@@ -145,7 +145,7 @@ spring:
           memory: "1300Mi"
           cpu: "450m"
 
-    userService:
+    user-service:
       port: 8086
       replicaCount: 1
       profiles: security,kafka,cache,jpa,mongo
@@ -157,5 +157,3 @@ spring:
         limits:
           memory: "1200Mi"
           cpu: "650m"
-
-      

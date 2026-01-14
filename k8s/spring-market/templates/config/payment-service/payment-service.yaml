@@ -8,7 +8,7 @@ metadata:
 data:
   application.yaml: |
     server:
-      port: {{ index .Values.spring.services.paymentService.port }}
+      port: {{ index .Values.spring.services "payment-service" "port" }}
       shutdown: graceful
 
     springdoc:

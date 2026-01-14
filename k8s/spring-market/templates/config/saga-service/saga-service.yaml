@@ -8,5 +8,5 @@ metadata:
 data:
   application.yaml: |
     server:
-      port: {{ index .Values.spring.services.sagaService.port }}
+      port: {{ index .Values.spring.services "saga-service" "port" }}
       shutdown: graceful

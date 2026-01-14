@@ -8,7 +8,7 @@ metadata:
 data:
   application.yaml: |-
     server:
-      port: {{ index .Values.spring.services.cartService.port }}
+      port: {{ index .Values.spring.services "cart-service" "port" }}
       shutdown: graceful
 
     springdoc:

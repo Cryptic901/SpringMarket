@@ -39,7 +39,7 @@ spec:
           name: mongo
           ports:
           - containerPort: {{ $service.targetPort }}
-              protocol: TCP
+            protocol: TCP
 
           volumeMounts:
             - mountPath: /data/db

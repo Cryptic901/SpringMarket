@@ -8,7 +8,7 @@ metadata:
 data:
   application.yaml: |-
     server:
-      port: {{ index .Values.spring.services.gateway.port }}
+      port: {{ .Values.spring.services.gateway.port }}
       shutdown: graceful
     springdoc:
       api-docs:

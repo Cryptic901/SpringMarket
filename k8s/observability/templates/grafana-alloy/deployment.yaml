@@ -1,4 +1,4 @@
-{{- $service := .Values.observability.services.grafanaAlloy }}
+{{- $service := index .Values.observability.services "grafana-alloy" }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -47,7 +47,7 @@ spec:
 
           name: grafana-alloy
           ports:
-            - containerPort: {{ $service.targetPort }}
+            - containerPort: {{ index $service "targetPort" }}
               protocol: TCP
           securityContext:
             runAsGroup: 0
@@ -60,11 +60,11 @@ spec:
 
           resources:
             requests:
-              memory: {{ $service.resources.requests.memory }}
-              cpu: {{ $service.resources.requests.cpu }}
+              memory: {{ index $service "resources" "requests" "memory" }}
+              cpu: {{ index $service "resources" "requests" "cpu" }}
             limits:
-              memory: {{ $service.resources.limits.memory }}
-              cpu: {{ $service.resources.limits.cpu }}
+              memory: {{ index $service "resources" "limits" "memory" }}
+              cpu: {{ index $service "resources" "limits" "cpu" }}
 
       restartPolicy: Always
       volumes:

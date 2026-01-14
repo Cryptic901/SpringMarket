@@ -1,4 +1,4 @@
-{{- $service := .Values.observability.services.grafanaLoki }}
+{{- $service := index .Values.observability.services "grafana-loki" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,7 +7,7 @@ metadata:
   labels:
     app: grafana-loki
 spec:
-  replicas: {{ $service.replicaCount }}
+  replicas: {{ index $service "replicaCount" }}
   strategy:
     type: Recreate
   selector:
@@ -27,7 +27,7 @@ spec:
         - image: grafana/loki:3.5
           livenessProbe:
             httpGet:
-              port: {{ $service.targetPort }}
+              port: {{ index $service "targetPort" }}
               path: /ready
             failureThreshold: 5
             initialDelaySeconds: 15
@@ -36,14 +36,14 @@ spec:
 
           readinessProbe:
             httpGet:
-              port: {{ $service.targetPort }}
+              port: {{ index $service "targetPort" }}
               path: /ready
             initialDelaySeconds: 10
             periodSeconds: 5
 
           name: grafana-loki
           ports:
-            - containerPort: {{ $service.targetPort }}
+            - containerPort: {{ index $service "targetPort" }}
               protocol: TCP
           args:
             - -config.file=/etc/loki/loki-config.yaml
@@ -57,11 +57,11 @@ spec:
 
           resources:
             requests:
-              memory: {{ $service.resources.requests.memory }}
-              cpu: {{ $service.resources.requests.cpu }}
+              memory: {{ index $service "resources" "requests" "memory" }}
+              cpu: {{ index $service "resources" "requests" "cpu" }}
             limits:
-              memory: {{ $service.resources.limits.memory }}
-              cpu: {{ $service.resources.limits.cpu }}
+              memory: {{ index $service "resources" "limits" "memory" }}
+              cpu: {{ index $service "resources" "limits" "cpu" }}
 
       restartPolicy: Always
 

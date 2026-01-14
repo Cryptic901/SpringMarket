@@ -29,17 +29,17 @@ spec:
 #             - "--optimized"
           env:
             - name: BOOTSTRAP_SERVERS
-              value: kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090
+              value: "kafka-0.kafka-headless.messaging.svc.cluster.local:9090,kafka-1.kafka-headless.messaging.svc.cluster.local:9090,kafka-2.kafka-headless.messaging.svc.cluster.local:9090"
             - name: KC_DB
-              value: postgres
+              value: "postgres"
             - name: KC_DB_PASSWORD
-              value: postgres
+              value: "postgres"
             - name: KC_DB_URL
-              value: jdbc:postgresql://keycloak-db.database.svc.cluster.local:5400/keycloak
+              value: "jdbc:postgresql://keycloak-db.database.svc.cluster.local:5400/keycloak"
             - name: KC_DB_USERNAME
-              value: postgres
+              value: "postgres"
             - name: KC_HOSTNAME_PORT
-              value: {{ $service.targetPort }}
+              value: "{{ $service.targetPort }}"
             - name: KC_METRICS_ENABLED
               value: "true"
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD

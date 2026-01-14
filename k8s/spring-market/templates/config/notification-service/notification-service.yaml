@@ -8,7 +8,7 @@ metadata:
 data:
   application.yaml: |
     server:
-      port: {{ index .Values.spring.services.notificationService.port }}
+      port: {{ index .Values.spring.services "notification-service" "port" }}
       shutdown: graceful
 
     spring:

@@ -8,7 +8,7 @@ metadata:
 data:
   application.yaml: |-
     server:
-      port: {{ index .Values.spring.services.reviewService.port }}
+      port: {{ index .Values.spring.services "review-service" "port" }}
       shutdown: graceful
 
     springdoc:

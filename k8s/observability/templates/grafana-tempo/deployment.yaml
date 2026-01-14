@@ -1,4 +1,4 @@
-{{- $service := .Values.observability.services.grafanaTempo }}
+{{- $service := index .Values.observability.services "grafana-tempo" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,7 +7,7 @@ metadata:
   labels:
     app: grafana-tempo
 spec:
-  replicas: {{ $service.replicaCount }}
+  replicas: {{ index $service "replicaCount" }}
   strategy:
     type: Recreate
   selector:
@@ -29,7 +29,7 @@ spec:
           image: grafana/tempo:latest
           livenessProbe:
             httpGet:
-              port: {{ $service.ports.service }}
+              port: {{ index $service "ports" "service" }}
               path: /ready
             failureThreshold: 5
             initialDelaySeconds: 30
@@ -38,7 +38,7 @@ spec:
 
           readinessProbe:
             httpGet:
-              port: {{ $service.ports.service }}
+              port: {{ index $service "ports" "service" }}
               path: /ready
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -46,11 +46,11 @@ spec:
 
           name: grafana-tempo
           ports:
-            - containerPort: {{ $service.ports.service }}
+            - containerPort: {{ index $service "ports" "service" }}
               protocol: TCP
-            - containerPort: {{ $service.ports.grpc }}
+            - containerPort: {{ index $service "ports" "grpc" }}
               protocol: TCP
-            - containerPort: {{ $service.ports.http }}
+            - containerPort: {{ index $service "ports" "http" }}
               protocol: TCP
 
           volumeMounts:
@@ -62,11 +62,11 @@ spec:
 
           resources:
             requests:
-              memory: {{ $service.resources.requests.memory }}
-              cpu: {{ $service.resources.requests.cpu }}
+              memory: {{ index $service "resources" "requests" "memory" }}
+              cpu: {{ index $service "resources" "requests" "cpu" }}
             limits:
-              memory: {{ $service.resources.limits.memory }}
-              cpu: {{ $service.resources.limits.cpu }}
+              memory: {{ index $service "resources" "limits" "memory" }}
+              cpu: {{ index $service "resources" "limits" "cpu" }}
       restartPolicy: Always
 
       volumes:
