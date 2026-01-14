@@ -48,6 +48,20 @@ spec:
               value: otlp,logging
             - name: SPRING_PROFILES_ACTIVE
               value: {{ $service.profiles }}
+            - name: OTEL_BSP_SCHEDULE_DELAY
+              value: "1000"
+            - name: OTEL_BLRP_SCHEDULE_DELAY
+              value: "1000"
+
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "sleep 10" ]
+          {{- if eq $serviceName "payment-service" }}
+          envFrom:
+            - configMapRef:
+                name: env-local
+          {{- end }}
 
           image: {{ $service.image }}:develop-0167b3b
           imagePullPolicy: IfNotPresent

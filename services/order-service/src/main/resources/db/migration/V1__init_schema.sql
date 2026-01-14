@@ -1,3 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE SCHEMA IF NOT EXISTS order_schema;
 CREATE TABLE order_schema.orders (
     id uuid primary key unique not null,

@@ -1,4 +1,5 @@
 {{- define "postgres.initdb" -}}
+CREATE EXTENSION IF NOT EXISTS postgis;
 {{- range $serviceName, $database := .Values.postgres.database }}
 CREATE DATABASE {{ $database.name }};
 CREATE USER {{ $database.username }} WITH PASSWORD '{{ $database.password }}';
