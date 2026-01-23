@@ -1,5 +1,0 @@
-### Get analytics
-GET {{host}}/api/v1/admin/dashboard
-Accept: application/json
-Authorization: Bearer {{authToken}}
-

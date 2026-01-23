@@ -3,18 +3,18 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: keycloak-db
-  name: keycloak-db
+    app: keycloak
+  name: keycloak
   namespace: {{ .Values.namespace }}
 spec:
   replicas: {{ $service.replicaCount }}
   selector:
     matchLabels:
-      app: keycloak-db
+      app: keycloak
   template:
     metadata:
       labels:
-        app: keycloak-db
+        app: keycloak
     spec:
       containers:
         - env:
@@ -45,7 +45,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
 
-          name: keycloak-db
+          name: keycloak
           ports:
             - containerPort: {{ $service.targetPort }}
               protocol: TCP
@@ -59,7 +59,7 @@ spec:
               cpu: {{ $service.resources.requests.cpu }}
             limits:
               memory: {{ $service.resources.limits.memory }}
-              cpu: {{ $service.resources.limits.memory }}
+              cpu: {{ $service.resources.limits.cpu }}
 
   volumeClaimTemplates:
     - metadata:

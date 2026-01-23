@@ -68,6 +68,64 @@ spec:
             limits:
               memory: {{ $service.resources.limits.memory }}
               cpu: {{ $service.resources.limits.cpu }}
+
+        - name: connector-registrar
+          image: curlimages/curl:8.5.0
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for Kafka Connect API..."
+              while ! curl -s http://localhost:8083/ >/dev/null 2>&1; do
+                sleep 5
+              done
+
+              echo "Kafka Connect is ready, registering connectors..."
+
+              # Регистрация каждого коннектора
+              for config_file in /configs/*.json; do
+                connector_name=$(basename "$config_file" .json | sed 's/debezium-//' | sed 's/-postgres-connector//')
+                echo "Registering connector from $config_file..."
+
+                # Проверить, существует ли коннектор
+                if curl -s http://localhost:8083/connectors | grep -q "\"${connector_name}-outbox-connector\""; then
+                  echo "Connector ${connector_name}-outbox-connector already exists, updating..."
+                  curl -X PUT \
+                    -H "Content-Type: application/json" \
+                    --data @"$config_file" \
+                    http://localhost:8083/connectors/${connector_name}-outbox-connector/config
+                else
+                  echo "Creating new connector ${connector_name}-outbox-connector..."
+                  curl -X POST \
+                    -H "Content-Type: application/json" \
+                    --data @"$config_file" \
+                    http://localhost:8083/connectors
+                fi
+
+                echo "Connector ${connector_name} registered"
+                sleep 2
+              done
+
+              echo "All connectors registered, starting monitoring loop..."
+
+              # Мониторинг и перезапуск failed коннекторов
+              while true; do
+                sleep 60
+                for connector in $(curl -s http://localhost:8083/connectors); do
+                  connector_clean=$(echo $connector | tr -d '[]," ')
+                  if [ ! -z "$connector_clean" ]; then
+                    status=$(curl -s http://localhost:8083/connectors/$connector_clean/status | grep -o '"state":"[^"]*"' | head -1 | cut -d'"' -f4)
+                    if [ "$status" = "FAILED" ]; then
+                      echo "Connector $connector_clean is FAILED, restarting..."
+                      curl -X POST http://localhost:8083/connectors/$connector_clean/restart
+                    fi
+                  fi
+                done
+              done
+          volumeMounts:
+          - mountPath: /configs
+            name: debezium-config
+            readOnly: true
       hostname: debezium
       restartPolicy: Always
       volumes:

@@ -1,4 +1,5 @@
 namespace: spring-market
+image-version: develop-85e2976
 spring:
   services:
     analytic-service:

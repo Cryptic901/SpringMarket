@@ -58,7 +58,7 @@ messaging:
       clientTargetPort: 9090
       controllerPort: 9091
       controllerTargetPort: 9091
-      replicaCount: 1
+      replicaCount: 3
       resources:
         requests:
           memory: "500Mi"

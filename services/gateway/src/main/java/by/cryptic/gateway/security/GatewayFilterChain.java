@@ -10,15 +10,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtValidators;
-import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtGrantedAuthoritiesConverterAdapter;
@@ -89,6 +88,32 @@ public class GatewayFilterChain {
         OAuth2TokenValidator<Jwt> validator =
                 JwtValidators.createDefaultWithIssuer("http://auth.local/realms/springmarket");
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(validator));
-        return decoder;
+        return token -> decoder.decode(token).onErrorMap(
+                IllegalStateException.class, ex -> {
+                    if (ex.getMessage() != null && ex.getMessage().contains("Could not obtain the keys")) {
+                        log.error("Failed to obtain JWK keys from Keycloak", ex);
+                        return new AuthenticationServiceException("Authentication service unavailable:" +
+                                " cannot obtain keys from Keycloak", ex);
+                    }
+                    log.error("Unexcepted IllegalStateException during JWT decoding", ex);
+                    return new AuthenticationServiceException("JWT validation failed", ex);
+                }
+        )
+                .onErrorMap(JwtException.class, ex -> {
+                    if (ex.getMessage() != null) {
+                        if (ex.getMessage().contains("expired")) {
+                            log.warn("JWT token expired");
+                            return new BadCredentialsException("Token has expired", ex);
+                        } else if (ex.getMessage().contains("signature")) {
+                         log.warn("JWT signature validation failed");
+                         return new BadCredentialsException("Invalid token signature", ex);
+                        }
+                    }
+                    log.warn("JWT validation failed {}", ex.getMessage());
+                    return new BadCredentialsException("Invalid token", ex);
+                })
+                .doOnError(error -> log.error("JWT decoding error: {} - {}",
+                        error.getClass().getSimpleName(),
+                        error.getMessage()));
     }
 }

@@ -25,22 +25,34 @@ data:
               - java.net.ConnectException
               - org.springframework.web.client.HttpClientErrorException
               - org.springframework.dao.TransientDataAccessResourceException
+              - feign.FeignException$InternalServerError
+              - feign.FeignException$ServiceUnavailable
+              - feign.FeignException$GatewayTimeout
+              - feign.RetryableException
             ignore-exceptions:
               - by.cryptic.exceptions.UpdatingException
               - by.cryptic.exceptions.DeletingException
               - by.cryptic.exceptions.CreatingException
+              - by.cryptic.exceptions.EmptyCartException
+              - by.cryptic.exceptions.InsufficientWarehouseCapacityException
+              - by.cryptic.exceptions.NotEnoughProductsException
+              - by.cryptic.exceptions.OutOfStockException
+              - by.cryptic.exceptions.PaymentTooManyRequestException
+
               - java.lang.IllegalArgumentException
               - java.lang.IllegalStateException
               - java.lang.NullPointerException
               - org.springframework.dao.DataIntegrityViolationException
               - jakarta.persistence.EntityNotFoundException
-              - by.cryptic.exceptions.EmptyCartException
               - jakarta.persistence.EntityNotFoundException
               - java.lang.IllegalStateException
-              - by.cryptic.exceptions.InsufficientWarehouseCapacityException
-              - by.cryptic.exceptions.NotEnoughProductsException
-              - by.cryptic.exceptions.OutOfStockException
-              - by.cryptic.exceptions.PaymentTooManyRequestException
+
+              - feign.FeignException$BadRequest
+              - feign.FeignException$Unauthorized
+              - feign.FeignException$Forbidden
+              - feign.FeignException$NotFound
+              - feign.FeignException$Conflict
+              - feign.FeignException$UnprocessableEntity
         instances:
           productRetry:
             baseConfig: default
@@ -63,18 +75,25 @@ data:
               - by.cryptic.exceptions.UpdatingException
               - by.cryptic.exceptions.DeletingException
               - by.cryptic.exceptions.CreatingException
+              - by.cryptic.exceptions.EmptyCartException
+              - by.cryptic.exceptions.InsufficientWarehouseCapacityException
+              - by.cryptic.exceptions.NotEnoughProductsException
+              - by.cryptic.exceptions.OutOfStockException
+              - by.cryptic.exceptions.PaymentTooManyRequestException
+
               - java.lang.IllegalArgumentException
               - java.lang.IllegalStateException
               - java.lang.NullPointerException
               - org.springframework.dao.DataIntegrityViolationException
               - jakarta.persistence.EntityNotFoundException
-              - by.cryptic.exceptions.EmptyCartException
               - jakarta.persistence.EntityNotFoundException
               - java.lang.IllegalStateException
-              - by.cryptic.exceptions.InsufficientWarehouseCapacityException
-              - by.cryptic.exceptions.NotEnoughProductsException
-              - by.cryptic.exceptions.OutOfStockException
-              - by.cryptic.exceptions.PaymentTooManyRequestException
+
+              - feign.FeignException$BadRequest
+              - feign.FeignException$Unauthorized
+              - feign.FeignException$Forbidden
+              - feign.FeignException$NotFound
+              - feign.FeignException$Conflict
         instances:
           orderCircuitBreaker:
             baseConfig: default

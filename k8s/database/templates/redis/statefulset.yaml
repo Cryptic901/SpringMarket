@@ -42,7 +42,7 @@ spec:
               cpu: {{ .Values.database.services.redis.resources.requests.cpu }}
             limits:
               memory: {{ .Values.database.services.redis.resources.limits.memory }}
-              cpu: {{ .Values.database.services.redis.resources.limits.memory }}
+              cpu: {{ .Values.database.services.redis.resources.limits.cpu }}
 
       restartPolicy: Always
 

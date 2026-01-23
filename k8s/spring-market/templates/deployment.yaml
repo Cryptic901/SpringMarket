@@ -20,6 +20,8 @@ spec:
       app: {{ $serviceName }}
   template:
     metadata:
+      annotations:
+        checksum/config: {{ include "spring-market.config.checksum" (dict "serviceName" $serviceName "root" $) }}
       labels:
         app: {{ $serviceName }}
         version: v1
@@ -63,7 +65,7 @@ spec:
                 name: env-local
           {{- end }}
 
-          image: {{ $service.image }}:develop-0167b3b
+          image: {{ $service.image }}:{{ index $.Values "image-version" }}
           imagePullPolicy: IfNotPresent
           name: {{ $serviceName }}
           ports:

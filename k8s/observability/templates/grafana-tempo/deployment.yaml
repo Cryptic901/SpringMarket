@@ -26,7 +26,7 @@ spec:
       containers:
         - args:
             - -config.file=/etc/tempo.yaml
-          image: grafana/tempo:latest
+          image: grafana/tempo:2.8.3
           livenessProbe:
             httpGet:
               port: {{ index $service "ports" "service" }}
